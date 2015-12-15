@@ -1,0 +1,5 @@
+package pl.mkapiczynski.dron.serverEndpoint;
+
+public interface Message {
+
+}

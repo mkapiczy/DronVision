@@ -1,0 +1,42 @@
+package pl.mkapiczynski.dron.serverEndpoint;
+
+import java.io.StringReader;
+
+import javax.json.Json;
+import javax.websocket.DecodeException;
+import javax.websocket.Decoder;
+import javax.websocket.EndpointConfig;
+
+public class MessageDecoder implements Decoder.Text<Message>{
+
+	@Override
+	public void init(EndpointConfig config) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Message decode(String jsonMessage) throws DecodeException {
+		ChatMessage chatMessage = new ChatMessage();
+		chatMessage.setMessage((Json.createReader(new StringReader(jsonMessage)).readObject().getString("message")));
+		chatMessage.setLocation((Json.createReader(new StringReader(jsonMessage)).readObject().getString("location")));
+		return chatMessage;
+	}
+
+	@Override
+	public boolean willDecode(String jsonMessage) {
+		try {
+			Json.createReader(new StringReader(jsonMessage)).readObject();
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+
+}
