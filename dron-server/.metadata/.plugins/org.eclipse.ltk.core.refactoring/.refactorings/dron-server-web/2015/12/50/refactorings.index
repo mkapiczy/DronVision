@@ -1,0 +1,18 @@
+1449777106391	Copy file
+1449777114426	Move 'default.html' to 'webapp'
+1449777127186	Copy file
+1449781415254	Rename local variable 'message'
+1449925971133	Rename method 'buildJsonData'
+1449929297521	Rename local variable 'message'
+1449929366484	Rename local variable 'message'
+1449930853169	Rename local variable 'set'
+1449930972185	Rename local variable 'message'
+1449931103560	Rename method 'buildJsoUsersData'
+1449932370672	Delete elements
+1449933110618	Move compilation units
+1449933145291	Move compilation unit
+1449933155375	Delete element
+1449933220079	Rename package 'pl.mkapiczynski.decoder'
+1449933224352	Move compilation unit
+1449933227884	Move compilation unit
+1449933254476	Rename package 'pl.mkapiczynski.dron.serverEndpoint'
