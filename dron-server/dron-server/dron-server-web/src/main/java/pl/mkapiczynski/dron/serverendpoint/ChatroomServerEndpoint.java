@@ -23,24 +23,26 @@ import pl.mkapiczynski.dron.message.UsersMessage;
 @javax.websocket.server.ServerEndpoint(value = "/chatroom", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
 public class ChatroomServerEndpoint {
-	public static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>());
+	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
+	public static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
+	public static Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<Session>());
 
 	@OnOpen
 	public void handleOpen(Session userSession) throws IOException, EncodeException {
-		chatroomUsers.add(userSession);
-		Iterator<Session> iterator = chatroomUsers.iterator();
+		allSessions.add(userSession);
+		Iterator<Session> iterator = allSessions.iterator();
 		while (iterator.hasNext()) {
 			iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
 		}
 	}
-
+	// asda
 	@OnMessage
 	public void handleMessage(Message incomingMessage, Session userSession) throws IOException, EncodeException {
 		System.out.println(incomingMessage.toString());
 		if (incomingMessage instanceof ChatMessage) {
 			ChatMessage chatMessage = (ChatMessage) incomingMessage;
 			ChatMessage outgoingChatMessage = new ChatMessage();
-			Iterator<Session> iterator = chatroomUsers.iterator();
+			Iterator<Session> iterator = allSessions.iterator();
 			String username = (String) userSession.getUserProperties().get("username");
 			if (username == null) {
 				userSession.getUserProperties().put("username", chatMessage.getMessage());
@@ -71,8 +73,8 @@ public class ChatroomServerEndpoint {
 
 	@OnClose
 	public void handleClose(Session userSession) throws IOException, EncodeException {
-		chatroomUsers.remove(userSession);
-		Iterator<Session> iterator = chatroomUsers.iterator();
+		allSessions.remove(userSession);
+		Iterator<Session> iterator = allSessions.iterator();
 		while (iterator.hasNext()) {
 			iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
 		}
@@ -85,7 +87,7 @@ public class ChatroomServerEndpoint {
 	
 	private static Set<String> getIds(){
 		HashSet<String> resultSet = new HashSet<>();
-		Iterator<Session> iterator = chatroomUsers.iterator();
+		Iterator<Session> iterator = allSessions.iterator();
 		while(iterator.hasNext()){
 			resultSet.add(iterator.next().getUserProperties().get("username").toString());
 		}

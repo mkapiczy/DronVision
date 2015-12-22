@@ -1,5 +1,0 @@
-package pl.mkapiczynski.dron.message;
-
-public class GeoDataMessage implements Message {
-
-}
