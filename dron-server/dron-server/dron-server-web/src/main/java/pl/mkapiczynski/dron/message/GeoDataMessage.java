@@ -3,6 +3,7 @@ package pl.mkapiczynski.dron.message;
 public class GeoDataMessage implements Message {
 	private String messageType;
 	private String deviceId;
+	private String deviceType;
 	private String timestamp;
 	private String longitude;
 	private String latitude;
@@ -22,6 +23,14 @@ public class GeoDataMessage implements Message {
 
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
+	}
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 
 	public String getTimestamp() {

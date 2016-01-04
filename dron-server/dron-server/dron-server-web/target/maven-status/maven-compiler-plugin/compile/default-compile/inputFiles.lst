@@ -1,9 +1,8 @@
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\UsersMessage.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\serverendpoint\ChatroomServerEndpoint.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\clientendpoint\Client.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\ChatMessage.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\clientendpoint\ChatroomClientEndpoint.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\decoder\MessageDecoder.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\encoder\MessageEncoder.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\GeoDataMessage.java
-C:\Projekty\webbProject2\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\Message.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\ChatMessage.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\UsersMessage.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\decoder\MessageDecoder.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\serverendpoint\ChatroomServerEndpoint.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\clientendpoint\ChatroomClientEndpoint.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\encoder\MessageEncoder.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\GeoDataMessage.java
+C:\Projekty\Inzynierka\dron-server\dron-server\dron-server-web\src\main\java\pl\mkapiczynski\dron\message\Message.java

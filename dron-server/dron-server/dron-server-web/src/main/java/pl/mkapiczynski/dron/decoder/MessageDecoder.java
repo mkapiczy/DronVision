@@ -30,21 +30,15 @@ public class MessageDecoder implements Decoder.Text<Message>{
 	public Message decode(String jsonMessage) throws DecodeException {
 		messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
 		if("GeoDataMessage".equals(messageType)){
-				GeoDataMessage geoMessage = new GeoDataMessage();
-				
+				GeoDataMessage geoMessage = new GeoDataMessage();	
 				geoMessage.setDeviceId((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceId")));
+				geoMessage.setDeviceId((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceType")));
 				geoMessage.setTimestamp((Json.createReader(new StringReader(jsonMessage)).readObject().getString("timestamp")));
 				geoMessage.setLatitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("latitude")));
 				geoMessage.setLongitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("longitude")));
 				geoMessage.setAltitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("altitude")));
-				
 				return geoMessage;
-		} else if ("ChatMessage".equals(messageType)){
-			ChatMessage chatMessage = new ChatMessage();
-			chatMessage.setMessage((Json.createReader(new StringReader(jsonMessage)).readObject().getString("message")));
-			chatMessage.setLocation((Json.createReader(new StringReader(jsonMessage)).readObject().getString("location")));
-			return chatMessage;
-		}
+		} 
 		return null;
 	}
 

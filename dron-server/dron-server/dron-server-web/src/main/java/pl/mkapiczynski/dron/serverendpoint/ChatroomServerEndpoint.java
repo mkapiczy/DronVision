@@ -62,12 +62,21 @@ public class ChatroomServerEndpoint {
 				}	
 			}
 		} else if (incomingMessage instanceof GeoDataMessage){
+			String username = (String) userSession.getUserProperties().get("username");
 			GeoDataMessage geoMessage = (GeoDataMessage) incomingMessage;
+			if (username == null) {
+				userSession.getUserProperties().put("username", geoMessage.getDeviceId());
+			}
 			System.out.println(geoMessage.getDeviceId());
 			System.out.println(geoMessage.getTimestamp());
 			System.out.println(geoMessage.getLatitude());
 			System.out.println(geoMessage.getLongitude());
 			System.out.println(geoMessage.getAltitude());
+		}
+		
+		Iterator<Session> iterator = allSessions.iterator();
+		while (iterator.hasNext()) {
+			System.out.println(iterator.next().getUserProperties().get("username").toString());
 		}
 	}
 
