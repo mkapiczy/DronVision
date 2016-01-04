@@ -13,8 +13,10 @@ import javax.json.JsonObject;
  */
 public class GeoDataMessage {
     private static final String MESSAGE_TYPE="GeoDataMessage";
+    private static final String DEVICE_TYPE="GPSTracker";
     private String messageType;
     private String deviceId;
+    private String deviceType;
     private String latitude;
     private String longitude;
     private String altitude;
@@ -30,6 +32,22 @@ public class GeoDataMessage {
 
     public String getLatitude() {
         return latitude;
+    }
+
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
     }
 
     public void setLatitude(String latitude) {
@@ -63,6 +81,7 @@ public class GeoDataMessage {
     public String toJson() {
         JsonObject jsonObject = Json.createObjectBuilder().add("messageType", MESSAGE_TYPE)
                 .add("deviceId", deviceId)
+                .add("deviceType", DEVICE_TYPE)
                 .add("timestamp", timestamp)
                 .add("latitude", latitude)
                 .add("longitude", longitude)

@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private Button btnShowLocation, btnStartLocationUpdates;
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:60820/dron-server-web/chatroom";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:41789/dron-server-web/chatroom";
     private final WebSocketConnection client = new WebSocketConnection();
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -80,16 +80,18 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
                 displayLocation();
 
-                GeoDataMessage geoDataMessage = new GeoDataMessage();
-                geoDataMessage.setDeviceId("Device1");
-                Date date = new Date();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                geoDataMessage.setTimestamp(dateFormat.format(date.getTime()));
-                geoDataMessage.setLatitude(String.valueOf(mLastLocation.getLatitude()));
-                geoDataMessage.setLongitude(String.valueOf(mLastLocation.getLongitude()));
-                geoDataMessage.setAltitude(String.valueOf(mLastLocation.getAltitude()));
-                if (client.isConnected()) {
-                    client.sendTextMessage(geoDataMessage.toJson());
+                if(mLastLocation!=null) {
+                    GeoDataMessage geoDataMessage = new GeoDataMessage();
+                    geoDataMessage.setDeviceId("Device1");
+                    Date date = new Date();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                    geoDataMessage.setTimestamp(dateFormat.format(date.getTime()));
+                    geoDataMessage.setLatitude(String.valueOf(mLastLocation.getLatitude()));
+                    geoDataMessage.setLongitude(String.valueOf(mLastLocation.getLongitude()));
+                    geoDataMessage.setAltitude(String.valueOf(mLastLocation.getAltitude()));
+                    if (client.isConnected()) {
+                        client.sendTextMessage(geoDataMessage.toJson());
+                    }
                 }
             }
         });
@@ -198,6 +200,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     protected void onResume() {
         super.onResume();
 
+        if(!client.isConnected() || client==null){
+            connectToWebSocketServer();
+        }
+
         checkPlayServices();
 
         // Resuming the periodic location updates
@@ -260,6 +266,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     @Override
     public void onLocationChanged(Location location) {
+
+        if(!client.isConnected() || client==null){
+            connectToWebSocketServer();
+        }
+
         // Assign the new location
         mLastLocation = location;
 
