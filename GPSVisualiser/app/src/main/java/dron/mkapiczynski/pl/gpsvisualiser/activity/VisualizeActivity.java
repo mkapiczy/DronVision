@@ -8,6 +8,7 @@ import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,12 +17,17 @@ import android.widget.Toast;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.ResourceProxy;
+import org.osmdroid.api.Polyline;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.PathOverlay;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -39,6 +45,7 @@ import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketHandler;
 import dron.mkapiczynski.pl.gpsvisualiser.R;
 import dron.mkapiczynski.pl.gpsvisualiser.domain.Drone;
+import dron.mkapiczynski.pl.gpsvisualiser.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.gpsvisualiser.message.GeoDataMessage;
 
 
@@ -52,10 +59,16 @@ public class VisualizeActivity extends AppCompatActivity {
 
     private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
 
-    // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:41789/dron-server-web/chatroom";
-    private final WebSocketConnection client = new WebSocketConnection();
+    private RoadManager roadManager = new OSRMRoadManager(this);
 
+    // Websocket
+    private static final String SERVER = "ws://0.tcp.ngrok.io:41115/dron-server-web/chatroom";
+    private final WebSocketConnection client = new WebSocketConnection();
+    private List<Polyline> dronesTracks = new ArrayList<>();
+    private ArrayList<GeoPoint> points = new ArrayList<>();
+
+
+    private Road mRoad;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,18 +78,22 @@ public class VisualizeActivity extends AppCompatActivity {
 
         mapView = (MapView) findViewById(R.id.MapView);
         overlayItemList = new ArrayList<>();
-        defaultResourceProxyImpl
-                = new DefaultResourceProxyImpl(this);
-
+        defaultResourceProxyImpl = new DefaultResourceProxyImpl(this);
         setMapViewDefaultSettings();
 
-
         connectToWebSocketServer();
-        // sendLoginMessage();
-
         // askForLastDronesLocation();
 
     }
+
+    private void setMapViewDefaultSettings() {
+        mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
+        mapView.setBuiltInZoomControls(true);
+        mapView.setMultiTouchControls(true);
+        mapController = (MapController) mapView.getController();
+        mapController.setZoom(16);
+    }
+
 
     private void connectToWebSocketServer(){
         try {
@@ -84,6 +101,7 @@ public class VisualizeActivity extends AppCompatActivity {
                 @Override
                 public void onOpen() {
                     Log.d("WEBSOCKETS", "Connected to server");
+                    sendLoginMessage();
                     Toast.makeText(getApplicationContext(), "You are now connected to the server", Toast.LENGTH_LONG).show();
                 }
 
@@ -121,30 +139,6 @@ public class VisualizeActivity extends AppCompatActivity {
                     }
                 }
 
-                private void updateDronesMarkers(Set<Drone> drones){
-                        Iterator<Drone> iterator = drones.iterator();
-                    overlayItemList.clear();
-                        while(iterator.hasNext()){
-                            GeoPoint dronePositionPoint = new GeoPoint(Double.parseDouble(iterator.next().getCurrentLatitude()), Double.parseDouble(iterator.next().getCurrentLongitude()));
-                            OverlayItem newDroneLocationItem = new OverlayItem(iterator.next().getDeviceId(), "Location", dronePositionPoint);
-                            overlayItemList.add(newDroneLocationItem);
-                        }
-                    MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
-                    mapView.getOverlays().clear();
-                    mapView.getOverlays().add(myItemizedIconOverlay);
-
-                    Double averageLatitude = 0.0;
-                    Double averageLongitude = 0.0;
-                    for(int i=0; i<overlayItemList.size();i++){
-                       averageLatitude += overlayItemList.get(i).getPoint().getLatitude();
-                        averageLongitude += overlayItemList.get(i).getPoint().getLongitude();
-                    }
-                    averageLatitude = averageLatitude / overlayItemList.size();
-                    averageLongitude = averageLongitude / overlayItemList.size();
-                    GeoPoint center = new GeoPoint(averageLatitude, averageLongitude);
-                    mapController.setCenter(center);
-                    mapView.invalidate();
-                }
                 @Override
                 public void onClose(int code, String reason) {
                     Toast.makeText(getApplicationContext(), "Connection closed Code:" + code + " Reason: " + reason, Toast.LENGTH_LONG).show();
@@ -157,14 +151,54 @@ public class VisualizeActivity extends AppCompatActivity {
         }
     }
 
-    private void setMapViewDefaultSettings() {
-        mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
-        mapView.setBuiltInZoomControls(true);
-        mapView.setMultiTouchControls(true);
-        mapController = (MapController) mapView.getController();
-        mapController.setZoom(16);
+    private void sendLoginMessage(){
+        if(client.isConnected()){
+            ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
+            clientLoginMessage.setClientId("1");
+            client.sendTextMessage(clientLoginMessage.toJson());
+        }
     }
 
+    private void updateDronesMarkers(Set<Drone> drones) {
+        Iterator<Drone> iterator = drones.iterator();
+        overlayItemList.clear();
+        while (iterator.hasNext()) {
+            Drone drone = iterator.next();
+            Double latitude = Double.parseDouble(drone.getCurrentLatitude());
+            Double longitude = Double.parseDouble(drone.getCurrentLongitude());
+            GeoPoint dronePositionPoint = new GeoPoint(latitude, longitude);
+            points.add(dronePositionPoint);
+            OverlayItem newDroneLocationItem = new OverlayItem(drone.getDeviceId(), "Location", dronePositionPoint);
+            overlayItemList.add(newDroneLocationItem);
+        }
+
+        getRoadAsync(points);
+    }
+    private void updateMap(Road road){
+        MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
+
+
+        org.osmdroid.bonuspack.overlays.Polyline roadOverlay = RoadManager.buildRoadOverlay(road, this);
+
+        mapView.getOverlays().clear();
+        mapView.getOverlays().add(roadOverlay);
+        //mapView.getOverlays().add(myItemizedIconOverlay);
+
+        Double averageLatitude = 0.0;
+        Double averageLongitude = 0.0;
+        for(int i=0; i<overlayItemList.size();i++){
+            averageLatitude += overlayItemList.get(i).getPoint().getLatitude();
+            averageLongitude += overlayItemList.get(i).getPoint().getLongitude();
+        }
+        averageLatitude = averageLatitude / overlayItemList.size();
+        averageLongitude = averageLongitude / overlayItemList.size();
+        GeoPoint center = new GeoPoint(averageLatitude, averageLongitude);
+        mapController.setCenter(center);
+        mapView.invalidate();
+    }
+
+
+/*
     private void setMyPositionMarkerOnMap(GeoPoint myPositionPoint) {
         OverlayItem newMyLocationItem = new OverlayItem("My Location", "My Location", myPositionPoint);
         GeoPoint myPositionPoint2 = new GeoPoint(52.249, 21.108);
@@ -175,7 +209,7 @@ public class VisualizeActivity extends AppCompatActivity {
         MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
         mapView.getOverlays().clear();
         mapView.getOverlays().add(myItemizedIconOverlay);
-    }
+    }*/
 
     private class MyItemizedIconOverlay extends ItemizedIconOverlay<OverlayItem> {
 
@@ -220,6 +254,31 @@ public class VisualizeActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private class UpdateRoadTask extends AsyncTask<Object, Void, Road> {
+        protected Road doInBackground(Object... params) {
+            @SuppressWarnings("unchecked")
+            ArrayList<GeoPoint> waypoints = (ArrayList<GeoPoint>)params[0];
+            //RoadManager roadManager = new GoogleRoadManager();
+            RoadManager roadManager = new OSRMRoadManager(getApplicationContext());
+                        /*
+                        RoadManager roadManager = new MapQuestRoadManager();
+                        Locale locale = Locale.getDefault();
+                        roadManager.addRequestOption("locale="+locale.getLanguage()+"_"+locale.getCountry());
+                        */
+            return roadManager.getRoad(waypoints);
+        }
+
+        protected void onPostExecute(Road result) {
+            mRoad = result;
+            updateMap(result);
+        }
+    }
+
+    public void getRoadAsync(ArrayList<GeoPoint> points){
+        ArrayList<GeoPoint> waypoints = points;
+        new UpdateRoadTask().execute(waypoints);
     }
 
 }

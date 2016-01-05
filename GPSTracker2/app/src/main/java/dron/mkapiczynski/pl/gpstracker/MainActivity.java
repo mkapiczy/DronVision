@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private Button btnShowLocation, btnStartLocationUpdates;
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:41789/dron-server-web/chatroom";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:41115/dron-server-web/chatroom";
     private final WebSocketConnection client = new WebSocketConnection();
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
