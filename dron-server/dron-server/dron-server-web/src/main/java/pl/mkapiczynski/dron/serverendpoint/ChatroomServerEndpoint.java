@@ -33,7 +33,7 @@ public class ChatroomServerEndpoint {
 		Iterator<Session> iterator = allSessions.iterator();
 		while (iterator.hasNext()) {
 			iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
-		}
+		
 	}
 	// asda
 	@OnMessage

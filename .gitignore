@@ -11,3 +11,4 @@ tmp/
 **/target/
 **/*.metadata/*
 **/*.recommenders
+dron-server/.metadata/*
