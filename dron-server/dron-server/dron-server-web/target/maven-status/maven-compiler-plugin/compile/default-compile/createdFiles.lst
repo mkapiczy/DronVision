@@ -1,8 +1,0 @@
-pl\mkapiczynski\dron\decoder\MessageDecoder.class
-pl\mkapiczynski\dron\encoder\MessageEncoder.class
-pl\mkapiczynski\dron\message\ChatMessage.class
-pl\mkapiczynski\dron\serverendpoint\ChatroomServerEndpoint.class
-pl\mkapiczynski\dron\message\GeoDataMessage.class
-pl\mkapiczynski\dron\message\UsersMessage.class
-pl\mkapiczynski\dron\clientendpoint\ChatroomClientEndpoint.class
-pl\mkapiczynski\dron\message\Message.class
