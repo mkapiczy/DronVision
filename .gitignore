@@ -1,4 +1,4 @@
-/mka/.idea
+**/*.idea
 nbactions.xml
 nb-configuration.xml
 *.iml
@@ -9,5 +9,5 @@ bin/
 tmp/
 **/*.classpath
 **/target/
-**/*.metadata
+**/*.metadata/*
 **/*.recommenders
