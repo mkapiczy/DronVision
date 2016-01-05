@@ -13,6 +13,7 @@ import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
 import pl.mkapiczynski.dron.message.ChatMessage;
+import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.UsersMessage;
 
@@ -39,6 +40,9 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		} else if (message instanceof UsersMessage) {
 			UsersMessage usersMessage = (UsersMessage) message;
 			encodedMessage = buildJsonUsersData(usersMessage.getUsers(), usersMessage.getClass().getSimpleName());
+		} else if(message instanceof GeoDataMessage){
+			GeoDataMessage geoDataMessage = (GeoDataMessage) message;
+			encodedMessage = buildJsonGeoDataMessage(geoDataMessage, geoDataMessage.getClass().getSimpleName());
 		}
 		return encodedMessage;
 	}
@@ -57,6 +61,21 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		JsonObject jsonObject = Json.createObjectBuilder().add("messageType", messageType)
 				.add("name", chatMessage.getName()).add("location", chatMessage.getLocation())
 				.add("message", chatMessage.getMessage()).build();
+		StringWriter stringWriter = new StringWriter();
+		try (JsonWriter jsonWriter = Json.createWriter(stringWriter)) {
+			jsonWriter.write(jsonObject);
+		}
+		return stringWriter.toString();
+	}
+	
+	private String buildJsonGeoDataMessage(GeoDataMessage geoDataMessage, String messageType) {
+		JsonObject jsonObject = Json.createObjectBuilder().add("messageType", messageType)
+				.add("deviceId", geoDataMessage.getDeviceId())
+				.add("deviceType", geoDataMessage.getDeviceType())
+				.add("timestamp", geoDataMessage.getTimestamp())
+				.add("latitude", geoDataMessage.getLatitude())
+				.add("longitude", geoDataMessage.getLongitude())
+				.add("altitude", geoDataMessage.getAltitude()).build();
 		StringWriter stringWriter = new StringWriter();
 		try (JsonWriter jsonWriter = Json.createWriter(stringWriter)) {
 			jsonWriter.write(jsonObject);

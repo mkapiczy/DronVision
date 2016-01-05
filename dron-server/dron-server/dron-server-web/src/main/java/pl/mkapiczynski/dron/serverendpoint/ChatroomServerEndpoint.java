@@ -16,6 +16,7 @@ import javax.websocket.Session;
 import pl.mkapiczynski.dron.decoder.MessageDecoder;
 import pl.mkapiczynski.dron.encoder.MessageEncoder;
 import pl.mkapiczynski.dron.message.ChatMessage;
+import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.UsersMessage;
@@ -33,35 +34,12 @@ public class ChatroomServerEndpoint {
 		Iterator<Session> iterator = allSessions.iterator();
 		while (iterator.hasNext()) {
 			iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
-		
+		}
 	}
-	// asda
+	
 	@OnMessage
 	public void handleMessage(Message incomingMessage, Session userSession) throws IOException, EncodeException {
-		System.out.println(incomingMessage.toString());
-		if (incomingMessage instanceof ChatMessage) {
-			ChatMessage chatMessage = (ChatMessage) incomingMessage;
-			ChatMessage outgoingChatMessage = new ChatMessage();
-			Iterator<Session> iterator = allSessions.iterator();
-			String username = (String) userSession.getUserProperties().get("username");
-			if (username == null) {
-				userSession.getUserProperties().put("username", chatMessage.getMessage());
-				outgoingChatMessage.setName("System");
-				outgoingChatMessage.setLocation("US");
-				outgoingChatMessage.setMessage("You are now connected as " + chatMessage.getMessage());
-				userSession.getBasicRemote().sendObject(outgoingChatMessage);
-				while (iterator.hasNext()) {
-					iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
-				}			
-			} else {
-				outgoingChatMessage.setName(username);
-				outgoingChatMessage.setLocation(chatMessage.getLocation());
-				outgoingChatMessage.setMessage(chatMessage.getMessage());
-				while(iterator.hasNext()){
-					iterator.next().getBasicRemote().sendObject(outgoingChatMessage);
-				}	
-			}
-		} else if (incomingMessage instanceof GeoDataMessage){
+		if (incomingMessage instanceof GeoDataMessage){
 			String username = (String) userSession.getUserProperties().get("username");
 			GeoDataMessage geoMessage = (GeoDataMessage) incomingMessage;
 			if (username == null) {
@@ -72,6 +50,17 @@ public class ChatroomServerEndpoint {
 			System.out.println(geoMessage.getLatitude());
 			System.out.println(geoMessage.getLongitude());
 			System.out.println(geoMessage.getAltitude());
+			Iterator<Session> iterator = clientSessions.iterator();
+			while(iterator.hasNext()){
+				iterator.next().getBasicRemote().sendObject(geoMessage);
+			}
+		} else if(incomingMessage instanceof ClientLoginMessage){
+			ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
+			if(!clientSessions.contains(userSession)){
+				userSession.getUserProperties().put("clientId", clientLoginMessage.getClientId());
+				clientSessions.add(userSession);
+			}
+			System.out.println("New clientDevice : " + clientLoginMessage.getClientId());
 		}
 		
 		Iterator<Session> iterator = allSessions.iterator();
@@ -83,9 +72,10 @@ public class ChatroomServerEndpoint {
 	@OnClose
 	public void handleClose(Session userSession) throws IOException, EncodeException {
 		allSessions.remove(userSession);
-		Iterator<Session> iterator = allSessions.iterator();
-		while (iterator.hasNext()) {
-			iterator.next().getBasicRemote().sendObject(new UsersMessage(getIds()));
+		if(clientSessions.contains(userSession)){
+			clientSessions.remove(userSession);
+		} else if(gpsTrackerDeviceSessions.contains(userSession)){
+			gpsTrackerDeviceSessions.remove(userSession);
 		}
 	}
 

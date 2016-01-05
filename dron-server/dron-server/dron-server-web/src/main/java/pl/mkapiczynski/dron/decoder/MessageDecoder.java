@@ -8,6 +8,7 @@ import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
 import pl.mkapiczynski.dron.message.ChatMessage;
+import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 
@@ -32,13 +33,17 @@ public class MessageDecoder implements Decoder.Text<Message>{
 		if("GeoDataMessage".equals(messageType)){
 				GeoDataMessage geoMessage = new GeoDataMessage();	
 				geoMessage.setDeviceId((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceId")));
-				geoMessage.setDeviceId((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceType")));
+				geoMessage.setDeviceType((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceType")));
 				geoMessage.setTimestamp((Json.createReader(new StringReader(jsonMessage)).readObject().getString("timestamp")));
 				geoMessage.setLatitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("latitude")));
 				geoMessage.setLongitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("longitude")));
 				geoMessage.setAltitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("altitude")));
 				return geoMessage;
-		} 
+		} else if("ClientLoginMessage".equals(messageType)){
+			ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
+			clientLoginMessage.setClientId(Json.createReader(new StringReader(jsonMessage)).readObject().getString("clientId"));
+			return clientLoginMessage;
+		}
 		return null;
 	}
 
