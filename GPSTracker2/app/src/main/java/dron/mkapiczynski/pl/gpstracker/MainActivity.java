@@ -36,9 +36,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private LocationRequest mLocationRequest;
 
-    private static int UPDATE_INTERVAL = 10000; // 10 sec
-    private static int FASTEST_INTERVAL = 5000; // 5sec
-    private static int DISPLACEMENT = 10; // 10 meters
+    private static int UPDATE_INTERVAL = 5000; // 10 sec
+    private static int FASTEST_INTERVAL = 2500; // 5sec
+    private static int DISPLACEMENT = 5; // 10 meters
 
     // UI
     private TextView locationTextView;
@@ -117,7 +117,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void sendGeoDataMessageToServer(){
         GeoDataMessage geoDataMessage = new GeoDataMessage();
-        geoDataMessage.setDeviceId("Device1");
+        geoDataMessage.setDeviceId("Device2");
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         geoDataMessage.setTimestamp(dateFormat.format(date.getTime()));
