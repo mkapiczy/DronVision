@@ -8,7 +8,6 @@ import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,7 +26,6 @@ import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.PathOverlay;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -52,31 +50,30 @@ import dron.mkapiczynski.pl.gpsvisualiser.message.GeoDataMessage;
 public class VisualizeActivity extends AppCompatActivity {
     private static final String TAG = VisualizeActivity.class.getSimpleName();
 
+    // Map objects
     private MapView mapView;
     private MapController mapController;
     private List<OverlayItem> overlayItemList;
     private DefaultResourceProxyImpl defaultResourceProxyImpl;
 
-    private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
-
-    private RoadManager roadManager = new OSRMRoadManager(this);
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:41115/dron-server-web/chatroom";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:52856/dron-server-web/server";
     private final WebSocketConnection client = new WebSocketConnection();
     private List<Polyline> dronesTracks = new ArrayList<>();
     private ArrayList<GeoPoint> points = new ArrayList<>();
 
 
-    private Road mRoad;
+    private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualize);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         mapView = (MapView) findViewById(R.id.MapView);
+
         overlayItemList = new ArrayList<>();
         defaultResourceProxyImpl = new DefaultResourceProxyImpl(this);
         setMapViewDefaultSettings();
@@ -95,7 +92,7 @@ public class VisualizeActivity extends AppCompatActivity {
     }
 
 
-    private void connectToWebSocketServer(){
+    private void connectToWebSocketServer() {
         try {
             client.connect(SERVER, new WebSocketHandler() {
                 @Override
@@ -106,37 +103,50 @@ public class VisualizeActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onTextMessage(String message) {
-                    String messageType = Json.createReader(new StringReader(message)).readObject().getString("messageType");
-                    if("GeoDataMessage".equals(messageType)){
+                public void onTextMessage(String jsonMessage) {
+                    String messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
+                    if ("GeoDataMessage".equals(messageType)) {
                         GeoDataMessage geoMessage = new GeoDataMessage();
-                        geoMessage.setDeviceId(Json.createReader(new StringReader(message)).readObject().getString("deviceId"));
-                        geoMessage.setDeviceType(Json.createReader(new StringReader(message)).readObject().getString("deviceType"));
-                        geoMessage.setTimestamp(Json.createReader(new StringReader(message)).readObject().getString("timestamp"));
-                        geoMessage.setLatitude(Json.createReader(new StringReader(message)).readObject().getString("latitude"));
-                        geoMessage.setLongitude(Json.createReader(new StringReader(message)).readObject().getString("longitude"));
-                        geoMessage.setAltitude(Json.createReader(new StringReader(message)).readObject().getString("altitude"));
+                        geoMessage.decodeGeoDataMessage(jsonMessage);
 
+                        /**
+                         * TODO
+                         * Do sprawdzenia, czy działa constains bo to w końcu nowy obiekt.
+                         * Chyba trzeba wyszukać po deviceId
+                         */
                         Drone drone = new Drone();
                         drone.setDeviceId(geoMessage.getDeviceId());
                         drone.setCurrentAltitude(geoMessage.getAltitude());
                         drone.setCurrentLatitude(geoMessage.getLatitude());
                         drone.setCurrentLongitude(geoMessage.getLongitude());
-                        if(!drones.contains(drone)){
-                            drones.add(drone);
-                        } else{
-                           Iterator<Drone> iterator = drones.iterator();
-                            while(iterator.hasNext()){
-                                if(iterator.next().equals(drone)){
-                                    iterator.next().setCurrentLatitude(drone.getCurrentLatitude());
-                                    iterator.next().setCurrentLongitude(drone.getCurrentLongitude());
+
+                        if (dronesSetContainsThisDrone(drone)) {
+                            Iterator<Drone> iterator = drones.iterator();
+                            while (iterator.hasNext()) {
+                                Drone currentDroneOnList = iterator.next();
+                                if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
+                                    currentDroneOnList.setCurrentLatitude(drone.getCurrentLatitude());
+                                    currentDroneOnList.setCurrentLongitude(drone.getCurrentLongitude());
                                 }
                             }
+                        } else if (!drones.contains(drone)) {
+                            drones.add(drone);
                         }
 
                         updateDronesMarkers(drones);
 
                     }
+                }
+
+                private boolean dronesSetContainsThisDrone(Drone drone) {
+                    Iterator<Drone> iterator = drones.iterator();
+                    while (iterator.hasNext()) {
+                        Drone currentDroneOnList = iterator.next();
+                        if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
                 @Override
@@ -151,8 +161,8 @@ public class VisualizeActivity extends AppCompatActivity {
         }
     }
 
-    private void sendLoginMessage(){
-        if(client.isConnected()){
+    private void sendLoginMessage() {
+        if (client.isConnected()) {
             ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
             clientLoginMessage.setClientId("1");
             client.sendTextMessage(clientLoginMessage.toJson());
@@ -160,60 +170,113 @@ public class VisualizeActivity extends AppCompatActivity {
     }
 
     private void updateDronesMarkers(Set<Drone> drones) {
-        Iterator<Drone> iterator = drones.iterator();
         overlayItemList.clear();
-        while (iterator.hasNext()) {
-            Drone drone = iterator.next();
-            Double latitude = Double.parseDouble(drone.getCurrentLatitude());
-            Double longitude = Double.parseDouble(drone.getCurrentLongitude());
+        Iterator<Drone> dronesIterator = drones.iterator();
+        while (dronesIterator.hasNext()) {
+            Drone currentDroneOnList = dronesIterator.next();
+            Double latitude = Double.parseDouble(currentDroneOnList.getCurrentLatitude());
+            Double longitude = Double.parseDouble(currentDroneOnList.getCurrentLongitude());
             GeoPoint dronePositionPoint = new GeoPoint(latitude, longitude);
             points.add(dronePositionPoint);
-            OverlayItem newDroneLocationItem = new OverlayItem(drone.getDeviceId(), "Location", dronePositionPoint);
+            OverlayItem newDroneLocationItem = new OverlayItem(currentDroneOnList.getDeviceId(), "Location", dronePositionPoint);
             overlayItemList.add(newDroneLocationItem);
         }
 
-        getRoadAsync(points);
+        updateMap(points);
     }
-    private void updateMap(Road road){
-        MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
 
-
-        org.osmdroid.bonuspack.overlays.Polyline roadOverlay = RoadManager.buildRoadOverlay(road, this);
-
+    private void updateMap(List<GeoPoint> points) {
         mapView.getOverlays().clear();
-        mapView.getOverlays().add(roadOverlay);
-        //mapView.getOverlays().add(myItemizedIconOverlay);
 
-        Double averageLatitude = 0.0;
-        Double averageLongitude = 0.0;
-        for(int i=0; i<overlayItemList.size();i++){
-            averageLatitude += overlayItemList.get(i).getPoint().getLatitude();
-            averageLongitude += overlayItemList.get(i).getPoint().getLongitude();
+        if (points.size() > 1) {
+            for (int i = 0; i < points.size() - 1; i++) {
+                List<GeoPoint> pointList = new ArrayList<>();
+                List<OverlayItem> items = new ArrayList<>();
+                org.osmdroid.bonuspack.overlays.Polyline line = new org.osmdroid.bonuspack.overlays.Polyline(getApplicationContext());
+                pointList.add(new GeoPoint(points.get(i).getLatitude(), points.get(i).getLongitude()));
+                pointList.add(new GeoPoint(points.get(i + 1).getLatitude(), points.get(i + 1).getLongitude()));
+                line.setPoints(pointList);
+                line.setWidth(1);
+                mapView.getOverlays().add(line);
+            }
         }
-        averageLatitude = averageLatitude / overlayItemList.size();
-        averageLongitude = averageLongitude / overlayItemList.size();
-        GeoPoint center = new GeoPoint(averageLatitude, averageLongitude);
+
+        /**
+         * Current position marker
+         */
+        MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
+        mapView.getOverlays().add(myItemizedIconOverlay);
+
+        /**
+         * TODO
+         * Obliczanie środka mapy do przemyślenia.
+         * Chyba śledzenie jednego drona w danej chwili, a reszta tylko wizualizacja.
+         */
+        GeoPoint center = getMapCenterPointForDrones();
+
         mapController.setCenter(center);
         mapView.invalidate();
     }
 
+    private GeoPoint getMapCenterPointForDrones() {
+        Double dronesLatitudeSumm = 0.0;
+        Double dronesLongitudeSumm = 0.0;
+        Iterator<Drone> dronesIterator = drones.iterator();
+        while (dronesIterator.hasNext()) {
+            Drone currentDrone = dronesIterator.next();
+            dronesLatitudeSumm += Double.parseDouble(currentDrone.getCurrentLatitude());
+            dronesLongitudeSumm += Double.parseDouble(currentDrone.getCurrentLongitude());
+        }
 
-/*
-    private void setMyPositionMarkerOnMap(GeoPoint myPositionPoint) {
-        OverlayItem newMyLocationItem = new OverlayItem("My Location", "My Location", myPositionPoint);
-        GeoPoint myPositionPoint2 = new GeoPoint(52.249, 21.108);
-        OverlayItem newMyLocationItem2 = new OverlayItem("My Location", "My Location", myPositionPoint2);
-        overlayItemList.clear();
-        overlayItemList.add(newMyLocationItem);
-        overlayItemList.add(newMyLocationItem2);
-        MyItemizedIconOverlay myItemizedIconOverlay = new MyItemizedIconOverlay(overlayItemList, null, defaultResourceProxyImpl);
-        mapView.getOverlays().clear();
-        mapView.getOverlays().add(myItemizedIconOverlay);
-    }*/
+        Double averageLatitude = dronesLatitudeSumm / drones.size();
+        Double averageLongitude = dronesLongitudeSumm / drones.size();
+        return new GeoPoint(averageLatitude, averageLongitude);
+    }
+
 
     private class MyItemizedIconOverlay extends ItemizedIconOverlay<OverlayItem> {
-
+        private Paint paint;
         public MyItemizedIconOverlay(List<OverlayItem> pList,
+                                     org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener<OverlayItem> pOnItemGestureListener,
+                                     ResourceProxy pResourceProxy) {
+            super(pList, pOnItemGestureListener, pResourceProxy);
+
+            this.paint = getRandomPaintColorForMarker();
+        }
+
+        private Paint getRandomPaintColorForMarker(){
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+
+            Paint paint = new Paint();
+            ColorFilter filter = new LightingColorFilter(color, 1);
+            paint.setColorFilter(filter);
+            return paint;
+        }
+
+        @Override
+        public void draw(Canvas canvas, MapView mapview, boolean arg2) {
+            //super.draw(canvas, mapview, arg2);
+
+            GeoPoint in = (GeoPoint) overlayItemList.get(0).getPoint();
+
+            Point out = new Point();
+            mapview.getProjection().toPixels(in, out);
+
+            Bitmap bm = BitmapFactory.decodeResource(getResources(),
+                    R.drawable.marker);
+
+            canvas.drawBitmap(bm,
+                    out.x - bm.getWidth() / 2,
+                    out.y - bm.getHeight() / 2,
+                    this.paint);
+        }
+    }
+}
+/*
+    private class MyItemizedLineOverlay extends ItemizedIconOverlay<OverlayItem> {
+
+        public MyItemizedLineOverlay(List<OverlayItem> pList,
                                      org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener<OverlayItem> pOnItemGestureListener,
                                      ResourceProxy pResourceProxy) {
             super(pList, pOnItemGestureListener, pResourceProxy);
@@ -224,50 +287,41 @@ public class VisualizeActivity extends AppCompatActivity {
         public void draw(Canvas canvas, MapView mapview, boolean arg2) {
             //super.draw(canvas, mapview, arg2);
 
-            if (!overlayItemList.isEmpty()) {
 
-                //overlayItemArray have only ONE element only, so I hard code to get(0)
-                for (int i = 0; i < overlayItemList.size(); i++) {
-                    GeoPoint in = (GeoPoint) overlayItemList.get(i).getPoint();
-                    Random rnd = new Random();
-                    int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
 
+            Paint p = new Paint();
+            ColorFilter filter = new LightingColorFilter(color, 1);
+            p.setColorFilter(filter);
 
-
-                    Point out = new Point();
-                    mapview.getProjection().toPixels(in, out);
-
-                    Bitmap bm = BitmapFactory.decodeResource(getResources(),
-                            R.drawable.marker);
-
-
-                    Paint p = new Paint();
-                    ColorFilter filter = new LightingColorFilter(color, 1);
-                    p.setColorFilter(filter);
-
-                    canvas.drawBitmap(bm,
-                            out.x - bm.getWidth() / 2,  //shift the bitmap center
-                            out.y - bm.getHeight() / 2,  //shift the bitmap center
-                            p);
-
-
+            if (!points.isEmpty()) {
+                if(points.size()>1) {
+                    for (int i = 0; i < points.size()-1; i++) {
+                        List<GeoPoint> pointList = new ArrayList<>();
+                        pointList.add(new GeoPoint(points.get(i).getLatitude(), points.get(i).getLongitude()));
+                        pointList.add(new GeoPoint(points.get(i + 1).getLatitude(), points.get(i + 1).getLongitude()));
+                        canvas.drawLine((float)points.get(i).getLatitude(), (float) points.get(i).getLongitude(),(float)points.get(i + 1).getLatitude(), (float)points.get(i + 1).getLongitude(), p);
+                    }
                 }
             }
         }
-    }
+    }*/
 
-    private class UpdateRoadTask extends AsyncTask<Object, Void, Road> {
-        protected Road doInBackground(Object... params) {
-            @SuppressWarnings("unchecked")
-            ArrayList<GeoPoint> waypoints = (ArrayList<GeoPoint>)params[0];
-            //RoadManager roadManager = new GoogleRoadManager();
-            RoadManager roadManager = new OSRMRoadManager(getApplicationContext());
-                        /*
-                        RoadManager roadManager = new MapQuestRoadManager();
-                        Locale locale = Locale.getDefault();
-                        roadManager.addRequestOption("locale="+locale.getLanguage()+"_"+locale.getCountry());
-                        */
-            return roadManager.getRoad(waypoints);
+
+/**
+ * private class UpdateRoadTask extends AsyncTask<Object, Void, Road> {
+ * protected Road doInBackground(Object... params) {
+ *
+ * @SuppressWarnings("unchecked") ArrayList<GeoPoint> waypoints = (ArrayList<GeoPoint>)params[0];
+ * //RoadManager roadManager = new GoogleRoadManager();
+ * RoadManager roadManager = new OSRMRoadManager(getApplicationContext());
+ * /*
+ * RoadManager roadManager = new MapQuestRoadManager();
+ * Locale locale = Locale.getDefault();
+ * roadManager.addRequestOption("locale="+locale.getLanguage()+"_"+locale.getCountry());
+ */
+            /*return roadManager.getRoad(waypoints);
         }
 
         protected void onPostExecute(Road result) {
@@ -279,6 +333,7 @@ public class VisualizeActivity extends AppCompatActivity {
     public void getRoadAsync(ArrayList<GeoPoint> points){
         ArrayList<GeoPoint> waypoints = points;
         new UpdateRoadTask().execute(waypoints);
-    }
+    }*/
 
-}
+
+
