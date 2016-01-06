@@ -1,5 +1,9 @@
 package dron.mkapiczynski.pl.gpsvisualiser.domain;
 
+import android.graphics.Color;
+
+import org.osmdroid.util.GeoPoint;
+
 import java.util.List;
 
 /**
@@ -7,10 +11,11 @@ import java.util.List;
  */
 public class Drone {
     private String deviceId;
-    private String currentLatitude;
-    private String currentLongitude;
-    private String currentAltitude;
-    private List<String[]> location;
+    private Double currentLatitude;
+    private Double currentLongitude;
+    private Double currentAltitude;
+    private List<GeoPoint> trail;
+    private int color;
 
     public String getDeviceId() {
         return deviceId;
@@ -20,35 +25,43 @@ public class Drone {
         this.deviceId = deviceId;
     }
 
-    public String getCurrentLatitude() {
+    public Double getCurrentLatitude() {
         return currentLatitude;
     }
 
-    public void setCurrentLatitude(String currentLatitude) {
+    public void setCurrentLatitude(Double currentLatitude) {
         this.currentLatitude = currentLatitude;
     }
 
-    public String getCurrentLongitude() {
+    public Double getCurrentLongitude() {
         return currentLongitude;
     }
 
-    public void setCurrentLongitude(String currentLongitude) {
+    public void setCurrentLongitude(Double currentLongitude) {
         this.currentLongitude = currentLongitude;
     }
 
-    public String getCurrentAltitude() {
+    public Double getCurrentAltitude() {
         return currentAltitude;
     }
 
-    public void setCurrentAltitude(String currentAltitude) {
+    public void setCurrentAltitude(Double currentAltitude) {
         this.currentAltitude = currentAltitude;
     }
 
-    public List<String[]> getLocation() {
-        return location;
+    public List<GeoPoint> getTrail() {
+        return trail;
     }
 
-    public void setLocation(List<String[]> location) {
-        this.location = location;
+    public void setTrail(List<GeoPoint> trail) {
+        this.trail = trail;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

@@ -36,9 +36,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private LocationRequest mLocationRequest;
 
-    private static int UPDATE_INTERVAL = 5000; // 10 sec
-    private static int FASTEST_INTERVAL = 2500; // 5sec
-    private static int DISPLACEMENT = 5; // 10 meters
+    private static int UPDATE_INTERVAL = 3000; // 3 sec
+    private static int FASTEST_INTERVAL = 1500; // 1,5sec
+    private static int DISPLACEMENT = 1; // 1 meters
 
     // UI
     private TextView locationTextView;
@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private Button btnShowLocation, btnStartLocationUpdates;
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:52856/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:48269/dron-server-web/server";
     private final WebSocketConnection client = new WebSocketConnection();
 
 
@@ -117,7 +117,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void sendGeoDataMessageToServer(){
         GeoDataMessage geoDataMessage = new GeoDataMessage();
-        geoDataMessage.setDeviceId("Device2");
+        geoDataMessage.setDeviceId("Device1");
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         geoDataMessage.setTimestamp(dateFormat.format(date.getTime()));
@@ -278,7 +278,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setSmallestDisplacement(DISPLACEMENT); // 10 meters
     }
 
