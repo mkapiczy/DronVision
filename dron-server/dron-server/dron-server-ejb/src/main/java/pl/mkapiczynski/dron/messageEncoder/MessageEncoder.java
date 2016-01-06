@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.encoder;
+package pl.mkapiczynski.dron.messageEncoder;
 
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -12,10 +12,8 @@ import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-import pl.mkapiczynski.dron.message.ChatMessage;
 import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
-import pl.mkapiczynski.dron.message.UsersMessage;
 
 public class MessageEncoder implements Encoder.Text<Message> {
 
@@ -34,40 +32,13 @@ public class MessageEncoder implements Encoder.Text<Message> {
 	@Override
 	public String encode(Message message) throws EncodeException {
 		String encodedMessage = "";
-		if (message instanceof ChatMessage) {
-			ChatMessage chatMessage = (ChatMessage) message;
-			encodedMessage = buildJsonChatMessageData(chatMessage, chatMessage.getClass().getSimpleName());
-		} else if (message instanceof UsersMessage) {
-			UsersMessage usersMessage = (UsersMessage) message;
-			encodedMessage = buildJsonUsersData(usersMessage.getUsers(), usersMessage.getClass().getSimpleName());
-		} else if(message instanceof GeoDataMessage){
+		 if(message instanceof GeoDataMessage){
 			GeoDataMessage geoDataMessage = (GeoDataMessage) message;
 			encodedMessage = buildJsonGeoDataMessage(geoDataMessage, geoDataMessage.getClass().getSimpleName());
 		}
 		return encodedMessage;
 	}
 
-	private String buildJsonUsersData(Set<String> usersSet, String messageType) {
-		Iterator<String> iterator = usersSet.iterator();
-		JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-		while (iterator.hasNext()) {
-			jsonArrayBuilder.add(iterator.next());
-		}
-		return Json.createObjectBuilder().add("messageType", messageType).add("users", jsonArrayBuilder).build()
-				.toString();
-	}
-
-	private String buildJsonChatMessageData(ChatMessage chatMessage, String messageType) {
-		JsonObject jsonObject = Json.createObjectBuilder().add("messageType", messageType)
-				.add("name", chatMessage.getName()).add("location", chatMessage.getLocation())
-				.add("message", chatMessage.getMessage()).build();
-		StringWriter stringWriter = new StringWriter();
-		try (JsonWriter jsonWriter = Json.createWriter(stringWriter)) {
-			jsonWriter.write(jsonObject);
-		}
-		return stringWriter.toString();
-	}
-	
 	private String buildJsonGeoDataMessage(GeoDataMessage geoDataMessage, String messageType) {
 		JsonObject jsonObject = Json.createObjectBuilder().add("messageType", messageType)
 				.add("deviceId", geoDataMessage.getDeviceId())
@@ -82,5 +53,20 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		}
 		return stringWriter.toString();
 	}
+	
+	/**
+	 * TODO Do skasowania. Zostaje jaki wzór
+	 * 
+	 */
+	/*
+	private String buildJsonUsersData(Set<String> usersSet, String messageType) {
+		Iterator<String> iterator = usersSet.iterator();
+		JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+		while (iterator.hasNext()) {
+			jsonArrayBuilder.add(iterator.next());
+		}
+		return Json.createObjectBuilder().add("messageType", messageType).add("users", jsonArrayBuilder).build()
+				.toString();
+	}*/
 
 }

@@ -15,13 +15,11 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.decoder.MessageDecoder;
-import pl.mkapiczynski.dron.encoder.MessageEncoder;
-import pl.mkapiczynski.dron.message.ChatMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
-import pl.mkapiczynski.dron.message.UsersMessage;
+import pl.mkapiczynski.dron.messageDecoder.MessageDecoder;
+import pl.mkapiczynski.dron.messageEncoder.MessageEncoder;
 
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
