@@ -1,8 +1,5 @@
 package dron.mkapiczynski.pl.gpstracker;
 
-import android.util.JsonWriter;
-
-
 import java.io.StringWriter;
 
 import javax.json.Json;
