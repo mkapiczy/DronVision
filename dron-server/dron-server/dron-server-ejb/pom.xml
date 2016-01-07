@@ -106,6 +106,13 @@
 			<version>1.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-1.0-sdk</artifactId>
+			<version>1.9.30</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

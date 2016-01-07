@@ -15,6 +15,8 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
+import com.google.appengine.api.search.GeoPoint;
+
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.GeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
