@@ -58,7 +58,7 @@ public class VisualizeActivity extends AppCompatActivity {
 
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:48269/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:45960/dron-server-web/server";
     private final WebSocketConnection client = new WebSocketConnection();
     private List<Polyline> dronesTracks = new ArrayList<>();
     private ArrayList<GeoPoint> points = new ArrayList<>();
