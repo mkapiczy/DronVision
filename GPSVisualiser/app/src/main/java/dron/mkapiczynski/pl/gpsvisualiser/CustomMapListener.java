@@ -46,8 +46,9 @@ public class CustomMapListener implements MapListener {
 
                 } else if(oldZoomLevel > event.getZoomLevel()){
                         Toast.makeText(context,"Zoom out!", Toast.LENGTH_SHORT).show();
-
                         oldZoomLevel = event.getZoomLevel();
+                        MapView mapView = (MapView)activity.findViewById(R.id.MapView);
+                        mapView.getOverlays();
                 }
                 return false;
         }
