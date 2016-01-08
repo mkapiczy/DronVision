@@ -5,5 +5,4 @@ import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
 public interface ClientGeoDataMessageService {
 	public ClientGeoDataMessage generateClientGeoDataMessage(TrackerGeoDataMessage trackerGeoDataMessage);
-	
 }

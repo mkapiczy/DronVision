@@ -11,7 +11,7 @@ import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
 @Local
-@Stateless(name = "AutomatesService")
+@Stateless(name = "ClientGeoDataMessageService")
 public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageService{
 
 	@Override

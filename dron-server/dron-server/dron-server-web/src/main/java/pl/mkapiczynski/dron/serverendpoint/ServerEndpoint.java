@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -17,7 +16,6 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
@@ -32,7 +30,7 @@ import pl.mkapiczynski.dron.messageService.ClientGeoDataMessageService;
 public class ServerEndpoint {
 	private static final Logger log = Logger.getLogger(ServerEndpoint.class);
 
-	@EJB
+	@Inject
 	private ClientGeoDataMessageService clientGeoDataMessageService;
 
 	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
