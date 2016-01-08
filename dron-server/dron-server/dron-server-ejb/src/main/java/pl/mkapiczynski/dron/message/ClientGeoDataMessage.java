@@ -5,13 +5,14 @@ import java.util.List;
 
 import domain.GeoPoint;
 
-public class ClientGeoDataMessage extends TrackerGeoDataMessage {
+public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";
 	private String deviceId;
 	private String deviceType;
 	private Date timestamp;
 	private GeoPoint lastPosition;
 	private List<GeoPoint> searchedArea;
+	private List<GeoPoint> lastSearchedArea;
 
 	public String getMessageType() {
 		return messageType;
@@ -55,6 +56,14 @@ public class ClientGeoDataMessage extends TrackerGeoDataMessage {
 
 	public void setSearchedArea(List<GeoPoint> searchedArea) {
 		this.searchedArea = searchedArea;
+	}
+
+	public List<GeoPoint> getLastSearchedArea() {
+		return lastSearchedArea;
+	}
+
+	public void setLastSearchedArea(List<GeoPoint> lastSearchedArea) {
+		this.lastSearchedArea = lastSearchedArea;
 	}
 
 	@Override

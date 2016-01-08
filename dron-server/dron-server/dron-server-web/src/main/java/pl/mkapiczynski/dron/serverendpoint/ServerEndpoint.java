@@ -73,7 +73,6 @@ public class ServerEndpoint {
 			clientGeoMessage.setLastPosition(geoMessage.getLastPosition());
 			clientGeoMessage.setTimestamp(new Date());
 			clientGeoMessage.setSearchedArea(GeoPoint.pointsAsCircle(geoMessage.getLastPosition(), 35.0));
-			log.info(clientGeoMessage.toString());
 			/**
 			 * Analiza obszaru przeszukanego Zapis do bazy danych
 			 */
@@ -122,6 +121,7 @@ public class ServerEndpoint {
 			Session currentClient = iterator.next();
 			try {
 				currentClient.getBasicRemote().sendObject(geoMessage);
+				log.info("Message send to client : " + currentClient.getUserProperties().get("deviceId"));
 			} catch (IOException | EncodeException e) {
 				log.error("Error occured while sendig message to client : "
 						+ currentClient.getUserProperties().get("clientId") + " Error message : " + e);
