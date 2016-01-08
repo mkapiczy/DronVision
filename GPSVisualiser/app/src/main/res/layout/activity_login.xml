@@ -20,9 +20,9 @@
         android:textColor="#40d2ff"
         android:ems="10"
         android:id="@+id/editTextUsername"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="105dp" />
+        android:layout_marginTop="40dp" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -35,8 +35,9 @@
         android:ems="10"
         android:id="@+id/editTextPassword"
         android:layout_below="@+id/editTextUsername"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="56dp" />
+        android:layout_alignLeft="@+id/editTextUsername"
+        android:layout_alignStart="@+id/editTextUsername"
+        android:layout_marginTop="50dp" />
 
     <Button
         android:layout_width="wrap_content"
@@ -45,16 +46,26 @@
         android:id="@+id/loginButton"
         android:layout_below="@+id/editTextPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="65dp" />
+        android:layout_marginTop="67dp" />
 
     <ImageView
         android:src="@drawable/dron_vision_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
+        android:layout_below="@+id/textView"
         android:layout_alignLeft="@+id/loginButton"
         android:layout_alignStart="@+id/loginButton"
+        android:layout_marginTop="25dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="DronVision"
+        android:textSize="36dp"
+        android:textStyle="bold"
+        android:id="@+id/textView"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/loginButton"
-        android:layout_alignEnd="@+id/loginButton" />
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

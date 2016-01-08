@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.gpsvisualiser;
+package dron.mkapiczynski.pl.gpsvisualiser.helper;
 
 
 
@@ -15,6 +15,7 @@ import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
+import dron.mkapiczynski.pl.gpsvisualiser.R;
 import dron.mkapiczynski.pl.gpsvisualiser.activity.VisualizeActivity;
 
 /**

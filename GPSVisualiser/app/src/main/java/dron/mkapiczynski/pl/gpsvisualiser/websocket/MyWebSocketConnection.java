@@ -5,12 +5,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.json.Json;
@@ -30,7 +28,7 @@ import dron.mkapiczynski.pl.gpsvisualiser.message.GeoDataMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:46994/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:41604/dron-server-web/server";
     private VisualizeActivity activity;
     private boolean deviceIsLoggedIn = false;
 
@@ -66,19 +64,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
                         Drone drone = new Drone();
                         drone.setDeviceId(geoMessage.getDeviceId());
                         drone.setCurrentPosition(currentDronePosition);
-                        if(drone.getSearchedArea()!=null) {
-                            drone.getSearchedArea().addAll(searchedArea);
-                        } else {
-                            drone.setSearchedArea(new HashSet<GeoPoint>());
-                            drone.getSearchedArea().addAll(searchedArea);
-                        }
-
                         drone.setLastSearchedArea(searchedArea);
-
                         activity.updateDronesOnMap(drone);
                     }
                 }
-
 
                 @Override
                 public void onClose(int code, String reason) {
