@@ -11,14 +11,14 @@ import javax.websocket.EndpointConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import jsonHelper.JsonDateDeserializer;
-import jsonHelper.JsonDateSerializer;
+import pl.mkapiczynski.dron.jsonHelper.JsonDateDeserializer;
+import pl.mkapiczynski.dron.jsonHelper.JsonDateSerializer;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 
-public class MessageDecoder implements Decoder.Text<Message>{
+public class MessageDecoder implements Decoder.Text<Message> {
 	private String messageType;
 
 	@Override
@@ -28,18 +28,17 @@ public class MessageDecoder implements Decoder.Text<Message>{
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public Message decode(String jsonMessage) throws DecodeException {
 		messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
-		if("GeoDataMessage".equals(messageType)){
-				return decodeGeoDataMessage(jsonMessage);
-		} else if("TrackerLoginMessage".equals(messageType)){
+		if ("GeoDataMessage".equals(messageType)) {
+			return decodeGeoDataMessage(jsonMessage);
+		} else if ("TrackerLoginMessage".equals(messageType)) {
 			return decodeTrackerLoginMessage(jsonMessage);
-		}
-		else if("ClientLoginMessage".equals(messageType)){
+		} else if ("ClientLoginMessage".equals(messageType)) {
 			return decodeClientLoginMessage(jsonMessage);
 		}
 		return null;
@@ -49,34 +48,30 @@ public class MessageDecoder implements Decoder.Text<Message>{
 	public boolean willDecode(String jsonMessage) {
 		try {
 			Gson gson = new Gson();
-	          gson.fromJson(jsonMessage, Object.class);
-	          return true;
-	      } catch(com.google.gson.JsonSyntaxException ex) { 
-	          return false;
-	      }
+			gson.fromJson(jsonMessage, Object.class);
+			return true;
+		} catch (com.google.gson.JsonSyntaxException ex) {
+			return false;
+		}
 	}
-	
-	private TrackerGeoDataMessage decodeGeoDataMessage(String jsonMessage){
-		TrackerGeoDataMessage geoMessage = new TrackerGeoDataMessage();	
+
+	private TrackerGeoDataMessage decodeGeoDataMessage(String jsonMessage) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateSerializer());
 		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
 		Gson gson = gsonBuilder.create();
-		geoMessage = gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
-		return geoMessage;
+		return gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
 	}
-	
-	private ClientLoginMessage decodeClientLoginMessage(String jsonMessage){
-		ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
-		clientLoginMessage.setClientId(Json.createReader(new StringReader(jsonMessage)).readObject().getString("clientId"));
-		return clientLoginMessage;
-	}
-	
-	private TrackerLoginMessage decodeTrackerLoginMessage(String jsonMessage){
-		TrackerLoginMessage trackerLoginMessage = new TrackerLoginMessage();
+
+	private ClientLoginMessage decodeClientLoginMessage(String jsonMessage) {
 		Gson gson = new Gson();
-		trackerLoginMessage.setDeviceId(Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceId"));
-		return trackerLoginMessage;
+		return gson.fromJson(jsonMessage, ClientLoginMessage.class);
+	}
+
+	private TrackerLoginMessage decodeTrackerLoginMessage(String jsonMessage) {
+		Gson gson = new Gson();
+		return gson.fromJson(jsonMessage, TrackerLoginMessage.class);
+
 	}
 
 }

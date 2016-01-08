@@ -2,7 +2,7 @@ package pl.mkapiczynski.dron.message;
 
 import java.util.Date;
 
-import domain.GeoPoint;
+import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public class TrackerGeoDataMessage implements Message {
 	private String messageType;

@@ -3,7 +3,7 @@ package pl.mkapiczynski.dron.message;
 import java.util.Date;
 import java.util.List;
 
-import domain.GeoPoint;
+import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";

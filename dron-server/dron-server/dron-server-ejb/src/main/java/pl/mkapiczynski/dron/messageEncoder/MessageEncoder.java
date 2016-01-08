@@ -9,7 +9,7 @@ import javax.websocket.EndpointConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import jsonHelper.JsonDateSerializer;
+import pl.mkapiczynski.dron.jsonHelper.JsonDateSerializer;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 

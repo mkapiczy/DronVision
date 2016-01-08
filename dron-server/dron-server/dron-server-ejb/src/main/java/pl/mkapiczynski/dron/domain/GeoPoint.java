@@ -1,4 +1,4 @@
-package domain;
+package pl.mkapiczynski.dron.domain;
 
 import java.util.ArrayList;
 

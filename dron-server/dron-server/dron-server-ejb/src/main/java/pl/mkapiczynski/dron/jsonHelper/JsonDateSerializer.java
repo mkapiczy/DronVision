@@ -1,4 +1,4 @@
-package jsonHelper;
+package pl.mkapiczynski.dron.jsonHelper;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;

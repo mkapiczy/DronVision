@@ -1,4 +1,4 @@
-package domain;
+package pl.mkapiczynski.dron.domain;
 
 public class TrackerDevice {
 	private Long loid;
