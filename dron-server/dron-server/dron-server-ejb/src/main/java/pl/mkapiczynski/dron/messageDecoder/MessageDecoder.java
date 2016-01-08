@@ -1,14 +1,21 @@
 package pl.mkapiczynski.dron.messageDecoder;
 
 import java.io.StringReader;
+import java.util.Date;
 
 import javax.json.Json;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import jsonHelper.JsonDateDeserializer;
+import jsonHelper.JsonDateSerializer;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
-import pl.mkapiczynski.dron.message.GeoDataMessage;
+import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
+import pl.mkapiczynski.dron.message.TrackerLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 
 public class MessageDecoder implements Decoder.Text<Message>{
@@ -29,7 +36,10 @@ public class MessageDecoder implements Decoder.Text<Message>{
 		messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
 		if("GeoDataMessage".equals(messageType)){
 				return decodeGeoDataMessage(jsonMessage);
-		} else if("ClientLoginMessage".equals(messageType)){
+		} else if("TrackerLoginMessage".equals(messageType)){
+			return decodeTrackerLoginMessage(jsonMessage);
+		}
+		else if("ClientLoginMessage".equals(messageType)){
 			return decodeClientLoginMessage(jsonMessage);
 		}
 		return null;
@@ -38,21 +48,21 @@ public class MessageDecoder implements Decoder.Text<Message>{
 	@Override
 	public boolean willDecode(String jsonMessage) {
 		try {
-			Json.createReader(new StringReader(jsonMessage)).readObject();
-		} catch (Exception e) {
-			return false;
-		}
-		return true;
+			Gson gson = new Gson();
+	          gson.fromJson(jsonMessage, Object.class);
+	          return true;
+	      } catch(com.google.gson.JsonSyntaxException ex) { 
+	          return false;
+	      }
 	}
 	
-	private GeoDataMessage decodeGeoDataMessage(String jsonMessage){
-		GeoDataMessage geoMessage = new GeoDataMessage();	
-		geoMessage.setDeviceId((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceId")));
-		geoMessage.setDeviceType((Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceType")));
-		geoMessage.setTimestamp((Json.createReader(new StringReader(jsonMessage)).readObject().getString("timestamp")));
-		geoMessage.setLatitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("latitude")));
-		geoMessage.setLongitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("longitude")));
-		geoMessage.setAltitude((Json.createReader(new StringReader(jsonMessage)).readObject().getString("altitude")));
+	private TrackerGeoDataMessage decodeGeoDataMessage(String jsonMessage){
+		TrackerGeoDataMessage geoMessage = new TrackerGeoDataMessage();	
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateSerializer());
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
+		Gson gson = gsonBuilder.create();
+		geoMessage = gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
 		return geoMessage;
 	}
 	
@@ -60,6 +70,13 @@ public class MessageDecoder implements Decoder.Text<Message>{
 		ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
 		clientLoginMessage.setClientId(Json.createReader(new StringReader(jsonMessage)).readObject().getString("clientId"));
 		return clientLoginMessage;
+	}
+	
+	private TrackerLoginMessage decodeTrackerLoginMessage(String jsonMessage){
+		TrackerLoginMessage trackerLoginMessage = new TrackerLoginMessage();
+		Gson gson = new Gson();
+		trackerLoginMessage.setDeviceId(Json.createReader(new StringReader(jsonMessage)).readObject().getString("deviceId"));
+		return trackerLoginMessage;
 	}
 
 }
