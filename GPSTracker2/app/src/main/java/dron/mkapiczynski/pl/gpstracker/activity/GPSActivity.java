@@ -32,9 +32,8 @@ public class GPSActivity extends Activity implements LocationListener {
     private boolean requestLocationUpdatesFlag = false;
 
     // Gps parameters
-    private static int UPDATE_INTERVAL = 3000; // 3 sec
-    private static int FASTEST_INTERVAL = 1500; // 1,5sec
-    private static int DISPLACEMENT = 1; // 1 meters
+    private static int UPDATE_INTERVAL = 1000; // 5 sec
+    private static int DISPLACEMENT = 1; // 2 meters
 
     // UI
     private TextView locationTextView;
@@ -157,7 +156,7 @@ public class GPSActivity extends Activity implements LocationListener {
 
     private void startLocationUpdates() {
         try {
-            locationManager.requestLocationUpdates(gpsSignalProvider.getName(), 500, 0, this);
+            locationManager.requestLocationUpdates(gpsSignalProvider.getName(), UPDATE_INTERVAL, DISPLACEMENT, this);
             requestLocationUpdatesFlag = true;
             btnStartLocationUpdates.setText(getString(R.string.btn_stop_location_updates));
         } catch (SecurityException e) {
