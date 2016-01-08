@@ -6,13 +6,9 @@ import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.api.Polyline;
@@ -25,7 +21,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,17 +29,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import javax.json.Json;
-
-import de.tavendo.autobahn.WebSocketConnection;
-import de.tavendo.autobahn.WebSocketException;
-import de.tavendo.autobahn.WebSocketHandler;
 import dron.mkapiczynski.pl.gpsvisualiser.CustomMapListener;
 import dron.mkapiczynski.pl.gpsvisualiser.R;
-import dron.mkapiczynski.pl.gpsvisualiser.decoder.MessageDecoder;
 import dron.mkapiczynski.pl.gpsvisualiser.domain.Drone;
-import dron.mkapiczynski.pl.gpsvisualiser.message.ClientLoginMessage;
-import dron.mkapiczynski.pl.gpsvisualiser.message.GeoDataMessage;
+import dron.mkapiczynski.pl.gpsvisualiser.domain.MyGeoPoint;
+import dron.mkapiczynski.pl.gpsvisualiser.websocket.MyWebSocketConnection;
+
+;
 
 
 public class VisualizeActivity extends Activity {
@@ -59,10 +50,10 @@ public class VisualizeActivity extends Activity {
 
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:45960/dron-server-web/server";
-    private final WebSocketConnection client = new WebSocketConnection();
+    private final MyWebSocketConnection client = new MyWebSocketConnection(this);
+
     private List<Polyline> dronesTracks = new ArrayList<>();
-    private ArrayList<GeoPoint> points = new ArrayList<>();
+    private ArrayList<MyGeoPoint> points = new ArrayList<>();
 
     // private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -83,7 +74,7 @@ public class VisualizeActivity extends Activity {
         defaultResourceProxyImpl = new DefaultResourceProxyImpl(this);
         setMapViewDefaultSettings();
 
-        connectToWebSocketServer();
+        client.connectToWebSocketServer();
         //ask for drones ascribed to this client device
         // askForLastDronesLocation();
 
@@ -91,7 +82,7 @@ public class VisualizeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (!client.isConnected()) {
-                    connectToWebSocketServer();
+                    client.connectToWebSocketServer();
                 }
             }
         });
@@ -105,9 +96,10 @@ public class VisualizeActivity extends Activity {
         // mapView.setMaxZoomLevel(17);
         mapView.setMinZoomLevel(14);
         mapController = (MapController) mapView.getController();
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);
+        /*DisplayMetrics metrics = getResources().getDisplayMetrics();
+        double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);*/
         mapController.setZoom(16);
+        mapController.setCenter(new GeoPoint(52.24695,21.105083));
         ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(getApplicationContext());
         mapView.getOverlays().add(myScaleBarOverlay);
         CustomMapListener customMapListener = new CustomMapListener(VisualizeActivity.this, getApplicationContext(), 16);
@@ -115,91 +107,6 @@ public class VisualizeActivity extends Activity {
     }
 
 
-    private void connectToWebSocketServer() {
-        try {
-            client.connect(SERVER, new WebSocketHandler() {
-                @Override
-                public void onOpen() {
-                    /*if(!scheduler.isShutdown()){
-                        scheduler.shutdown();
-                        scheduler = Executors.newSingleThreadScheduledExecutor();
-                    }*/
-                    Log.d("WEBSOCKETS", "Connected to server");
-                    sendLoginMessage();
-                    Toast.makeText(getApplicationContext(), "You are now connected to the server", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onTextMessage(String jsonMessage) {
-                    String messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
-                    if ("GeoDataMessage".equals(messageType)) {
-                        GeoDataMessage geoMessage = MessageDecoder.decodeGeoDataMessage(jsonMessage);
-
-                        /**
-                         * TODO
-                         * Do sprawdzenia, czy działa constains bo to w końcu nowy obiekt.
-                         * Chyba trzeba wyszukać po deviceId
-                         */
-                        Drone drone = new Drone();
-                        drone.setDeviceId(geoMessage.getDeviceId());
-                        drone.setCurrentAltitude(Double.parseDouble(geoMessage.getAltitude()));
-                        drone.setCurrentLatitude(Double.parseDouble(geoMessage.getLatitude()));
-                        drone.setCurrentLongitude(Double.parseDouble(geoMessage.getLongitude()));
-
-
-                        if (dronesSetContainsThisDrone(drone)) {
-                            Iterator<Drone> iterator = drones.iterator();
-                            while (iterator.hasNext()) {
-                                Drone currentDroneOnList = iterator.next();
-                                if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
-                                    currentDroneOnList.setCurrentLatitude(drone.getCurrentLatitude());
-                                    currentDroneOnList.setCurrentLongitude(drone.getCurrentLongitude());
-                                    currentDroneOnList.getTrail().add(new GeoPoint(drone.getCurrentLatitude(), drone.getCurrentLongitude()));
-                                }
-                            }
-                        } else if (!drones.contains(drone)) {
-                            Random rnd = new Random();
-                            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-                            drone.setColor(color);
-                            drone.setTrail(new ArrayList<GeoPoint>());
-                            drone.getTrail().add(new GeoPoint(drone.getCurrentLatitude(), drone.getCurrentLongitude()));
-                            drones.add(drone);
-                        }
-
-                        updateDronesOnMap();
-                    }
-                }
-
-                private boolean dronesSetContainsThisDrone(Drone drone) {
-                    Iterator<Drone> iterator = drones.iterator();
-                    while (iterator.hasNext()) {
-                        Drone currentDroneOnList = iterator.next();
-                        if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public void onClose(int code, String reason) {
-                    Toast.makeText(getApplicationContext(), "Connection closed Code:" + code + " Reason: " + reason, Toast.LENGTH_LONG).show();
-                    Log.d("WEBSOCKETS", "Connection closed Code:" + code + " Reason: " + reason);
-                    //startReestablishingConnectionScheduler();
-                }
-            });
-        } catch (WebSocketException e) {
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    private void sendLoginMessage() {
-        if (client.isConnected()) {
-            ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
-            clientLoginMessage.setClientId("1");
-            client.sendTextMessage(clientLoginMessage.toJson());
-        }
-    }
     /*
     private void startReestablishingConnectionScheduler(){
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -214,7 +121,24 @@ public class VisualizeActivity extends Activity {
     }*/
 
 
-    private void updateDronesOnMap() {
+    public void updateDronesOnMap(Drone drone) {
+        if (dronesSetContainsThisDrone(drone)) {
+            Iterator<Drone> iterator = drones.iterator();
+            while (iterator.hasNext()) {
+                Drone currentDroneOnList = iterator.next();
+                if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
+                    currentDroneOnList.setCurrentPosition(drone.getCurrentPosition());
+                    currentDroneOnList.getLastSearchedArea().clear();
+                    currentDroneOnList.getLastSearchedArea().addAll(drone.getSearchedArea());
+                }
+            }
+        } else if (!drones.contains(drone)) {
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            drone.setColor(color);
+            drone.setSearchedArea(new HashSet<GeoPoint>());
+            drones.add(drone);
+        }
         mapView.getOverlays().clear();
         ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(getApplicationContext());
         mapView.getOverlays().add(myScaleBarOverlay);
@@ -223,6 +147,7 @@ public class VisualizeActivity extends Activity {
             Drone currentIteratedDrone = droneIterator.next();
             updateDroneLastPositionMarker(currentIteratedDrone);
             updateDroneTrailOnMap(currentIteratedDrone);
+            currentIteratedDrone.getSearchedArea().addAll(currentIteratedDrone.getLastSearchedArea());
         }
 
 
@@ -232,58 +157,51 @@ public class VisualizeActivity extends Activity {
          * Chyba śledzenie jednego drona w danej chwili, a reszta tylko wizualizacja.
          */
         GeoPoint center = getLastDroneInSetLocation();
+
         mapController.animateTo(center);
-        // mapController.setCenter(center);
         mapView.invalidate();
     }
 
-    private void updateDroneTrailOnMap(Drone droneToUpdateTrail) {
-        if (droneToUpdateTrail.getTrail().size() > 1) {
-            org.osmdroid.bonuspack.overlays.Polyline droneTrail = new org.osmdroid.bonuspack.overlays.Polyline(getApplicationContext());
-            droneTrail.setPoints(droneToUpdateTrail.getTrail());
-            droneTrail.setWidth(3.0f);
-            droneTrail.setColor(droneToUpdateTrail.getColor());
-            List<GeoPoint> polygonPointsList = new ArrayList<>();
-            for (int i = 0; i < droneToUpdateTrail.getTrail().size() - 1; i++) {
-                Polygon circle = new Polygon(getApplicationContext());
-                circle.setPoints(Polygon.pointsAsCircle(new GeoPoint(droneToUpdateTrail.getTrail().get(i).getLatitude(), droneToUpdateTrail.getTrail().get(i).getLongitude()), 35.0));
-                for (int j = 0; j < circle.getPoints().size(); j++) {
-                    for (int k = 0; k < polygonPointsList.size(); k++) {
-                        if ((Double.compare(polygonPointsList.get(k).getLatitude(), circle.getPoints().get(j).getLatitude()) == 0)
-                                && (Double.compare(polygonPointsList.get(k).getLongitude(), circle.getPoints().get(j).getLongitude()) == 0)) {
-                            continue;
-                        }
-                        polygonPointsList.add(circle.getPoints().get(j));
-                    }
-                }
-                Polygon polygon = new Polygon(getApplicationContext());
-                polygon.setPoints(polygonPointsList);
-                polygon.setFillColor(0x12121212);
-                polygon.setStrokeColor(0x12121212);
-                polygon.setStrokeWidth(1);
-                mapView.getOverlays().add(polygon);
-                mapView.getOverlays().add(droneTrail);
+    private boolean dronesSetContainsThisDrone(Drone drone) {
+        Iterator<Drone> iterator = drones.iterator();
+        while (iterator.hasNext()) {
+            Drone currentDroneOnList = iterator.next();
+            if (currentDroneOnList.getDeviceId().equals(drone.getDeviceId())) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    private void updateDroneTrailOnMap(Drone droneToUpdateTrail) {
+        if (droneToUpdateTrail.getSearchedArea().size() > 1) {
+            Polygon searchedArea = new Polygon(getApplicationContext());
+            List<GeoPoint> list = new ArrayList<>();
+            list.addAll(droneToUpdateTrail.getSearchedArea());
+            searchedArea.setPoints(list);
+            searchedArea.setFillColor(0x12121212);
+            searchedArea.setStrokeColor(0x12121212);
+            searchedArea.setStrokeWidth(0);
+            mapView.getOverlays().add(searchedArea);
         }
     }
 
     private void updateDroneLastPositionMarker(Drone droneToUpdateLastPositionMarker) {
 
-        Drawable droneIcon = getResources().getDrawable(R.drawable.drone3);
+        Drawable droneIcon = getResources().getDrawable(R.drawable.drone_marker);
         ColorFilter filter = new LightingColorFilter(droneToUpdateLastPositionMarker.getColor(), 1);
         droneIcon.setColorFilter(filter);
 
         Marker marker = new Marker(mapView);
-        marker.setPosition(new GeoPoint(droneToUpdateLastPositionMarker.getCurrentLatitude(), droneToUpdateLastPositionMarker.getCurrentLongitude()));
+        marker.setPosition(new GeoPoint(droneToUpdateLastPositionMarker.getCurrentPosition()));
         marker.setTitle(droneToUpdateLastPositionMarker.getDeviceId());
         marker.setIcon(droneIcon);
 
         Polygon circle = new Polygon(getApplicationContext());
-        circle.setPoints(Polygon.pointsAsCircle(new GeoPoint(droneToUpdateLastPositionMarker.getCurrentLatitude(), droneToUpdateLastPositionMarker.getCurrentLongitude()), 35.0));
-        circle.setFillColor(0x12121212);
-        circle.setStrokeColor(Color.RED);
-        circle.setStrokeWidth(2);
-
+        circle.setPoints(droneToUpdateLastPositionMarker.getLastSearchedArea());
+        circle.setFillColor(0X285EAAF6);
+        circle.setStrokeColor(0X285EAAF6);
+        circle.setStrokeWidth(0);
         mapView.getOverlays().add(circle);
         mapView.getOverlays().add(marker);
     }
@@ -293,7 +211,7 @@ public class VisualizeActivity extends Activity {
         while (dronesIterator.hasNext()) {
             Drone currentIteratedDrone = dronesIterator.next();
             if (!dronesIterator.hasNext()) {
-                return new GeoPoint(currentIteratedDrone.getCurrentLatitude(), currentIteratedDrone.getCurrentLongitude());
+                return new GeoPoint(currentIteratedDrone.getCurrentPosition().getLatitude(), currentIteratedDrone.getCurrentPosition().getLongitude());
             }
         }
         return null;
@@ -324,7 +242,7 @@ public class VisualizeActivity extends Activity {
         public void draw(Canvas canvas, MapView mapview, boolean arg2) {
             //super.draw(canvas, mapview, arg2);
 
-            GeoPoint in = (GeoPoint) overlayItemList.get(0).getPoint();
+            MyGeoPoint in = (MyGeoPoint) overlayItemList.get(0).getPoint();
 
             Point out = new Point();
             mapview.getProjection().toPixels(in, out);

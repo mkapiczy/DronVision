@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="#030a2b"
+    android:background="#00020a"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="dron.mkapiczynski.pl.gpsvisualiser.activity.VisualizeActivity"
     tools:showIn="@layout/activity_visualize">

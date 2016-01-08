@@ -10,7 +10,13 @@ import javax.json.JsonObject;
  */
 public class ClientLoginMessage {
     private static final String MESSAGE_TYPE = "ClientLoginMessage";
+    private final String messageType = MESSAGE_TYPE;
     private String clientId;
+
+
+    public String getMessageType() {
+        return messageType;
+    }
 
     public String getClientId() {
         return clientId;
@@ -20,12 +26,10 @@ public class ClientLoginMessage {
         this.clientId = clientId;
     }
 
-    public String toJson() {
-        JsonObject jsonObject = Json.createObjectBuilder().add("messageType", MESSAGE_TYPE)
-                .add("clientId", clientId).build();
-        StringWriter stringWriter = new StringWriter();
-        javax.json.JsonWriter jsonWriter = Json.createWriter(stringWriter);
-        jsonWriter.write(jsonObject);
-        return stringWriter.toString();
+    @Override
+    public String toString() {
+        return "TrackerLoginMessage [messageType=" + messageType + ", clientId=" + clientId + "]";
     }
+
+
 }

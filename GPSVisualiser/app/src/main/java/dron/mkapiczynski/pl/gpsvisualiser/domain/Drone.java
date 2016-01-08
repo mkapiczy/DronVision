@@ -1,20 +1,20 @@
 package dron.mkapiczynski.pl.gpsvisualiser.domain;
 
-import android.graphics.Color;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Miix on 2016-01-05.
  */
 public class Drone {
     private String deviceId;
-    private Double currentLatitude;
-    private Double currentLongitude;
-    private Double currentAltitude;
-    private List<GeoPoint> trail;
+    private String deviceName;
+    private GeoPoint currentPosition;
+    private Set<GeoPoint> searchedArea;
+    private List<GeoPoint> lastSearchedArea;
     private int color;
 
     public String getDeviceId() {
@@ -25,36 +25,36 @@ public class Drone {
         this.deviceId = deviceId;
     }
 
-    public Double getCurrentLatitude() {
-        return currentLatitude;
+    public String getDeviceName() {
+        return deviceName;
     }
 
-    public void setCurrentLatitude(Double currentLatitude) {
-        this.currentLatitude = currentLatitude;
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
-    public Double getCurrentLongitude() {
-        return currentLongitude;
+    public GeoPoint getCurrentPosition() {
+        return currentPosition;
     }
 
-    public void setCurrentLongitude(Double currentLongitude) {
-        this.currentLongitude = currentLongitude;
+    public void setCurrentPosition(GeoPoint currentPosition) {
+        this.currentPosition = currentPosition;
     }
 
-    public Double getCurrentAltitude() {
-        return currentAltitude;
+    public Set<GeoPoint> getSearchedArea() {
+        return searchedArea;
     }
 
-    public void setCurrentAltitude(Double currentAltitude) {
-        this.currentAltitude = currentAltitude;
+    public void setSearchedArea(Set<GeoPoint> searchedArea) {
+        this.searchedArea = searchedArea;
     }
 
-    public List<GeoPoint> getTrail() {
-        return trail;
+    public List<GeoPoint> getLastSearchedArea() {
+        return lastSearchedArea;
     }
 
-    public void setTrail(List<GeoPoint> trail) {
-        this.trail = trail;
+    public void setLastSearchedArea(List<GeoPoint> lastSearchedArea) {
+        this.lastSearchedArea = lastSearchedArea;
     }
 
     public int getColor() {

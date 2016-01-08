@@ -1,8 +1,11 @@
 package dron.mkapiczynski.pl.gpsvisualiser.message;
 
-import java.io.StringReader;
+import org.osmdroid.util.GeoPoint;
 
-import javax.json.Json;
+import java.util.Date;
+import java.util.List;
+
+import dron.mkapiczynski.pl.gpsvisualiser.domain.MyGeoPoint;
 
 /**
  * Created by Miix on 2016-01-05.
@@ -11,10 +14,18 @@ public class GeoDataMessage {
     private String messageType;
     private String deviceId;
     private String deviceType;
-    private String timestamp;
-    private String latitude;
-    private String longitude;
-    private String altitude;
+    private Date timestamp;
+    private MyGeoPoint lastPosition;
+    private List<MyGeoPoint> searchedArea;
+    private List<MyGeoPoint> lastSearchedArea;
+
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
 
     public String getDeviceId() {
         return deviceId;
@@ -32,36 +43,42 @@ public class GeoDataMessage {
         this.deviceType = deviceType;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    public String getLatitude() {
-        return latitude;
+    public MyGeoPoint getLastPosition() {
+        return lastPosition;
     }
 
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
+    public void setLastPosition(MyGeoPoint lastPosition) {
+        this.lastPosition = lastPosition;
     }
 
-    public String getLongitude() {
-        return longitude;
+    public List<MyGeoPoint> getSearchedArea() {
+        return searchedArea;
     }
 
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
+    public void setSearchedArea(List<MyGeoPoint> searchedArea) {
+        this.searchedArea = searchedArea;
     }
 
-    public String getAltitude() {
-        return altitude;
+    public List<MyGeoPoint> getLastSearchedArea() {
+        return lastSearchedArea;
     }
 
-    public void setAltitude(String altitude) {
-        this.altitude = altitude;
+    public void setLastSearchedArea(List<MyGeoPoint> lastSearchedArea) {
+        this.lastSearchedArea = lastSearchedArea;
     }
 
+    @Override
+    public String toString() {
+        return "GeoDataMessage [messageType=" + messageType + ", deviceId=" + deviceId + ", " + "deviceType="
+                + deviceType + ", " + "timestamp=" + timestamp + ", " + "lastPosition=" + lastPosition
+                + ", searchedArea=" + searchedArea + "]";
+    }
 }
