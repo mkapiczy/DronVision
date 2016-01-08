@@ -1,5 +1,6 @@
 package dron.mkapiczynski.pl.gpsvisualiser.activity;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
@@ -46,7 +47,7 @@ import dron.mkapiczynski.pl.gpsvisualiser.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.gpsvisualiser.message.GeoDataMessage;
 
 
-public class VisualizeActivity extends AppCompatActivity {
+public class VisualizeActivity extends Activity {
     private static final String TAG = VisualizeActivity.class.getSimpleName();
 
     private Button refreshConnectionButton;
@@ -73,7 +74,7 @@ public class VisualizeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualize);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //setSupportActionBar(toolbar);
         refreshConnectionButton = (Button) findViewById(R.id.refreshConnectionButton);
 
         mapView = (MapView) findViewById(R.id.MapView);

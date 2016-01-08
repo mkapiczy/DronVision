@@ -1,7 +1,7 @@
 package dron.mkapiczynski.pl.gpsvisualiser.activity;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +12,7 @@ import dron.mkapiczynski.pl.gpsvisualiser.R;
 import dron.mkapiczynski.pl.gpsvisualiser.domain.User;
 import dron.mkapiczynski.pl.gpsvisualiser.helper.SessionManager;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends Activity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     private Button logginButton;

@@ -21,7 +21,7 @@ import dron.mkapiczynski.pl.gpsvisualiser.activity.VisualizeActivity;
  * Created by Miix on 2016-01-06.
  */
 public class CustomMapListener implements MapListener {
-        Activity activity;
+        private Activity activity;
         private int oldZoomLevel = -1;
         private Context context;
 
