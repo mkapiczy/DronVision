@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
+    android:background="@color/colorBackground"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -24,13 +25,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/logoImageView"
+                android:src="@drawable/logo"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+
+
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/email_layout"
+                android:layout_below="@+id/logoImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -39,6 +51,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
+                    android:textColorHint="@color/colorHint"
+                    android:textColor="@color/textColor"
+                    android:textAlignment="center"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true" />
@@ -46,15 +61,20 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/password_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/email_layout">
 
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_password"
+                    android:textColorHint="@color/colorHint"
+                    android:textColor="@color/textColor"
                     android:imeActionId="@+id/login"
+                    android:textAlignment="center"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
@@ -65,6 +85,7 @@
 
             <Button
                 android:id="@+id/email_sign_in_button"
+                android:layout_below="@+id/password_layout"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,6 +93,15 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
-        </LinearLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dronIconImageView"
+                android:src="@drawable/dron_vision_logo"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/email_sign_in_button"
+                android:layout_marginTop="35dp"/>
+
+        </RelativeLayout>
     </ScrollView>
 </LinearLayout>
