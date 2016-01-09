@@ -79,7 +79,7 @@ public class VisionActivity extends AppCompatActivity
         overlayItemList = new ArrayList<>();
         defaultResourceProxyImpl = new DefaultResourceProxyImpl(this);
 
-        mapHelper = new MapHelper( this);
+        mapHelper = new MapHelper(this);
         mapHelper.setMapViewDefaultSettings();
 
         client.connectToWebSocketServer();
@@ -153,7 +153,9 @@ public class VisionActivity extends AppCompatActivity
     }
 
     public void updateDronesOnMap(Drone drone) {
-        dronService.updateDronesSet(drones, drone);
-        mapHelper.updateDronesOnMapView(drones);
+        MapAsyncTask mapAsyncTask = new MapAsyncTask(drone,drones, this);
+        mapAsyncTask.execute();
+        /*dronService.updateDronesSet(drones, drone);
+        mapHelper.updateDronesOnMapView(drones);*/
     }
 }

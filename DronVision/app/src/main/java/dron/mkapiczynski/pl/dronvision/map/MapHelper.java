@@ -49,6 +49,11 @@ public class MapHelper {
         double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);*/
     }
 
+    public void addScaleBarOverlayToMapView() {
+        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
+        mapView.getOverlays().add(myScaleBarOverlay);
+    }
+/*
     public void updateDronesOnMapView(Set<Drone> drones){
         mapView.getOverlays().clear();
         addScaleBarOverlayToMapView();
@@ -62,21 +67,10 @@ public class MapHelper {
             currentIteratedDrone.getSearchedArea().addAll(currentIteratedDrone.getLastSearchedArea());
         }
 
-        /**
-         * TODO
-         * Obliczanie środka mapy do przemyślenia.
-         * Chyba śledzenie jednego drona w danej chwili, a reszta ty
-         * lko wizualizacja.
-         */
         GeoPoint mapCenter = getLastDroneInSetLocation(drones);
         MapController mapController = (MapController) mapView.getController();
         mapController.animateTo(mapCenter);
         mapView.invalidate();
-    }
-
-    private void addScaleBarOverlayToMapView() {
-        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
-        mapView.getOverlays().add(myScaleBarOverlay);
     }
 
     private void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate) {
@@ -122,13 +116,11 @@ public class MapHelper {
 
     private GeoPoint getLastDroneInSetLocation(Set<Drone> drones) {
         Iterator<Drone> dronesIterator = drones.iterator();
-        while (dronesIterator.hasNext()) {
-            Drone currentIteratedDrone = dronesIterator.next();
-            if (!dronesIterator.hasNext()) {
-                return new GeoPoint(currentIteratedDrone.getCurrentPosition().getLatitude(), currentIteratedDrone.getCurrentPosition().getLongitude());
-            }
+        if(dronesIterator.hasNext()) {
+            return drones.iterator().next().getCurrentPosition();
+        } else{
+            return null;
         }
-        return null;
     }
 
     public class DronUpdateTask extends AsyncTask<Void, Void, Boolean> {
@@ -158,7 +150,7 @@ public class MapHelper {
         protected void onCancelled() {
 
         }
-    }
+    }*/
 
 
 /*

@@ -28,7 +28,7 @@ import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:57053/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:58622/dron-server-web/server";
     private VisionActivity activity;
     private boolean deviceIsLoggedIn = false;
 

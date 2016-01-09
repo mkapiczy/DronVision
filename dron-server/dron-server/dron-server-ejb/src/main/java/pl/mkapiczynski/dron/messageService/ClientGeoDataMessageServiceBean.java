@@ -29,7 +29,7 @@ public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageServ
 	 * To do własnego Bean'a
 	 */
 	private List<GeoPoint> calculateSearchedArea(TrackerGeoDataMessage geoMessage){
-		List<GeoPoint> searchedAreaList = GeoPoint.pointsAsCircle(geoMessage.getLastPosition(), 25.0);
+		List<GeoPoint> searchedAreaList = GeoPoint.pointsAsCircle(geoMessage.getLastPosition(), 20.0);
 		return searchedAreaList;
 	}
 }
