@@ -44,7 +44,6 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        mapView.getOverlays().clear();
     }
 
     @Override
@@ -68,6 +67,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     private void updateDronesOnMapView(Set<Drone> drones){
+        mapView.getOverlays().clear();
         Iterator<Drone> droneIterator = drones.iterator();
         while (droneIterator.hasNext()) {
             Drone currentIteratedDrone = droneIterator.next();
