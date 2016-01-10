@@ -12,7 +12,7 @@ import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
 @Local
 @Stateless(name = "ClientGeoDataMessageService")
-public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageService{
+public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageService {
 
 	@Override
 	public ClientGeoDataMessage generateClientGeoDataMessage(TrackerGeoDataMessage trackerGeoDataMessage) {
@@ -24,11 +24,11 @@ public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageServ
 		clientGeoDataMessage.setSearchedArea(calculateSearchedArea(trackerGeoDataMessage));
 		return clientGeoDataMessage;
 	}
-	
+
 	/**
 	 * To do własnego Bean'a
 	 */
-	private List<GeoPoint> calculateSearchedArea(TrackerGeoDataMessage geoMessage){
+	private List<GeoPoint> calculateSearchedArea(TrackerGeoDataMessage geoMessage) {
 		List<GeoPoint> searchedAreaList = GeoPoint.pointsAsCircle(geoMessage.getLastPosition(), 20.0);
 		return searchedAreaList;
 	}
