@@ -3,6 +3,7 @@ package pl.mkapiczynski.dron.drone.domain;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,9 +22,13 @@ public class Drone {
 	
 	@Id
 	@GeneratedValue
-	private Long loid;
+	private Long droneId;
 	
-	private String deviceId;
+	@Column(name="name")
+	private String droneName;
+	
+	@Column(name="description")
+	private String droneDescription;
 	
 	private DroneStatusEnum status;
 	

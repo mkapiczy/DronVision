@@ -12,7 +12,7 @@ import javax.persistence.Table;
 public class SearchedArea {
 	@Id
 	@GeneratedValue
-	private Long sessionId;
+	private Long loid;
 	
 	private List<Location> searchedLocations;
 	

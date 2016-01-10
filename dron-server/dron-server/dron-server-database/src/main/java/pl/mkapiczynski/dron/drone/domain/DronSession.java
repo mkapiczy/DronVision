@@ -16,7 +16,7 @@ import pl.mkapiczynski.dron.location.domain.SearchedLocation;
 public class DronSession {
 	@Id
 	@GeneratedValue
-	private Long loid;
+	private Long sessionId;
 	
 	private Date sessionStarted;
 	
