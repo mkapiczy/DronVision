@@ -1,5 +1,8 @@
 package dron.mkapiczynski.pl.dronvision.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -100,8 +103,13 @@ public class VisionActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+            Intent intent = new Intent(VisionActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         } else {
-            super.onBackPressed();
+            Intent intent = new Intent(VisionActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 
