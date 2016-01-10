@@ -10,6 +10,7 @@ import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     private Drone drone;
     private Set<Drone> drones;
     private MapView mapView;
+    private List<Overlay> mapOverlays = new ArrayList<>();
 
     public MapAsyncTask(Drone drone, Set<Drone> drones, VisionActivity activity) {
         this.drone = drone;
@@ -44,6 +46,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        mapOverlays.clear();
     }
 
     @Override
@@ -57,9 +60,11 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         //GeoPoint mapCenter = getLastDroneInSetLocation(drones);
+        mapView.getOverlays().clear();
+        mapView.getOverlays().addAll(mapOverlays);
+        mapView.invalidate();
         MapController mapController = (MapController) mapView.getController();
         mapController.animateTo(drone.getCurrentPosition());
-        mapView.invalidate();
     }
 
     @Override
@@ -67,7 +72,6 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     private void updateDronesOnMapView(Set<Drone> drones){
-        mapView.getOverlays().clear();
         Iterator<Drone> droneIterator = drones.iterator();
         while (droneIterator.hasNext()) {
             Drone currentIteratedDrone = droneIterator.next();
@@ -80,7 +84,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     private void addScaleBarOverlayToMapView() {
         ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
-        mapView.getOverlays().add(myScaleBarOverlay);
+        mapOverlays.add(myScaleBarOverlay);
     }
 
     private void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate) {
@@ -91,7 +95,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
         marker.setTitle(droneToUpdate.getDeviceId());
         marker.setIcon(droneIcon);
 
-        mapView.getOverlays().add(marker);
+        mapOverlays.add(marker);
     }
 
     private void updateDroneLastSearchedAreaOnMap(Drone droneToUpdate) {
@@ -100,21 +104,23 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
         lastSearchedArea.setFillColor(0X285EAAF6);
         lastSearchedArea.setStrokeColor(0X285EAAF6);
         lastSearchedArea.setStrokeWidth(0);
-        mapView.getOverlays().add(lastSearchedArea);
+        mapOverlays.add(lastSearchedArea);
     }
 
     private void updateDroneSearchedAreaOnMap(Drone droneToUpdateTrail) {
         if (droneToUpdateTrail.getSearchedArea().size() > 1) {
-            Polygon searchedArea = new Polygon(activity.getApplicationContext());
             List<GeoPoint> list = new ArrayList<>();
             list.addAll(droneToUpdateTrail.getSearchedArea());
+            Polygon searchedArea = new Polygon(activity.getApplicationContext());
             searchedArea.setPoints(list);
             searchedArea.setFillColor(0x12121212);
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(0);
-            mapView.getOverlays().add(searchedArea);
+            mapOverlays.add(searchedArea);
+
         }
     }
+    
 
     private Drawable getDroneMarkerIcon(Drone dronToUpdate) {
         Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
