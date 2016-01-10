@@ -36,6 +36,7 @@
         <module>dron-server-ejb</module>
         <module>dron-server-web</module>
         <module>dron-server-ear</module>
+		<module>dron-server-database</module>
     </modules>
 
     <properties>
@@ -68,6 +69,13 @@
 
     <dependencyManagement>
         <dependencies>
+		
+		<dependency>
+                <groupId>pl.mkapiczynski.dron</groupId>
+                <artifactId>dron-server-database</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+           </dependency>
 
             <!-- Define the version of the EJB jar so that we don't need 
                 to repeat ourselves in every module -->
