@@ -5,6 +5,7 @@ import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
+import org.osmdroid.bonuspack.kml.KmlMultiGeometry;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
@@ -62,7 +63,8 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
         //GeoPoint mapCenter = getLastDroneInSetLocation(drones);
         mapView.getOverlays().clear();
         mapView.getOverlays().addAll(mapOverlays);
-        mapView.invalidate();
+        //mapView.invalidate();
+        mapView.postInvalidateOnAnimation();
         MapController mapController = (MapController) mapView.getController();
         mapController.animateTo(drone.getCurrentPosition());
     }
@@ -117,10 +119,9 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(0);
             mapOverlays.add(searchedArea);
-
         }
     }
-    
+
 
     private Drawable getDroneMarkerIcon(Drone dronToUpdate) {
         Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
