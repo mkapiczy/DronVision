@@ -17,6 +17,9 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_vision_title">Wizualizacja</string>
+    <string name="nav_preferences_title">Preferencje</string>
+    <string name="nav_settings_title">Ustawienia</string>
 
     <string name="action_settings">Settings</string>
 </resources>

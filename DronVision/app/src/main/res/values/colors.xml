@@ -6,5 +6,6 @@
     <color name="colorBackground">#f9f7f7</color>
     <color name="colorHint">#a6a4a4</color>
     <color name="textColor">#69b9eb</color>
+    <color name="textColorDark">#205c81</color>
     <color name="colorBar">#dce289</color>
 </resources>
