@@ -16,14 +16,14 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
+import pl.mkapiczynski.dron.business.ClientGeoDataMessageService;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
+import pl.mkapiczynski.dron.message.MessageDecoder;
+import pl.mkapiczynski.dron.message.MessageEncoder;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
-import pl.mkapiczynski.dron.messageDecoder.MessageDecoder;
-import pl.mkapiczynski.dron.messageEncoder.MessageEncoder;
-import pl.mkapiczynski.dron.messageService.ClientGeoDataMessageService;
 
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })

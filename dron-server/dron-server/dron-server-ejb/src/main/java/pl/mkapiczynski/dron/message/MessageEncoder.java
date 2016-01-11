@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.messageEncoder;
+package pl.mkapiczynski.dron.message;
 
 import java.util.Date;
 

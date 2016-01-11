@@ -22,7 +22,7 @@
 	<artifactId>dron-server-ejb</artifactId>
 	<packaging>ejb</packaging>
 
-	<name>dron-server: EJB Module</name>
+	<name>dron-server-ejb</name>
 
 	<url>http://wildfly.org</url>
 	<licenses>
@@ -34,13 +34,6 @@
 	</licenses>
 
 	<dependencies>
-		<dependency>
-			<groupId>pl.mkapiczynski.dron</groupId>
-			<artifactId>dron-server-database</artifactId>
-			<type>jar</type>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- Declare the APIs we depend on and need for compilation. All of them 
 			are provided by JBoss WildFly -->
 

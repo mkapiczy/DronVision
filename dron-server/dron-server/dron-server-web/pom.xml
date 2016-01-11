@@ -28,7 +28,7 @@
    <artifactId>dron-server-web</artifactId>
    <packaging>war</packaging>
 
-   <name>dron-server: WAR Module</name>
+   <name>dron-server-web</name>
 
    <url>http://wildfly.org</url>
    <licenses>

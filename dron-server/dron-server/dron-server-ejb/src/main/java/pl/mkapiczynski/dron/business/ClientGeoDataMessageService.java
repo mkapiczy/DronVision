@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.messageService;
+package pl.mkapiczynski.dron.business;
 
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;

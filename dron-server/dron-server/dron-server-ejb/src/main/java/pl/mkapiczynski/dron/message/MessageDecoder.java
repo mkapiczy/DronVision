@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.messageDecoder;
+package pl.mkapiczynski.dron.message;
 
 import java.io.StringReader;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.drone.enums;
+package pl.mkapiczynski.dron.database;
 
 public enum DroneStatusEnum {
 	
