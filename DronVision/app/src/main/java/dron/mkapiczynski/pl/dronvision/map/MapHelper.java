@@ -1,40 +1,20 @@
 package dron.mkapiczynski.pl.dronvision.map;
 
-import android.graphics.ColorFilter;
-import android.graphics.LightingColorFilter;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
+import android.app.Activity;
+import android.content.Context;
 
-import org.osmdroid.bonuspack.overlays.Marker;
-import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import dron.mkapiczynski.pl.dronvision.R;
-import dron.mkapiczynski.pl.dronvision.activity.VisionActivity;
-import dron.mkapiczynski.pl.dronvision.domain.Drone;
-
 /**
  * Created by Miix on 2016-01-08.
  */
 public class MapHelper {
-    private MapView mapView;
-    private VisionActivity activity;
 
-    public MapHelper(VisionActivity activity){
-        this.activity = activity;
-        mapView = (MapView) activity.findViewById(R.id.MapView);
-    }
-
-    public void setMapViewDefaultSettings() {
+    public static void setMapViewDefaultSettings(MapView mapView, Activity activity) {
         mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -42,15 +22,15 @@ public class MapHelper {
         MapController mapController = (MapController) mapView.getController();
         mapController.setZoom(16);
         mapController.setCenter(new GeoPoint(52.24695, 21.105083));
-        addScaleBarOverlayToMapView();
+        addScaleBarOverlayToMapView(mapView, activity.getApplicationContext());
         /*CustomMapListener customMapListener = new CustomMapListener(VisualizeActivity.this, getApplicationContext(), 16);
         mapView.setMapListener(customMapListener);*/
         /*DisplayMetrics metrics = getResources().getDisplayMetrics();
         double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);*/
     }
 
-    public void addScaleBarOverlayToMapView() {
-        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
+    private static void addScaleBarOverlayToMapView(MapView mapView, Context context) {
+        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(context);
         mapView.getOverlays().add(myScaleBarOverlay);
     }
 /*

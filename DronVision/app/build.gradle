@@ -22,18 +22,19 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:+'
+    compile(name: 'osmbonuspack_v5.6.1', ext: 'aar')
+    compile files('libs/javax.json-1.0.4.jar')
+    compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'org.osmdroid:osmdroid-android:5.0.1@aar'
     compile 'org.slf4j:slf4j-simple:1.6.1'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.okhttp:okhttp:2.6.0'
-    compile(name:'osmbonuspack_v5.6.1', ext:'aar')
-    compile files('libs/javax.json-1.0.4.jar')
+    compile 'com.android.support:support-v4:23.1.1'
 }
-repositories{
-    flatDir{
+repositories {
+    flatDir {
         dirs 'libs'
     }
 }

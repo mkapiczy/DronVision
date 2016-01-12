@@ -1,11 +1,11 @@
 package dron.mkapiczynski.pl.dronvision.map;
 
+import android.app.Activity;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
-import org.osmdroid.bonuspack.kml.KmlMultiGeometry;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
-import dron.mkapiczynski.pl.dronvision.activity.VisionActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.service.DronService;
 import dron.mkapiczynski.pl.dronvision.service.DronServiceBean;
@@ -31,17 +30,18 @@ import dron.mkapiczynski.pl.dronvision.service.DronServiceBean;
 public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     DronService dronService = new DronServiceBean();
 
-    private VisionActivity activity;
+    private Activity activity;
     private Drone drone;
     private Set<Drone> drones;
     private MapView mapView;
     private List<Overlay> mapOverlays = new ArrayList<>();
 
-    public MapAsyncTask(Drone drone, Set<Drone> drones, VisionActivity activity) {
+    public MapAsyncTask(MapView mapView, Drone drone, Set<Drone> drones, Activity activity) {
         this.drone = drone;
         this.drones = drones;
         this.activity = activity;
-        mapView = (MapView) activity.findViewById(R.id.MapView);
+        this.mapView = mapView;
+        //mapView = (MapView) activity.findViewById(R.id.MapView);
     }
 
     @Override

@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,66 +14,41 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
-
-import org.osmdroid.DefaultResourceProxyImpl;
-import org.osmdroid.api.Polyline;
-import org.osmdroid.views.MapController;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.OverlayItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
-import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
-import dron.mkapiczynski.pl.dronvision.map.MapHelper;
-import dron.mkapiczynski.pl.dronvision.service.DronService;
-import dron.mkapiczynski.pl.dronvision.service.DronServiceBean;
+import dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment;
+import dron.mkapiczynski.pl.dronvision.fragment.SettingsFragment;
+import dron.mkapiczynski.pl.dronvision.fragment.VisionFragment;
 import dron.mkapiczynski.pl.dronvision.websocket.MyWebSocketConnection;
 
-public class VisionActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener {
 
-    private static final String TAG = VisionActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
     // UI
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private Button refreshConnectionButton;
 
-    // Map objects
-    private MapHelper mapHelper;
-    private MapView mapView;
-    private MapController mapController;
-    private List<OverlayItem> overlayItemList;
-    private DefaultResourceProxyImpl defaultResourceProxyImpl;
+    // Fragmenty
+    private FragmentManager fragmentManager;
+    private VisionFragment visionFragment;
+    private PreferencesFragment preferencesFragment;
+    private SettingsFragment settingsFragment;
 
 
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
 
-    private List<Polyline> dronesTracks = new ArrayList<>();
-    private ArrayList<MyGeoPoint> points = new ArrayList<>();
-
-    // Drony, które mają być wizualizowane
-    private DronService dronService = new DronServiceBean();
-    private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_vision);
+        setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        refreshConnectionButton = (Button) findViewById(R.id.refreshConnectionButton);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -83,35 +58,41 @@ public class VisionActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mapView = (MapView) findViewById(R.id.MapView);
-
-        overlayItemList = new ArrayList<>();
-        defaultResourceProxyImpl = new DefaultResourceProxyImpl(this);
-
-        mapHelper = new MapHelper(this);
-        mapHelper.setMapViewDefaultSettings();
-
         client.connectToWebSocketServer();
         //ask for drones ascribed to this client account
 
-        refreshConnectionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!client.isConnected()) {
-                    client.connectToWebSocketServer();
-                }
-            }
-        });
+
+        visionFragment = new VisionFragment();
+        preferencesFragment = new PreferencesFragment();
+        settingsFragment = new SettingsFragment();
+
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, visionFragment)
+                .add(R.id.fragment_container, preferencesFragment)
+                .add(R.id.fragment_container, settingsFragment)
+                .hide(preferencesFragment)
+                .hide(settingsFragment)
+                .commit();
     }
+
 
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        }else {
+        } else if (visionFragment.isVisible()) {
             AlertDialog logoutDialog = createLogoutDialog(this);
             logoutDialog.show();
+        } else {
+            if (visionFragment.isHidden()) {
+                if (preferencesFragment.isVisible()) {
+                    fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
+                } else if(settingsFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                }
+            }
         }
     }
 
@@ -137,18 +118,35 @@ public class VisionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_vision) {
-            // Handle the camera action
+            if (visionFragment.isHidden()) {
+                if (preferencesFragment.isVisible()) {
+                    fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
+                } else if(settingsFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                }
+            }
         } else if (id == R.id.nav_preferences) {
-
+            if(preferencesFragment.isHidden()){
+                if(visionFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(visionFragment).show(preferencesFragment).commit();
+                } else if(settingsFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(settingsFragment).show(preferencesFragment).commit();
+                }
+            }
         } else if (id == R.id.nav_settings) {
-
+            if(settingsFragment.isHidden()){
+                if(visionFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(visionFragment).show(settingsFragment).commit();
+                } else if(preferencesFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(preferencesFragment).show(settingsFragment).commit();
+                }
+            }
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -158,6 +156,17 @@ public class VisionActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void updateDronesOnMap(Drone drone) {
+        visionFragment.updateMapView(drone);
+    }
+
+    @Override
+    public void onRefreshConnectionButtonClicked() {
+        if (!client.isConnected()) {
+            client.connectToWebSocketServer();
+        }
     }
 
     private AlertDialog createLogoutDialog(Context context) {
@@ -174,7 +183,7 @@ public class VisionActivity extends AppCompatActivity
                         intent.putExtra("prevActivity", "GPS");
                         startActivity(intent);
                         Toast.makeText(getApplicationContext(), "Zostałeś wylogowany", Toast.LENGTH_SHORT).show();
-                        VisionActivity.this.finish();
+                        MainActivity.this.finish();
                     }
                 })
                 .setNegativeButton("Nie", new DialogInterface.OnClickListener() {
@@ -187,12 +196,5 @@ public class VisionActivity extends AppCompatActivity
         AlertDialog logoutDialog = alertDialogBuilder.create();
 
         return logoutDialog;
-    }
-
-    public void updateDronesOnMap(Drone drone) {
-        MapAsyncTask mapAsyncTask = new MapAsyncTask(drone,drones, this);
-        mapAsyncTask.execute();
-        /*dronService.updateDronesSet(drones, drone);
-        mapHelper.updateDronesOnMapView(drones);*/
     }
 }
