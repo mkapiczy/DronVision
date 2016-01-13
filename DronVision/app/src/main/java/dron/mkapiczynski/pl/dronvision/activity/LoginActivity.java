@@ -363,17 +363,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 e.printStackTrace();
             }
 
-
-
-           /* for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(login)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(password);
-                }
-            }*/
-
-            // TODO: register the new account here.
             return false;
         }
 

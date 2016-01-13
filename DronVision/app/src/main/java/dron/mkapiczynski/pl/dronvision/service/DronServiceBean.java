@@ -4,8 +4,10 @@ import android.graphics.Color;
 
 import org.osmdroid.util.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -50,7 +52,7 @@ public class DronServiceBean implements DronService {
 
     private void addDroneToSet(Set<Drone> dronesSet, Drone droneToAdd) {
         droneToAdd.setColor(getRandomColor());
-        droneToAdd.setSearchedArea(new HashSet<GeoPoint>());
+        droneToAdd.setSearchedArea(new ArrayList<GeoPoint>());
         dronesSet.add(droneToAdd);
     }
 

@@ -13,7 +13,7 @@ public class Drone {
     private String deviceId;
     private String deviceName;
     private GeoPoint currentPosition;
-    private Set<GeoPoint> searchedArea;
+    private List<GeoPoint> searchedArea;
     private List<GeoPoint> lastSearchedArea;
     private int color;
 
@@ -41,11 +41,11 @@ public class Drone {
         this.currentPosition = currentPosition;
     }
 
-    public Set<GeoPoint> getSearchedArea() {
+    public List<GeoPoint> getSearchedArea() {
         return searchedArea;
     }
 
-    public void setSearchedArea(Set<GeoPoint> searchedArea) {
+    public void setSearchedArea(List<GeoPoint> searchedArea) {
         this.searchedArea = searchedArea;
     }
 

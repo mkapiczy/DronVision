@@ -76,6 +76,13 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(client.isConnected()) {
+            client.disconnect();
+        }
+    }
 
     @Override
     public void onBackPressed() {
