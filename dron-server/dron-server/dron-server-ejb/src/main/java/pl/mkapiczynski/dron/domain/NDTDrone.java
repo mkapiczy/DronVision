@@ -1,0 +1,52 @@
+package pl.mkapiczynski.dron.domain;
+
+import pl.mkapiczynski.dron.database.DroneStatusEnum;
+
+public class NDTDrone {
+	private String droneId;
+	private String droneName;
+	private String droneDescription;
+	private DroneStatusEnum status;
+	private GeoPoint lastLocation;
+
+	public String getDroneId() {
+		return droneId;
+	}
+
+	public void setDroneId(String droneId) {
+		this.droneId = droneId;
+	}
+
+	public String getDroneName() {
+		return droneName;
+	}
+
+	public void setDroneName(String droneName) {
+		this.droneName = droneName;
+	}
+
+	public String getDroneDescription() {
+		return droneDescription;
+	}
+
+	public void setDroneDescription(String droneDescription) {
+		this.droneDescription = droneDescription;
+	}
+
+	public DroneStatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(DroneStatusEnum status) {
+		this.status = status;
+	}
+
+	public GeoPoint getLastLocation() {
+		return lastLocation;
+	}
+
+	public void setLastLocation(GeoPoint lastLocation) {
+		this.lastLocation = lastLocation;
+	}
+
+}

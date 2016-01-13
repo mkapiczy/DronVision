@@ -20,24 +20,30 @@ public class CSTUser {
 
 	@Id
 	@GeneratedValue
-	@Column(name="user_id")
+	@Column(name = "user_id")
 	private Long userId;
 
-	@OneToOne(optional=false)
-	@JoinColumn(name = "account_id", unique=true, nullable=false)
+	@OneToOne(optional = false)
+	@JoinColumn(name = "account_id", unique = true, nullable = false)
 	private UserAccount userAccount;
 
 	@ManyToMany
 	@JoinTable(name = "User_AssignedDrones", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"), inverseJoinColumns = @JoinColumn(name = "assignedDrone_id", referencedColumnName = "drone_id"))
 	List<Drone> assignedDrones;
 
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "visualizedDrone_id")
-	Drone visualizedDrone;
+	/*
+	 * @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	 * 
+	 * @JoinColumn(name = "visualizedDrone_id") Drone visualizedDrone;
+	 */
 
 	@ManyToMany
 	@JoinTable(name = "User_TrackedDrones", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"), inverseJoinColumns = @JoinColumn(name = "trackedDrone_id", referencedColumnName = "drone_id"))
 	List<Drone> trackedDrones;
+
+	@ManyToMany
+	@JoinTable(name = "User_VisualizedDrones", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"), inverseJoinColumns = @JoinColumn(name = "visualizedDrone_id", referencedColumnName = "drone_id"))
+	List<Drone> visualizedDrones;
 
 	public Long getUserId() {
 		return userId;
@@ -63,20 +69,20 @@ public class CSTUser {
 		this.assignedDrones = assignedDrones;
 	}
 
-	public Drone getVisualizedDrone() {
-		return visualizedDrone;
-	}
-
-	public void setVisualizedDrone(Drone visualizedDrone) {
-		this.visualizedDrone = visualizedDrone;
-	}
-
 	public List<Drone> getTrackedDrones() {
 		return trackedDrones;
 	}
 
 	public void setTrackedDrones(List<Drone> trackedDrones) {
 		this.trackedDrones = trackedDrones;
+	}
+
+	public List<Drone> getVisualizedDrones() {
+		return visualizedDrones;
+	}
+
+	public void setVisualizedDrones(List<Drone> visualizedDrones) {
+		this.visualizedDrones = visualizedDrones;
 	}
 
 }

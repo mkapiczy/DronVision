@@ -11,8 +11,8 @@ import javax.websocket.EndpointConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import pl.mkapiczynski.dron.jsonHelper.JsonDateDeserializer;
-import pl.mkapiczynski.dron.jsonHelper.JsonDateSerializer;
+import pl.mkapiczynski.dron.helpers.JsonDateDeserializer;
+import pl.mkapiczynski.dron.helpers.JsonDateSerializer;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;

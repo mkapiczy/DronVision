@@ -22,7 +22,7 @@ public class Drone {
 
 	@Id
 	@GeneratedValue
-	@Column(name="drone_id")
+	@Column(name = "drone_id")
 	private Long droneId;
 
 	@Column(name = "name")
@@ -30,21 +30,19 @@ public class Drone {
 
 	@Column(name = "description")
 	private String droneDescription;
-	
+
 	@Enumerated(EnumType.STRING)
 	private DroneStatusEnum status;
 
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(
-		      name="lastLocation_id")
+	@JoinColumn(name = "lastLocation_id")
 	private Location lastLocation;
 
-	@ManyToMany(mappedBy="assignedDrones")
+	@ManyToMany(mappedBy = "assignedDrones")
 	private List<CSTUser> assignedUsers;
-	
-	@OneToMany(mappedBy="drone")
-	private List<DroneSession> sessions;
 
+	@OneToMany(mappedBy = "drone")
+	private List<DroneSession> sessions;
 
 	public Long getDroneId() {
 		return droneId;
@@ -76,6 +74,14 @@ public class Drone {
 
 	public void setStatus(DroneStatusEnum status) {
 		this.status = status;
+	}
+
+	public List<DroneSession> getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(List<DroneSession> sessions) {
+		this.sessions = sessions;
 	}
 
 	public Location getLastLocation() {
