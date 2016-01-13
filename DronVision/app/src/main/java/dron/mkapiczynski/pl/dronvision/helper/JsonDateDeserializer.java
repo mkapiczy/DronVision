@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.dronvision.jsonHelper;
+package dron.mkapiczynski.pl.dronvision.helper;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

@@ -46,22 +46,17 @@ public class SessionManager {
     }
 
     public void setLoggedUser(User user){
-        editor.putString("username", user.getUserName());
-        editor.putString("name", user.getName());
-        editor.putString("email", user.getEmail());
+        editor.putString("login", user.getLogin());
 
         editor.commit();
         Log.d(TAG, "User session data saved");
     }
 
     public User getLoggedUser(){
-        String username = pref.getString("username","");
-        String name = pref.getString("name","");
-        String email = pref.getString("email","");
+        String login = pref.getString("login","");
         User loggedUser = new User();
-        loggedUser.setUserName(username);
-        loggedUser.setName(name);
-        loggedUser.setEmail(email);
+        loggedUser.setLogin(login);
+
         return loggedUser;
     }
 

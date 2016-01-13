@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 
 import java.util.Date;
 
-import dron.mkapiczynski.pl.dronvision.jsonHelper.JsonDateDeserializer;
+import dron.mkapiczynski.pl.dronvision.helper.JsonDateDeserializer;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 
 

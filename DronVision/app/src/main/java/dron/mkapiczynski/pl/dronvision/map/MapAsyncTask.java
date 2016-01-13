@@ -3,15 +3,18 @@ package dron.mkapiczynski.pl.dronvision.map;
 import android.app.Activity;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.PathOverlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import java.util.ArrayList;
@@ -114,10 +117,13 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
             List<GeoPoint> list = new ArrayList<>();
             list.addAll(droneToUpdateTrail.getSearchedArea());
             Polygon searchedArea = new Polygon(activity.getApplicationContext());
+           /* PathOverlay pathOverlay = new PathOverlay(0x12121212,  activity);
+            pathOverlay.getPaint().setStyle(Paint.Style.FILL);
+            pathOverlay.addPoints(list);*/
             searchedArea.setPoints(list);
             searchedArea.setFillColor(0x12121212);
             searchedArea.setStrokeColor(0x12121212);
-            searchedArea.setStrokeWidth(0);
+            searchedArea.setStrokeWidth(1);
             mapOverlays.add(searchedArea);
         }
     }
