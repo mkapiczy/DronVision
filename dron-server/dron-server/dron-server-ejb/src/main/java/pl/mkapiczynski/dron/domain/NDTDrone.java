@@ -3,17 +3,17 @@ package pl.mkapiczynski.dron.domain;
 import pl.mkapiczynski.dron.database.DroneStatusEnum;
 
 public class NDTDrone {
-	private String droneId;
+	private Long droneId;
 	private String droneName;
 	private String droneDescription;
 	private DroneStatusEnum status;
 	private GeoPoint lastLocation;
 
-	public String getDroneId() {
+	public Long getDroneId() {
 		return droneId;
 	}
 
-	public void setDroneId(String droneId) {
+	public void setDroneId(Long droneId) {
 		this.droneId = droneId;
 	}
 

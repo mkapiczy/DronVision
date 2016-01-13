@@ -81,7 +81,7 @@ public class GeoPoint {
 	public static ArrayList<GeoPoint> pointsAsCircle(GeoPoint center, double radiusInMeters) {
 		ArrayList<GeoPoint> circlePoints = new ArrayList<>();
 
-		for (int f = 0; f < 360; f += 1) {
+		for (int f = 0; f < 360; f += 2) {
 			GeoPoint onCircle = center.destinationPoint(radiusInMeters, (float) f);
 			circlePoints.add(onCircle);
 		}

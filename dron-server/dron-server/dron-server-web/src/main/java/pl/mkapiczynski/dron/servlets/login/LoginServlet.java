@@ -47,6 +47,7 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String login = request.getParameter("login");
 		String password = request.getParameter("password");
+		log.info("Login request for login " + login);
 		
 		if(login!=null && password!=null){
 			if(administrationService.checkLoginData(login, password)){

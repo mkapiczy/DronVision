@@ -74,7 +74,7 @@ public class AdministrationServiceBean implements AdministrationService {
 		for (int i = 0; i < drones.size(); i++) {
 			NDTDrone ndtDrone = new NDTDrone();
 			Drone drone = drones.get(i);
-			ndtDrone.setDroneId(String.valueOf(drone.getDroneId()));
+			ndtDrone.setDroneId(drone.getDroneId());
 			ndtDrone.setDroneName(drone.getDroneName());
 			ndtDrone.setDroneDescription(drone.getDroneDescription());
 			ndtDrone.setStatus(drone.getStatus());
