@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.dronvision.decoder;
+package dron.mkapiczynski.pl.dronvision.message;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

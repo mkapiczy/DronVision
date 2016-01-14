@@ -9,9 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 
 import java.util.Collections;
@@ -21,7 +18,7 @@ import java.util.Set;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
-import dron.mkapiczynski.pl.dronvision.map.MapHelper;
+import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +27,7 @@ public class VisionFragment extends Fragment {
     private static final String TAG = VisionFragment.class.getSimpleName();
 
     private VisionFragmentActivityListener listener;
-    private MapHelper mapHelper;
+
 
     // User Interface
     private MapView mapView;
@@ -54,7 +51,7 @@ public class VisionFragment extends Fragment {
 
         mapView = (MapView) view.findViewById(R.id.MapView);
 
-        mapHelper.setMapViewDefaultSettings(mapView, getActivity());
+        MapUtils.setMapViewDefaultSettings(mapView, getActivity());
 
         refreshConnectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
