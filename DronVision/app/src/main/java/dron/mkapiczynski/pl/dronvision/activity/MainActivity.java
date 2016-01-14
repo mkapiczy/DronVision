@@ -79,9 +79,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(client.isConnected()) {
-            client.disconnect();
-        }
+        client.disconnectFromWebsocketServer();
     }
 
     @Override
@@ -189,8 +187,8 @@ public class MainActivity extends AppCompatActivity
                         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                         intent.putExtra("prevActivity", "GPS");
                         startActivity(intent);
-                        Toast.makeText(getApplicationContext(), "Zostałeś wylogowany", Toast.LENGTH_SHORT).show();
                         MainActivity.this.finish();
+                        Toast.makeText(getApplicationContext(), "Zostałeś wylogowany", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Nie", new DialogInterface.OnClickListener() {

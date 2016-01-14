@@ -82,6 +82,11 @@ public class MyWebSocketConnection extends WebSocketConnection {
         }
     }
 
+    public void disconnectFromWebsocketServer(){
+        if(isConnected()){
+            disconnect();
+        }
+    }
     private boolean sendLoginMessage() {
         ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
         clientLoginMessage.setClientId("Client2");
