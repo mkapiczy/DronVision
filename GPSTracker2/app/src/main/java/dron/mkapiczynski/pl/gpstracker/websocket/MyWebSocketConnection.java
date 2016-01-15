@@ -24,7 +24,7 @@ import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:57449 /dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:43993/dron-server-web/server";
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
 

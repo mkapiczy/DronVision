@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:nestedScrollingEnabled="true"
+    tools:context="dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment"
+    tools:showIn="@layout/fragment_preferences">>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Preferencje wizualizacji"
+        android:id="@+id/preferencesTitle"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/trackedListTitle"
+        android:text="Drony śledzone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/preferencesTitle"
+        android:layout_marginTop="20dp"/>
+
+    <ListView
+        android:id="@+id/trackedDroneList"
+        android:layout_below="@+id/trackedListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerInParent="true"
+        tools:showIn="@layout/fragment_preferences"/>
+
+    <TextView
+        android:id="@+id/visualizedListTitle"
+        android:text="Drony do wizualizacji obszaru przeszukanego"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/trackedDroneList"
+        android:layout_marginTop="20dp"/>
+
+    <ListView
+        android:id="@+id/visualizedDroneList"
+        android:layout_below="@+id/visualizedListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerInParent="true"
+        android:nestedScrollingEnabled="true"
+        tools:showIn="@layout/fragment_preferences"/>
+
+
+</RelativeLayout>

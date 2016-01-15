@@ -84,18 +84,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (visionFragment.isVisible()) {
-            AlertDialog logoutDialog = createLogoutDialog(this);
-            logoutDialog.show();
-        } else {
-            if (visionFragment.isHidden()) {
-                if (preferencesFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
-                } else if(settingsFragment.isVisible()){
-                    fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+        if(hasWindowFocus()) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else if (visionFragment.isVisible()) {
+                AlertDialog logoutDialog = createLogoutDialog(this);
+                logoutDialog.show();
+            } else {
+                if (visionFragment.isHidden()) {
+                    if (preferencesFragment.isVisible()) {
+                        fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
+                    } else if (settingsFragment.isVisible()) {
+                        fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                    }
                 }
             }
         }
