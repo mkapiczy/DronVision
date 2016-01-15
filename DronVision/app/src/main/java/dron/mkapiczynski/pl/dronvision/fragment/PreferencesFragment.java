@@ -47,6 +47,24 @@ public class PreferencesFragment extends Fragment {
         trackedDronesListView = (ListView) view.findViewById(R.id.trackedDroneList);
         visualizedDronesListView = (ListView) view.findViewById(R.id.visualizedDroneList);
 
+        drones = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            DBDrone dbDrone = new DBDrone();
+            dbDrone.setDroneId(i);
+            dbDrone.setDroneName("Drone" + i);
+            dbDrone.setDroneDescription("To jest drone nr: " + i);
+            dbDrone.setTracked(true);
+            dbDrone.setVisualized(true);
+            dbDrone.setDroneStatus(DroneStatusEnum.ONLINE);
+            dbDrone.setLastLocation(new GeoPoint(22.54, 58.64));
+            drones.add(dbDrone);
+        }
+        CustomListViewAdapter customAdapter = new CustomListViewAdapter(getContext(), drones);
+        trackedDronesListView.setAdapter(customAdapter);
+        visualizedDronesListView.setAdapter(customAdapter);
+
+        setListViewHeightBasedOnChildren(trackedDronesListView);
+        setListViewHeightBasedOnChildren(visualizedDronesListView);
 
         return view;
     }
@@ -55,26 +73,26 @@ public class PreferencesFragment extends Fragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
-            /**
-             * aktualizacja dronów z serwera i bazy
-             */
-            drones = new ArrayList<>();
-            for (int i = 1; i < 10; i++) {
-                DBDrone dbDrone = new DBDrone();
-                dbDrone.setDroneId(i);
-                dbDrone.setDroneName("Drone" + i);
-                dbDrone.setDroneDescription("To jest drone nr: " + i);
-                dbDrone.setTracked(true);
-                dbDrone.setVisualized(true);
-                dbDrone.setDroneStatus(DroneStatusEnum.ONLINE);
-                dbDrone.setLastLocation(new GeoPoint(22.54, 58.64));
-                drones.add(dbDrone);
+            if (false) { // jeśli dane uległy zmianie
+                /**
+                 * aktualizacja dronów z serwera i bazy
+                 */
+                drones = new ArrayList<>();
+                for (int i = 1; i < 10; i++) {
+                    DBDrone dbDrone = new DBDrone();
+                    dbDrone.setDroneId(i);
+                    dbDrone.setDroneName("Drone" + i);
+                    dbDrone.setDroneDescription("To jest drone nr: " + i);
+                    dbDrone.setTracked(true);
+                    dbDrone.setVisualized(true);
+                    dbDrone.setDroneStatus(DroneStatusEnum.ONLINE);
+                    dbDrone.setLastLocation(new GeoPoint(22.54, 58.64));
+                    drones.add(dbDrone);
+                }
+                CustomListViewAdapter customAdapter = new CustomListViewAdapter(getContext(), drones);
+                trackedDronesListView.setAdapter(customAdapter);
+                visualizedDronesListView.setAdapter(customAdapter);
             }
-            CustomListViewAdapter customAdapter = new CustomListViewAdapter(getContext(), drones);
-            trackedDronesListView.setAdapter(customAdapter);
-            visualizedDronesListView.setAdapter(customAdapter);
-            setListViewHeightBasedOnChildren(trackedDronesListView);
-            setListViewHeightBasedOnChildren(visualizedDronesListView);
         }
     }
 

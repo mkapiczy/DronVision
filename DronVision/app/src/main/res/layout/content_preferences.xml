@@ -11,6 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
         android:text="Preferencje wizualizacji"
         android:id="@+id/preferencesTitle"
         android:layout_gravity="center" />
@@ -21,16 +23,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/preferencesTitle"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:paddingLeft="@dimen/listView_horizontal_margin"/>
 
     <ListView
         android:id="@+id/trackedDroneList"
+        android:paddingLeft="@dimen/listView_horizontal_margin"
+        android:paddingRight="@dimen/listView_horizontal_margin"
         android:layout_below="@+id/trackedListTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         tools:showIn="@layout/fragment_preferences"/>
 
     <TextView
@@ -39,7 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/trackedDroneList"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:paddingLeft="@dimen/listView_horizontal_margin"/>
 
     <ListView
         android:id="@+id/visualizedDroneList"
@@ -47,8 +52,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:paddingLeft="@dimen/listView_horizontal_margin"
+        android:paddingRight="@dimen/listView_horizontal_margin"
         android:layout_gravity="center_horizontal"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         android:nestedScrollingEnabled="true"
         tools:showIn="@layout/fragment_preferences"/>
 

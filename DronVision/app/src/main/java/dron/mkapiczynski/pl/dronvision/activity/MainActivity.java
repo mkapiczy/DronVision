@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity
     // UI
     private Toolbar toolbar;
     private NavigationView navigationView;
+    private MenuItem currentMenuItem;
 
     // Fragmenty
     private FragmentManager fragmentManager;
@@ -95,8 +96,10 @@ public class MainActivity extends AppCompatActivity
                 if (visionFragment.isHidden()) {
                     if (preferencesFragment.isVisible()) {
                         fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
+                        currentMenuItem.setChecked(false);
                     } else if (settingsFragment.isVisible()) {
                         fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                        currentMenuItem.setChecked(false);
                     }
                 }
             }
@@ -127,6 +130,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        currentMenuItem = item;
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
