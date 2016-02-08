@@ -41,7 +41,7 @@ public class Drone {
 	@ManyToMany(mappedBy = "assignedDrones")
 	private List<CSTUser> assignedUsers;
 
-	@OneToMany(mappedBy = "drone")
+	@OneToMany(mappedBy = "drone", cascade = CascadeType.ALL)
 	private List<DroneSession> sessions;
 
 	public Long getDroneId() {

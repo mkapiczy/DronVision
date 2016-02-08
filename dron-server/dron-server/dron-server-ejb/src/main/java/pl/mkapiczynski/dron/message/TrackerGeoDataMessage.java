@@ -6,7 +6,7 @@ import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public class TrackerGeoDataMessage implements Message {
 	private String messageType;
-	private String deviceId;
+	private Long deviceId;
 	private String deviceType;
 	private Date timestamp;
 	private GeoPoint lastPosition;
@@ -19,11 +19,11 @@ public class TrackerGeoDataMessage implements Message {
 		this.messageType = messageType;
 	}
 
-	public String getDeviceId() {
+	public Long getDeviceId() {
 		return deviceId;
 	}
 
-	public void setDeviceId(String deviceId) {
+	public void setDeviceId(Long deviceId) {
 		this.deviceId = deviceId;
 	}
 
@@ -53,7 +53,7 @@ public class TrackerGeoDataMessage implements Message {
 
 	@Override
 	public String toString() {
-		return "GeoDataMessage [messageType=" + messageType + ", deviceId=" + deviceId + ", " + "deviceType="
+		return "GeoDataMessage [messageType=" + messageType + ", deviceId=" + deviceId.toString() + ", " + "deviceType="
 				+ deviceType + ", " + "timestamp=" + timestamp + ", " + "lastPosition=" + lastPosition + "]";
 	}
 

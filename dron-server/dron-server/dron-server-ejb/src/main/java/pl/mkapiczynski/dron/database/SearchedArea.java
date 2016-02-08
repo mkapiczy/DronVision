@@ -2,6 +2,7 @@ package pl.mkapiczynski.dron.database;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,7 +16,7 @@ public class SearchedArea {
 	@GeneratedValue
 	private Long id;
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Location> searchedLocations;
 
 	public Long getId() {

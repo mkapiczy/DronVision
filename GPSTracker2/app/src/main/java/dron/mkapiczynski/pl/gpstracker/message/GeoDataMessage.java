@@ -12,7 +12,7 @@ public class GeoDataMessage {
     private static final String MESSAGE_TYPE = "GeoDataMessage";
     private static final String DEVICE_TYPE = "GPSTracker";
     private final String messageType = MESSAGE_TYPE;
-    private String deviceId;
+    private Long deviceId;
     private final String deviceType = DEVICE_TYPE;
     private Date timestamp;
     private GeoPoint lastPosition;
@@ -24,11 +24,11 @@ public class GeoDataMessage {
         return messageType;
     }
 
-    public String getDeviceId() {
+    public Long getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }
 

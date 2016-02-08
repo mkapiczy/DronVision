@@ -7,17 +7,17 @@ public class TrackerLoginMessage {
     private static final String MESSAGE_TYPE = "TrackerLoginMessage";
 
     private final String messageType = MESSAGE_TYPE;
-    private String deviceId;
+    private Long deviceId;
 
     public TrackerLoginMessage(){
 
     }
 
-    public String getDeviceId() {
+    public Long getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }
 

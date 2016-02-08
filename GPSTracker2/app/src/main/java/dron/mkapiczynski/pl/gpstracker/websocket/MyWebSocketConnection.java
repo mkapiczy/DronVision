@@ -24,7 +24,7 @@ import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:43993/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:10834/dron-server-web/server";
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
 
@@ -66,7 +66,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
     public void sendGeoDataMessageToServer(Location mLastLocation){
         GeoDataMessage geoDataMessage = new GeoDataMessage();
-        geoDataMessage.setDeviceId("Device1");
+        geoDataMessage.setDeviceId((long) 1);
         Date date = new Date();
         geoDataMessage.setTimestamp(date);
         GeoPoint position = new GeoPoint(mLastLocation.getLatitude(),mLastLocation.getLongitude(),mLastLocation.getAltitude());
@@ -85,7 +85,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
     private boolean sendTrackerLoginMessage(){
         TrackerLoginMessage trackerLoginMessage = new TrackerLoginMessage();
-        trackerLoginMessage.setDeviceId("Device1");
+        trackerLoginMessage.setDeviceId((long) 1);
         Gson gson = new Gson();
         if (isConnected()) {
             sendTextMessage(gson.toJson(trackerLoginMessage));

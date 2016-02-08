@@ -24,7 +24,7 @@ public class ClientGeoDataMessageServiceBean implements ClientGeoDataMessageServ
 	@Override
 	public ClientGeoDataMessage generateClientGeoDataMessage(TrackerGeoDataMessage trackerGeoDataMessage) {
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
-		clientGeoDataMessage.setDeviceId(trackerGeoDataMessage.getDeviceId());
+		clientGeoDataMessage.setDeviceId(trackerGeoDataMessage.getDeviceId().toString());
 		clientGeoDataMessage.setDeviceType(trackerGeoDataMessage.getDeviceType());
 		clientGeoDataMessage.setLastPosition(trackerGeoDataMessage.getLastPosition());
 		clientGeoDataMessage.setTimestamp(new Date());

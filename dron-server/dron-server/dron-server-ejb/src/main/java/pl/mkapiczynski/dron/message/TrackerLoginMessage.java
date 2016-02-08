@@ -2,7 +2,7 @@ package pl.mkapiczynski.dron.message;
 
 public class TrackerLoginMessage implements Message {
 	private String messageType;
-	private String deviceId;
+	private Long deviceId;
 
 	public TrackerLoginMessage() {
 	}
@@ -15,11 +15,11 @@ public class TrackerLoginMessage implements Message {
 		this.messageType = messageType;
 	}
 
-	public String getDeviceId() {
+	public Long getDeviceId() {
 		return deviceId;
 	}
 
-	public void setDeviceId(String deviceId) {
+	public void setDeviceId(Long deviceId) {
 		this.deviceId = deviceId;
 	}
 
