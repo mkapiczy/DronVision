@@ -62,7 +62,7 @@ public class MapUtils {
     private static void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         Marker marker = new Marker(mapView);
         marker.setPosition(new GeoPoint(droneToUpdate.getCurrentPosition()));
-        marker.setTitle(droneToUpdate.getDeviceId());
+        marker.setTitle(droneToUpdate.getDeviceId().toString());
         Drawable droneIcon = DroneUtils.getDroneMarkerIcon(droneToUpdate, activity);
         marker.setIcon(droneIcon);
         mapOverlays.add(marker);

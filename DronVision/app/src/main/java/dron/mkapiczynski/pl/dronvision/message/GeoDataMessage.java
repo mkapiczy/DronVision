@@ -11,7 +11,7 @@ import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
  */
 public class GeoDataMessage {
     private String messageType;
-    private String deviceId;
+    private Long deviceId;
     private String deviceType;
     private Date timestamp;
     private MyGeoPoint lastPosition;
@@ -26,11 +26,11 @@ public class GeoDataMessage {
         this.messageType = messageType;
     }
 
-    public String getDeviceId() {
+    public Long getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }
 

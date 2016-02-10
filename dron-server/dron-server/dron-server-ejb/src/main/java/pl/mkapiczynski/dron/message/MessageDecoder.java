@@ -55,13 +55,6 @@ public class MessageDecoder implements Decoder.Text<Message> {
 		}
 	}
 
-	private TrackerGeoDataMessage decodeGeoDataMessage(String jsonMessage) {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateSerializer());
-		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
-		Gson gson = gsonBuilder.create();
-		return gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
-	}
 
 	private ClientLoginMessage decodeClientLoginMessage(String jsonMessage) {
 		Gson gson = new Gson();
@@ -72,6 +65,14 @@ public class MessageDecoder implements Decoder.Text<Message> {
 		Gson gson = new Gson();
 		return gson.fromJson(jsonMessage, TrackerLoginMessage.class);
 
+	}
+	
+	private TrackerGeoDataMessage decodeGeoDataMessage(String jsonMessage) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateSerializer());
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
+		Gson gson = gsonBuilder.create();
+		return gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
 	}
 
 }

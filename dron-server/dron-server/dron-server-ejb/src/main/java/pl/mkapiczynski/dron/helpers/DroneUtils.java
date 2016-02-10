@@ -1,16 +1,16 @@
-package pl.mkapiczynski.dron.business;
+package pl.mkapiczynski.dron.helpers;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Local;
-import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jboss.logging.Logger;
 
+import pl.mkapiczynski.dron.business.SearchedAreaService;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.DroneSessionStatus;
@@ -18,24 +18,24 @@ import pl.mkapiczynski.dron.database.DroneStatusEnum;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
-import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
-@Local
-@Stateless(name = "GPSTrackerService")
-public class GPSTrackerServiceBean implements GPSTrackerService {
-	private static final Logger log = Logger.getLogger(GPSTrackerServiceBean.class);
-
+public class DroneUtils {
+	
+	private static final Logger log = Logger.getLogger(DroneUtils.class);
+	
+	@Inject
+	static SearchedAreaService searchedAreaService;
+	
 	@PersistenceContext(name = "dron")
-	EntityManager entityManager;
-
-	@Override
-	public Drone getDroneById(Long droneId) {
+	private static EntityManager entityManager;
+	
+	public static Drone getDroneById(Long droneId) {
 		Drone drone = entityManager.find(Drone.class, droneId);
 		return drone;
 	}
 
-	@Override
-	public boolean createNewDroneSession(Long droneId) {
+
+	public static boolean createNewDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if (drone != null) {
 			drone.setStatus(DroneStatusEnum.ONLINE);
@@ -53,16 +53,21 @@ public class GPSTrackerServiceBean implements GPSTrackerService {
 		}
 	}
 
-	@Override
-	public void updateDroneSearchedArea(Long droneId, Location newSearchedLocation) {
+
+	public static void updateDroneSearchedArea(Long droneId, GeoPoint newSearchedLocation) {
 		Drone drone = getDroneById(droneId);
 		if (drone != null) {
 			DroneSession activeSession = getActiveDroneSession(drone);
-			if (activeSession != null && activeSession.getSearchedArea() != null
-					&& activeSession.getSearchedArea().getSearchedLocations() != null) {
-				List<Location> newSearchedArea = new ArrayList<>();
-				newSearchedArea = calculateSearchedArea(newSearchedLocation);
-				activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
+			if (activeSession != null && activeSession.getSearchedArea() != null) {
+				List<GeoPoint> newSearchedAreaGeoPoint = 
+				newSearchedAreaGeoPoint = searchedAreaService.calculateSearchedArea(newSearchedLocation);
+				List<Location> newSearchedArea = convertGeoPointSearchedAreaToLocationSearchedArea(newSearchedAreaGeoPoint);
+				if(activeSession.getSearchedArea().getSearchedLocations()!=null){
+					activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
+				} else{
+					activeSession.getSearchedArea().setSearchedLocations(new ArrayList<Location>());
+					activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
+				}
 			}
 
 		} else {
@@ -71,8 +76,8 @@ public class GPSTrackerServiceBean implements GPSTrackerService {
 
 	}
 
-	@Override
-	public void closeDroneSession(Long droneId) {
+
+	public static void closeDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if(drone!=null){
 			DroneSession activeSession = getActiveDroneSession(drone);
@@ -85,7 +90,7 @@ public class GPSTrackerServiceBean implements GPSTrackerService {
 		
 	}
 	
-	private DroneSession getActiveDroneSession(Drone drone){
+	private static DroneSession getActiveDroneSession(Drone drone){
 		List<DroneSession> droneSessions = drone.getSessions();
 		DroneSession activeSession = null;
 		for (int i = 0; i < droneSessions.size(); i++) {
@@ -96,12 +101,10 @@ public class GPSTrackerServiceBean implements GPSTrackerService {
 		return activeSession;
 	}
 	
-	private List<Location> calculateSearchedArea(Location location) {
-		GeoPoint point = new GeoPoint(location.getLatitude(), location.getLongitude(), location.getAltitude());
-		List<GeoPoint> searchedAreaList = GeoPoint.pointsAsCircle(point, 20.0);
+	private static List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
 		List<Location> locationSearchedArea = new ArrayList();
-		for(int i=0; i<searchedAreaList.size();i++){
-			GeoPoint tempPoint = searchedAreaList.get(i);
+		for(int i=0; i<geoPointSearchedArea.size();i++){
+			GeoPoint tempPoint = geoPointSearchedArea.get(i);
 			Location loc = new Location();
 			loc.setLatitude(tempPoint.getLatitude());
 			loc.setLongitude(tempPoint.getLongitude());

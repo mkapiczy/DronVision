@@ -32,17 +32,17 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		String encodedMessage = "";
 		if (message instanceof ClientGeoDataMessage) {
 			ClientGeoDataMessage clientGeoDataMessage = (ClientGeoDataMessage) message;
-			encodedMessage = buildJsonClientGeoDataMessage(clientGeoDataMessage, clientGeoDataMessage.getMessageType());
+			encodedMessage = buildJsonClientGeoDataMessage(clientGeoDataMessage);
 		}
 		return encodedMessage;
 	}
 
-	private String buildJsonClientGeoDataMessage(ClientGeoDataMessage geoDataMessage, String messageType) {
+	private String buildJsonClientGeoDataMessage(ClientGeoDataMessage clientGeoDataMessage) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Date.class, new JsonDateSerializer());
 		Gson gson = gsonBuilder.create();
 
-		return gson.toJson(geoDataMessage);
+		return gson.toJson(clientGeoDataMessage);
 	}
 
 }

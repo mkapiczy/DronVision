@@ -7,7 +7,7 @@ import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";
-	private String deviceId;
+	private Long deviceId;
 	private String deviceType;
 	private Date timestamp;
 	private GeoPoint lastPosition;
@@ -18,11 +18,11 @@ public class ClientGeoDataMessage implements Message {
 		return messageType;
 	}
 
-	public String getDeviceId() {
+	public Long getDeviceId() {
 		return deviceId;
 	}
 
-	public void setDeviceId(String deviceId) {
+	public void setDeviceId(Long deviceId) {
 		this.deviceId = deviceId;
 	}
 

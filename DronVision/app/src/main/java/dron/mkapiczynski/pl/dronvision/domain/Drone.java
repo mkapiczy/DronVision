@@ -10,18 +10,18 @@ import java.util.Set;
  * Created by Miix on 2016-01-05.
  */
 public class Drone {
-    private String deviceId;
+    private Long deviceId;
     private String deviceName;
     private GeoPoint currentPosition;
     private List<GeoPoint> searchedArea;
     private List<GeoPoint> lastSearchedArea;
     private int color;
 
-    public String getDeviceId() {
+    public Long getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }
 

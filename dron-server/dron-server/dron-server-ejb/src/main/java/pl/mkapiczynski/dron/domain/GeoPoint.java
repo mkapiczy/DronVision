@@ -2,6 +2,8 @@ package pl.mkapiczynski.dron.domain;
 
 import java.util.ArrayList;
 
+import pl.mkapiczynski.dron.database.Location;
+
 public class GeoPoint {
 	public static final float DEG2RAD = (float) (Math.PI / 180.0);
 	public static final float RAD2DEG = (float) (180.0 / Math.PI);
@@ -29,6 +31,12 @@ public class GeoPoint {
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.altitude = altitude;
+	}
+	
+	public GeoPoint(Location location){
+		this.latitude = location.getLatitude();
+		this.longitude = location.getLongitude();
+		this.altitude = location.getAltitude();
 	}
 
 	public double getLatitude() {

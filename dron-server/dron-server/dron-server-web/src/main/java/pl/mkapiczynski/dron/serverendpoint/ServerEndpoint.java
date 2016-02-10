@@ -3,7 +3,6 @@ package pl.mkapiczynski.dron.serverendpoint;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -16,10 +15,9 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.business.ClientGeoDataMessageService;
-import pl.mkapiczynski.dron.business.GPSTrackerService;
-import pl.mkapiczynski.dron.database.Location;
-import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
+import pl.mkapiczynski.dron.business.ClientDeviceService;
+import pl.mkapiczynski.dron.business.GPSTrackerDeviceService;
+import pl.mkapiczynski.dron.helpers.DroneUtils;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.MessageDecoder;
@@ -33,14 +31,14 @@ public class ServerEndpoint {
 	private static final Logger log = Logger.getLogger(ServerEndpoint.class);
 
 	@Inject
-	private ClientGeoDataMessageService clientGeoDataMessageService;
+	private GPSTrackerDeviceService gpsTrackerDeviceService;
 	
 	@Inject
-	private GPSTrackerService gpsTrackerService;
+	private ClientDeviceService clientDeviceService;
 
 	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
 	public static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
-	public static Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<Session>());
+	public static Set<Session> clientDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
 
 	@OnOpen
 	public void handleOpen(Session session) throws IOException, EncodeException {
@@ -50,24 +48,20 @@ public class ServerEndpoint {
 	@OnMessage
 	public void handleMessage(Message incomingMessage, Session session) throws IOException, EncodeException {
 		if (incomingMessage instanceof TrackerLoginMessage) {
-			handleTrackerLoginMessage(incomingMessage, session);
+			gpsTrackerDeviceService.handleTrackerLoginMessage(incomingMessage, session, gpsTrackerDeviceSessions);
 		} else if (incomingMessage instanceof ClientLoginMessage) {
-			handleClientLoginMessage(incomingMessage, session);
+			clientDeviceService.handleClientLoginMessage(incomingMessage, session, clientDeviceSessions);
 		} else if (incomingMessage instanceof TrackerGeoDataMessage) {
-			handleTrackerGeoDataMessage(incomingMessage, session);
+			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions, clientDeviceSessions);
 		}
 	}
 
 	@OnClose
 	public void handleClose(Session closingSession) throws IOException, EncodeException {
-		if (clientSessions.contains(closingSession)) {
-			clientSessions.remove(closingSession);
-			log.info("Client : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
+		if (clientDeviceSessions.contains(closingSession)) {
+			handleCloseClientDeviceSession(closingSession);
 		} else if (gpsTrackerDeviceSessions.contains(closingSession)) {
-			Long droneId = (long) closingSession.getUserProperties().get("deviceId");
-			gpsTrackerService.closeDroneSession(droneId);
-			gpsTrackerDeviceSessions.remove(closingSession);
-			log.info("Tracker device : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
+			handleCloseGPSTrackerDeviceSession(closingSession);
 		}
 		allSessions.remove(closingSession);
 	}
@@ -76,76 +70,20 @@ public class ServerEndpoint {
 	public void handleError(Throwable t) {
 		log.error("Error has occured : " + t.getMessage().toString());
 	}
-
-	private void handleClientLoginMessage(Message incomingMessage, Session session) {
-		ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
-		if (clientDeviceHasNotRegisteredSession(session)) {
-			session.getUserProperties().put("deviceId", clientLoginMessage.getClientId());
-			clientSessions.add(session);
-		}
-		System.out.println("New clientDevice : " + clientLoginMessage.getClientId());
+	
+	private void handleCloseClientDeviceSession(Session closingSession){
+		clientDeviceSessions.remove(closingSession);
+		log.info("Client : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
 	}
-
-	private void handleTrackerLoginMessage(Message incomingMessage, Session session) {
-		TrackerLoginMessage trackerLoginMessage = (TrackerLoginMessage) incomingMessage;
-		if (geoDeviceHasNotRegisteredSession(session)) {
-			Long droneId = trackerLoginMessage.getDeviceId();
-			if(gpsTrackerService.createNewDroneSession(droneId)){
-				session.getUserProperties().put("deviceId", droneId);
-				gpsTrackerDeviceSessions.add(session);
-			} else{
-				log.info("Login message from unregistered tracker device: " + droneId);
-			}
-			
-		}
-		System.out.println("New trackerDevice : " + trackerLoginMessage.getDeviceId());
+	
+	private void handleCloseGPSTrackerDeviceSession(Session closingSession){
+		Long droneId = (long) closingSession.getUserProperties().get("deviceId");
+		DroneUtils.closeDroneSession(droneId);
+		gpsTrackerDeviceSessions.remove(closingSession);
+		log.info("Tracker device : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
 	}
+	
 
-	private void handleTrackerGeoDataMessage(Message incomingMessage, Session session) {
-		if (gpsTrackerDeviceSessions.contains(session)) {
-			TrackerGeoDataMessage trackerGeoDataMessage = (TrackerGeoDataMessage) incomingMessage;
-			Long droneId = trackerGeoDataMessage.getDeviceId();
-			Location newSearchedLocation = new Location();
-			newSearchedLocation.setLatitude(trackerGeoDataMessage.getLastPosition().getLatitude());
-			newSearchedLocation.setLongitude(trackerGeoDataMessage.getLastPosition().getLongitude());
-			newSearchedLocation.setAltitude(trackerGeoDataMessage.getLastPosition().getAltitude());
-			gpsTrackerService.updateDroneSearchedArea(droneId, newSearchedLocation);
-			
-			ClientGeoDataMessage clientGeoMessage = clientGeoDataMessageService
-					.generateClientGeoDataMessage(trackerGeoDataMessage);
-			sendGeoDataToAllSessionRegisteredClients(clientGeoMessage);
-		} else {
-			log.info("Message from unregistered tracker device");
-		}
-	}
-
-	private boolean geoDeviceHasNotRegisteredSession(Session session) {
-		if (!gpsTrackerDeviceSessions.contains(session)) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean clientDeviceHasNotRegisteredSession(Session session) {
-		if (!clientSessions.contains(session)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void sendGeoDataToAllSessionRegisteredClients(ClientGeoDataMessage geoMessage) {
-		Iterator<Session> iterator = clientSessions.iterator();
-		while (iterator.hasNext()) {
-			Session currentClient = iterator.next();
-			try {
-				currentClient.getBasicRemote().sendObject(geoMessage);
-				log.info("Message send to client : " + currentClient.getUserProperties().get("deviceId"));
-			} catch (IOException | EncodeException e) {
-				log.error("Error occured while sendig message to client : "
-						+ currentClient.getUserProperties().get("clientId") + " Error message : " + e);
-			}
-		}
-	}
+	
 
 }
