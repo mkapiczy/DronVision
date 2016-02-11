@@ -74,8 +74,12 @@ public class DroneUtils {
 
     private static void addDroneToSet(Set<Drone> dronesSet, Drone droneToAdd) {
         droneToAdd.setColor(getRandomColor());
-        droneToAdd.setSearchedArea(new ArrayList<GeoPoint>());
-        droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
+        if(droneToAdd.getSearchedArea()==null) {
+            droneToAdd.setSearchedArea(new ArrayList<GeoPoint>());
+        }
+        if(droneToAdd.getLastSearchedArea()==null) {
+            droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
+        }
         dronesSet.add(droneToAdd);
     }
 
