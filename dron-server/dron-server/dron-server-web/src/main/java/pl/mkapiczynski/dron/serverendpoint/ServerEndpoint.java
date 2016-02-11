@@ -16,8 +16,8 @@ import javax.websocket.Session;
 import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.business.ClientDeviceService;
+import pl.mkapiczynski.dron.business.DroneService;
 import pl.mkapiczynski.dron.business.GPSTrackerDeviceService;
-import pl.mkapiczynski.dron.helpers.DroneUtils;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.MessageDecoder;
@@ -35,6 +35,9 @@ public class ServerEndpoint {
 	
 	@Inject
 	private ClientDeviceService clientDeviceService;
+	
+	@Inject
+	DroneService droneService;
 
 	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
 	public static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
@@ -78,7 +81,7 @@ public class ServerEndpoint {
 	
 	private void handleCloseGPSTrackerDeviceSession(Session closingSession){
 		Long droneId = (long) closingSession.getUserProperties().get("deviceId");
-		DroneUtils.closeDroneSession(droneId);
+		droneService.closeDroneSession(droneId);
 		gpsTrackerDeviceSessions.remove(closingSession);
 		log.info("Tracker device : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
 	}

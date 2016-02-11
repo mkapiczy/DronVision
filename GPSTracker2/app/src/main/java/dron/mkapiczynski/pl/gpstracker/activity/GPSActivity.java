@@ -14,8 +14,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import dron.mkapiczynski.pl.gpstracker.websocket.MyWebSocketConnection;
 import dron.mkapiczynski.pl.gpstracker.R;
+import dron.mkapiczynski.pl.gpstracker.websocket.MyWebSocketConnection;
 
 
 public class GPSActivity extends Activity implements LocationListener {
@@ -32,8 +32,8 @@ public class GPSActivity extends Activity implements LocationListener {
     private boolean requestLocationUpdatesFlag = false;
 
     // Gps parameters
-    private static int UPDATE_INTERVAL = 1500; // 5 sec
-    private static int DISPLACEMENT = 3; // 3 meters
+    private static int UPDATE_INTERVAL = 1000; // 1 sec
+    private static int DISPLACEMENT = 1; //  meters
 
     // UI
     private TextView locationTextView;
@@ -157,6 +157,8 @@ public class GPSActivity extends Activity implements LocationListener {
     private void startLocationUpdates() {
         try {
             locationManager.requestLocationUpdates(gpsSignalProvider.getName(), UPDATE_INTERVAL, DISPLACEMENT, this);
+
+
             requestLocationUpdatesFlag = true;
             btnStartLocationUpdates.setText(getString(R.string.btn_stop_location_updates));
         } catch (SecurityException e) {

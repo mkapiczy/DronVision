@@ -1,16 +1,17 @@
-package pl.mkapiczynski.dron.helpers;
+package pl.mkapiczynski.dron.business;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.ejb.Local;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.business.SearchedAreaService;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.DroneSessionStatus;
@@ -19,23 +20,25 @@ import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 
-public class DroneUtils {
-	
-	private static final Logger log = Logger.getLogger(DroneUtils.class);
-	
-	@Inject
-	static SearchedAreaService searchedAreaService;
+@Local
+@Stateless(name = "DroneService")
+public class DroneServiceBean implements DroneService {
+	private static final Logger log = Logger.getLogger(DroneServiceBean.class);
 	
 	@PersistenceContext(name = "dron")
-	private static EntityManager entityManager;
+	private EntityManager entityManager;
 	
-	public static Drone getDroneById(Long droneId) {
+	@Inject
+	private SearchedAreaService searchedAreaService;
+
+	@Override
+	public Drone getDroneById(Long droneId) {
 		Drone drone = entityManager.find(Drone.class, droneId);
 		return drone;
 	}
 
-
-	public static boolean createNewDroneSession(Long droneId) {
+	@Override
+	public boolean createNewDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if (drone != null) {
 			drone.setStatus(DroneStatusEnum.ONLINE);
@@ -53,14 +56,13 @@ public class DroneUtils {
 		}
 	}
 
-
-	public static void updateDroneSearchedArea(Long droneId, GeoPoint newSearchedLocation) {
-		Drone drone = getDroneById(droneId);
+	@Override
+	public void updateDroneSearchedArea(Drone drone, GeoPoint newSearchedLocation) {
 		if (drone != null) {
+			drone.setLastLocation(new Location(newSearchedLocation));
 			DroneSession activeSession = getActiveDroneSession(drone);
 			if (activeSession != null && activeSession.getSearchedArea() != null) {
-				List<GeoPoint> newSearchedAreaGeoPoint = 
-				newSearchedAreaGeoPoint = searchedAreaService.calculateSearchedArea(newSearchedLocation);
+				List<GeoPoint> newSearchedAreaGeoPoint = searchedAreaService.calculateSearchedArea(newSearchedLocation);
 				List<Location> newSearchedArea = convertGeoPointSearchedAreaToLocationSearchedArea(newSearchedAreaGeoPoint);
 				if(activeSession.getSearchedArea().getSearchedLocations()!=null){
 					activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
@@ -71,13 +73,12 @@ public class DroneUtils {
 			}
 
 		} else {
-			log.info("No drone with id: " + droneId + " was found");
+			log.info("No drone with id: " + drone.getDroneId() + " was found");
 		}
-
 	}
 
-
-	public static void closeDroneSession(Long droneId) {
+	@Override
+	public void closeDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if(drone!=null){
 			DroneSession activeSession = getActiveDroneSession(drone);
@@ -87,10 +88,11 @@ public class DroneUtils {
 		} else{
 			log.info("No drone with id: " + droneId + " was found");
 		}
-		
+
 	}
-	
-	private static DroneSession getActiveDroneSession(Drone drone){
+
+	@Override
+	public DroneSession getActiveDroneSession(Drone drone) {
 		List<DroneSession> droneSessions = drone.getSessions();
 		DroneSession activeSession = null;
 		for (int i = 0; i < droneSessions.size(); i++) {
@@ -101,7 +103,7 @@ public class DroneUtils {
 		return activeSession;
 	}
 	
-	private static List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
+	private List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
 		List<Location> locationSearchedArea = new ArrayList();
 		for(int i=0; i<geoPointSearchedArea.size();i++){
 			GeoPoint tempPoint = geoPointSearchedArea.get(i);
@@ -113,4 +115,5 @@ public class DroneUtils {
 		}
 		return locationSearchedArea;
 	}
+
 }

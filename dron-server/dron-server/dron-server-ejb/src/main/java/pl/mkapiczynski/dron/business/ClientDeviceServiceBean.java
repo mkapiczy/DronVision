@@ -1,8 +1,10 @@
 package pl.mkapiczynski.dron.business;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Local;
@@ -13,10 +15,13 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
+import pl.mkapiczynski.dron.database.Drone;
+import pl.mkapiczynski.dron.database.DroneSession;
+import pl.mkapiczynski.dron.database.Location;
+import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
-import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
 @Local
 @Stateless(name = "ClientDeviceService")
@@ -25,7 +30,10 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	private static final Logger log = Logger.getLogger(ClientDeviceServiceBean.class);
 	
 	@Inject
-	SearchedAreaService searchedAreaService;
+	private SearchedAreaService searchedAreaService;
+	
+	@Inject
+	private DroneService droneService;
 
 	@Override
 	public void handleClientLoginMessage(Message incomingMessage, Session session, Set<Session> clientSessions) {
@@ -40,19 +48,11 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 	}
 	
-	@Override
-	public ClientGeoDataMessage generateClientGeoDataMessage(TrackerGeoDataMessage trackerGeoDataMessage) {
-		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
-		clientGeoDataMessage.setDeviceId(trackerGeoDataMessage.getDeviceId());
-		clientGeoDataMessage.setDeviceType(trackerGeoDataMessage.getDeviceType());
-		clientGeoDataMessage.setLastPosition(trackerGeoDataMessage.getLastPosition());
-		clientGeoDataMessage.setTimestamp(new Date());
-		clientGeoDataMessage.setSearchedArea(searchedAreaService.calculateSearchedArea(trackerGeoDataMessage.getLastPosition()));
-		return clientGeoDataMessage;
-	}
+
 
 	@Override
-	public void sendGeoDataToAllSessionRegisteredClients(ClientGeoDataMessage geoMessage, Set<Session> clientSessions) {
+	public void sendGeoDataToAllSessionRegisteredClients(Drone drone, Set<Session> clientSessions) {
+		ClientGeoDataMessage geoMessage = generateClientGeoDataMessage(drone);
 		Iterator<Session> iterator = clientSessions.iterator();
 		while (iterator.hasNext()) {
 			Session currentClient = iterator.next();
@@ -65,6 +65,20 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 			}
 		}
 	}
+	
+	private ClientGeoDataMessage generateClientGeoDataMessage(Drone drone) {
+		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
+		clientGeoDataMessage.setDeviceId(drone.getDroneId());
+		clientGeoDataMessage.setDeviceType("GPSTracker");
+		clientGeoDataMessage.setLastPosition(new GeoPoint(drone.getLastLocation().getLatitude(), drone.getLastLocation().getLongitude(), drone.getLastLocation().getAltitude()));
+		clientGeoDataMessage.setTimestamp(new Date());
+		DroneSession activeSession = droneService.getActiveDroneSession(drone);
+		if(activeSession!=null && activeSession.getSearchedArea()!=null){
+			List<GeoPoint> searchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getSearchedArea().getSearchedLocations());
+			clientGeoDataMessage.setSearchedArea(searchedArea);
+		}
+		return clientGeoDataMessage;
+	}
 
 
 	
@@ -75,5 +89,19 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 			return false;
 		}
 	}
+	
+	/**
+	 * TODO
+	 * Do usunięcia, taka sama metoda w GPSTraxckesServiceBean
+	 */
+	private static List<GeoPoint> convertLocationSearchedAreaToLocationSearchedArea(List<Location> locationSearchedArea) {
+		List<GeoPoint> geoPointSearchedArea = new ArrayList<>();
+		for(int i=0; i<locationSearchedArea.size();i++){
+			GeoPoint geoP = new GeoPoint(locationSearchedArea.get(i));
+			geoPointSearchedArea.add(geoP);
+		}
+		return geoPointSearchedArea;
+	};
+	
 
 }

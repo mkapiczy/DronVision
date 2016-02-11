@@ -9,8 +9,8 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.database.Location;
-import pl.mkapiczynski.dron.helpers.DroneUtils;
+import pl.mkapiczynski.dron.database.Drone;
+import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
@@ -23,13 +23,16 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 
 	@Inject
 	private ClientDeviceService clientDeviceService;
+	
+	@Inject
+	private DroneService droneService;
 
 	@Override
 	public void handleTrackerLoginMessage(Message incomingMessage, Session session, Set<Session> gpsTrackerDeviceSessions) {
 		TrackerLoginMessage trackerLoginMessage = (TrackerLoginMessage) incomingMessage;
 		Long droneId = trackerLoginMessage.getDeviceId();
 		if (gpsTrackerDeviceHasNotRegisteredSession(session, gpsTrackerDeviceSessions)) {
-			if (DroneUtils.createNewDroneSession(droneId)) {
+			if (droneService.createNewDroneSession(droneId)) {
 				session.getUserProperties().put("deviceId", droneId);
 				gpsTrackerDeviceSessions.add(session);
 				System.out.println("New trackerDevice with id: " + droneId);
@@ -47,10 +50,15 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		if (gpsTrackerDeviceSessions.contains(session)) {
 			TrackerGeoDataMessage trackerGeoDataMessage = (TrackerGeoDataMessage) incomingMessage;
 			Long droneId = trackerGeoDataMessage.getDeviceId();
-			DroneUtils.updateDroneSearchedArea(droneId, trackerGeoDataMessage.getLastPosition());
-
-			clientGeoMessage = clientDeviceService.generateClientGeoDataMessage(trackerGeoDataMessage);
-			clientDeviceService.sendGeoDataToAllSessionRegisteredClients(clientGeoMessage, clientSessions);
+			GeoPoint lastPosition = trackerGeoDataMessage.getLastPosition();
+			if(lastPosition!=null){
+				Drone drone = droneService.getDroneById(droneId);
+				droneService.updateDroneSearchedArea(drone, lastPosition);
+	
+				clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
+			} else{
+				log.error("Last position can't be NULL!");
+			}
 		} else {
 			log.info("Message from unregistered tracker device");
 		}

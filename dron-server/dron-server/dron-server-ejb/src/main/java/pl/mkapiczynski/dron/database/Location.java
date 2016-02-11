@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import pl.mkapiczynski.dron.domain.GeoPoint;
+
 @Entity
 @Table(name = "Location")
 public class Location {
@@ -18,6 +20,16 @@ public class Location {
 	private Double longitude;
 
 	private Double altitude;
+	
+	public Location(){
+		
+	}
+	
+	public Location(GeoPoint geoPoint){
+		this.latitude = geoPoint.getLatitude();
+		this.longitude = geoPoint.getLongitude();
+		this.altitude = geoPoint.getAltitude();
+	}
 
 	public Long getId() {
 		return id;
