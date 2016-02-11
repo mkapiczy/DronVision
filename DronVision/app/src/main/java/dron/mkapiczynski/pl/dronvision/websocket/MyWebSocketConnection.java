@@ -60,11 +60,17 @@ public class MyWebSocketConnection extends WebSocketConnection {
                         for(int i=0; i<geoMessage.getSearchedArea().size();i++){
                             searchedArea.add(new GeoPoint(geoMessage.getSearchedArea().get(i).getLatitude(), geoMessage.getSearchedArea().get(i).getLongitude()));
                         }
+                        List<GeoPoint> lastSearchedArea = new ArrayList<>();
+                        for(int i=0; i<geoMessage.getLastSearchedArea().size();i++){
+                            lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
+                        }
 
                         Drone drone = new Drone();
                         drone.setDeviceId(geoMessage.getDeviceId());
                         drone.setCurrentPosition(currentDronePosition);
-                        drone.setLastSearchedArea(searchedArea);
+                        drone.setSearchedArea(searchedArea);
+                        drone.setLastSearchedArea(lastSearchedArea);
+
                         activity.updateDronesOnMap(drone);
                     }
                 }
