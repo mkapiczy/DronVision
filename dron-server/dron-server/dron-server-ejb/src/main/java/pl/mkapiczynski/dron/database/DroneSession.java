@@ -36,6 +36,10 @@ public class DroneSession {
 	@JoinColumn(name = "searchedArea")
 	private SearchedArea searchedArea;
 
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "lastSearchedArea")
+	private SearchedArea lastSearchedArea;
+
 	@Enumerated(EnumType.STRING)
 	private DroneSessionStatus status;
 
@@ -77,6 +81,14 @@ public class DroneSession {
 
 	public void setSearchedArea(SearchedArea searchedArea) {
 		this.searchedArea = searchedArea;
+	}
+
+	public SearchedArea getLastSearchedArea() {
+		return lastSearchedArea;
+	}
+
+	public void setLastSearchedArea(SearchedArea lastSearchedArea) {
+		this.lastSearchedArea = lastSearchedArea;
 	}
 
 	public DroneSessionStatus getStatus() {

@@ -44,8 +44,10 @@ public class DroneServiceBean implements DroneService {
 			drone.setStatus(DroneStatusEnum.ONLINE);
 			SearchedArea searchedArea = new SearchedArea();
 			DroneSession droneSession = new DroneSession();
+			SearchedArea lastSearchedArea = new SearchedArea();
 			droneSession.setDrone(drone);
 			droneSession.setSearchedArea(searchedArea);
+			droneSession.setLastSearchedArea(lastSearchedArea);
 			droneSession.setSessionStarted(new Date());
 			droneSession.setStatus(DroneSessionStatus.ACTIVE);
 			entityManager.persist(droneSession);
@@ -58,20 +60,33 @@ public class DroneServiceBean implements DroneService {
 
 	@Override
 	public void updateDroneSearchedArea(Drone drone, GeoPoint newSearchedLocation) {
-		if (drone != null) {
-			drone.setLastLocation(new Location(newSearchedLocation));
+		if (drone != null && newSearchedLocation != null) {
 			DroneSession activeSession = getActiveDroneSession(drone);
-			if (activeSession != null && activeSession.getSearchedArea() != null) {
-				List<GeoPoint> newSearchedAreaGeoPoint = searchedAreaService.calculateSearchedArea(newSearchedLocation);
-				List<Location> newSearchedArea = convertGeoPointSearchedAreaToLocationSearchedArea(newSearchedAreaGeoPoint);
-				if(activeSession.getSearchedArea().getSearchedLocations()!=null){
-					activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
-				} else{
-					activeSession.getSearchedArea().setSearchedLocations(new ArrayList<Location>());
-					activeSession.getSearchedArea().getSearchedLocations().addAll(newSearchedArea);
+			if (activeSession != null) {
+				List<Location> newSearchedArea = convertGeoPointSearchedAreaToLocationSearchedArea(
+						searchedAreaService.calculateSearchedArea(newSearchedLocation));
+				if (activeSession.getLastSearchedArea() != null && newSearchedArea != null) {
+					if (activeSession.getLastSearchedArea().getSearchedLocations() != null) {
+						SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
+						activeSession.getLastSearchedArea().getSearchedLocations().clear();
+						activeSession.getLastSearchedArea().getSearchedLocations().addAll(newSearchedArea);
+						if (activeSession.getSearchedArea() != null) {
+							if (activeSession.getSearchedArea().getSearchedLocations() != null) {
+								activeSession.getSearchedArea().getSearchedLocations()
+										.addAll(lastSearchedArea.getSearchedLocations());
+							}
+						} else {
+							activeSession.setSearchedArea(lastSearchedArea);
+						}
+					} else {
+						activeSession.getLastSearchedArea().setSearchedLocations(newSearchedArea);
+					}
+				} else if (activeSession.getLastSearchedArea() == null && newSearchedArea != null) {
+					activeSession.setLastSearchedArea(new SearchedArea());
+					activeSession.getLastSearchedArea().setSearchedLocations(newSearchedArea);
 				}
-			}
 
+			}
 		} else {
 			log.info("No drone with id: " + drone.getDroneId() + " was found");
 		}

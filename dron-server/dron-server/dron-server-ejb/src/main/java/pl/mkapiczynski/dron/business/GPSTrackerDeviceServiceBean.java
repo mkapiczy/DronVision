@@ -10,6 +10,7 @@ import javax.websocket.Session;
 import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.Drone;
+import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
@@ -53,9 +54,13 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			GeoPoint lastPosition = trackerGeoDataMessage.getLastPosition();
 			if(lastPosition!=null){
 				Drone drone = droneService.getDroneById(droneId);
-				droneService.updateDroneSearchedArea(drone, lastPosition);
-	
-				clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
+				if(drone!=null){
+					drone.setLastLocation(new Location(lastPosition));
+					droneService.updateDroneSearchedArea(drone, lastPosition);
+					clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
+				} else{
+					log.error("Drone can't be NULL!");
+				}
 			} else{
 				log.error("Last position can't be NULL!");
 			}

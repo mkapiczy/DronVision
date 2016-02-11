@@ -73,9 +73,15 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		clientGeoDataMessage.setLastPosition(new GeoPoint(drone.getLastLocation().getLatitude(), drone.getLastLocation().getLongitude(), drone.getLastLocation().getAltitude()));
 		clientGeoDataMessage.setTimestamp(new Date());
 		DroneSession activeSession = droneService.getActiveDroneSession(drone);
-		if(activeSession!=null && activeSession.getSearchedArea()!=null){
-			List<GeoPoint> searchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getSearchedArea().getSearchedLocations());
-			clientGeoDataMessage.setSearchedArea(searchedArea);
+		if(activeSession!=null){
+			if(activeSession.getSearchedArea()!=null && activeSession.getSearchedArea().getSearchedLocations()!=null){
+				List<GeoPoint> searchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getSearchedArea().getSearchedLocations());
+				clientGeoDataMessage.setSearchedArea(searchedArea);
+			} 
+			if(activeSession.getLastSearchedArea()!=null && activeSession.getLastSearchedArea().getSearchedLocations()!=null){
+				List<GeoPoint> lastSearchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getLastSearchedArea().getSearchedLocations());
+				clientGeoDataMessage.setLastSearchedArea(lastSearchedArea);
+			}
 		}
 		return clientGeoDataMessage;
 	}
