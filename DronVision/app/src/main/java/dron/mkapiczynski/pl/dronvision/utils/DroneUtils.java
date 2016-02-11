@@ -66,8 +66,8 @@ public class DroneUtils {
             Drone currentDroneOnList = iterator.next();
             if (currentDroneOnList.getDeviceId().equals(droneToUpdate.getDeviceId())) {
                 currentDroneOnList.setCurrentPosition(droneToUpdate.getCurrentPosition());
-                currentDroneOnList.getLastSearchedArea().clear();
-                currentDroneOnList.getLastSearchedArea().addAll(droneToUpdate.getLastSearchedArea());
+                currentDroneOnList.setLastSearchedArea(droneToUpdate.getLastSearchedArea());
+                currentDroneOnList.setSearchedArea(droneToUpdate.getSearchedArea());
             }
         }
     }
@@ -75,6 +75,7 @@ public class DroneUtils {
     private static void addDroneToSet(Set<Drone> dronesSet, Drone droneToAdd) {
         droneToAdd.setColor(getRandomColor());
         droneToAdd.setSearchedArea(new ArrayList<GeoPoint>());
+        droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
         dronesSet.add(droneToAdd);
     }
 

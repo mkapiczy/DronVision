@@ -42,7 +42,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... params) {
         DroneUtils.updateDronesSet(drones, drone);
         mapOverlays = MapUtils.updateMapOverlays(drones, mapView, activity);
-        DroneUtils.updateDronesSearchedArea(drones);
+        //DroneUtils.updateDronesSearchedArea(drones);
         return true;
     }
 
