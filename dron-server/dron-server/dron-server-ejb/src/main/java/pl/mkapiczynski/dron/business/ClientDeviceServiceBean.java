@@ -75,11 +75,11 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		DroneSession activeSession = droneService.getActiveDroneSession(drone);
 		if(activeSession!=null){
 			if(activeSession.getSearchedArea()!=null && activeSession.getSearchedArea().getSearchedLocations()!=null){
-				List<GeoPoint> searchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getSearchedArea().getSearchedLocations());
+				List<GeoPoint> searchedArea = convertLocationSearchedAreaToGeoPointSearchedArea(activeSession.getSearchedArea().getSearchedLocations());
 				clientGeoDataMessage.setSearchedArea(searchedArea);
 			} 
 			if(activeSession.getLastSearchedArea()!=null && activeSession.getLastSearchedArea().getSearchedLocations()!=null){
-				List<GeoPoint> lastSearchedArea = convertLocationSearchedAreaToLocationSearchedArea(activeSession.getLastSearchedArea().getSearchedLocations());
+				List<GeoPoint> lastSearchedArea = convertLocationSearchedAreaToGeoPointSearchedArea(activeSession.getLastSearchedArea().getSearchedLocations());
 				clientGeoDataMessage.setLastSearchedArea(lastSearchedArea);
 			}
 		}
@@ -100,10 +100,12 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	 * TODO
 	 * Do usunięcia, taka sama metoda w GPSTraxckesServiceBean
 	 */
-	private static List<GeoPoint> convertLocationSearchedAreaToLocationSearchedArea(List<Location> locationSearchedArea) {
+	private static List<GeoPoint> convertLocationSearchedAreaToGeoPointSearchedArea(List<Location> locationSearchedArea) {
 		List<GeoPoint> geoPointSearchedArea = new ArrayList<>();
 		for(int i=0; i<locationSearchedArea.size();i++){
-			GeoPoint geoP = new GeoPoint(locationSearchedArea.get(i));
+			GeoPoint geoP = new GeoPoint();
+			geoP.setLatitude(locationSearchedArea.get(i).getLatitude());
+			geoP.setLongitude(locationSearchedArea.get(i).getLongitude());
 			geoPointSearchedArea.add(geoP);
 		}
 		return geoPointSearchedArea;

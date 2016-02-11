@@ -59,31 +59,20 @@ public class DroneServiceBean implements DroneService {
 	}
 
 	@Override
-	public void updateDroneSearchedArea(Drone drone, GeoPoint newSearchedLocation) {
+	public void updateDroneSearchedArea(Drone drone, Location newSearchedLocation) {
 		if (drone != null && newSearchedLocation != null) {
 			DroneSession activeSession = getActiveDroneSession(drone);
 			if (activeSession != null) {
-				List<Location> newSearchedArea = convertGeoPointSearchedAreaToLocationSearchedArea(
-						searchedAreaService.calculateSearchedArea(newSearchedLocation));
-				if (activeSession.getLastSearchedArea() != null && newSearchedArea != null) {
-					if (activeSession.getLastSearchedArea().getSearchedLocations() != null) {
-						SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
-						activeSession.getLastSearchedArea().getSearchedLocations().clear();
-						activeSession.getLastSearchedArea().getSearchedLocations().addAll(newSearchedArea);
-						if (activeSession.getSearchedArea() != null) {
-							if (activeSession.getSearchedArea().getSearchedLocations() != null) {
-								activeSession.getSearchedArea().getSearchedLocations()
-										.addAll(lastSearchedArea.getSearchedLocations());
-							}
-						} else {
-							activeSession.setSearchedArea(lastSearchedArea);
-						}
-					} else {
-						activeSession.getLastSearchedArea().setSearchedLocations(newSearchedArea);
-					}
-				} else if (activeSession.getLastSearchedArea() == null && newSearchedArea != null) {
-					activeSession.setLastSearchedArea(new SearchedArea());
-					activeSession.getLastSearchedArea().setSearchedLocations(newSearchedArea);
+				SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(newSearchedLocation);
+				SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
+				SearchedArea currentSearchedArea = activeSession.getSearchedArea();
+				
+				if(lastSearchedArea!=null){
+					searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
+					lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
+				} else if(lastSearchedArea==null && recentSearchedArea!=null){
+					lastSearchedArea = new SearchedArea();
+					lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
 				}
 
 			}

@@ -55,8 +55,9 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			if(lastPosition!=null){
 				Drone drone = droneService.getDroneById(droneId);
 				if(drone!=null){
-					drone.setLastLocation(new Location(lastPosition));
-					droneService.updateDroneSearchedArea(drone, lastPosition);
+					Location lastLocation = new Location(lastPosition);
+					drone.setLastLocation(lastLocation);
+					droneService.updateDroneSearchedArea(drone, lastLocation);
 					clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
 				} else{
 					log.error("Drone can't be NULL!");

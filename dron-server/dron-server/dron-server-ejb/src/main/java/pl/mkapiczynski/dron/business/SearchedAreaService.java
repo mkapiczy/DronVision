@@ -2,9 +2,11 @@ package pl.mkapiczynski.dron.business;
 
 import java.util.List;
 
+import pl.mkapiczynski.dron.database.Location;
+import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
-import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 
 public interface SearchedAreaService {
-	public List<GeoPoint> calculateSearchedArea(GeoPoint geoPoint);
+	public SearchedArea calculateSearchedArea(Location geoPoint);
+	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea newSearchedArea);
 }
