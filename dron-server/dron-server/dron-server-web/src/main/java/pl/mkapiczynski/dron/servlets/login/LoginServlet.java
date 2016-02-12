@@ -16,10 +16,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import pl.mkapiczynski.dron.business.AdministrationService;
-import pl.mkapiczynski.dron.domain.LoginResponse;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.JsonDateSerializer;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
+import pl.mkapiczynski.dron.message.PreferencesResponse;
 
 /**
  * Servlet implementation class LoginServlet
@@ -51,11 +51,7 @@ public class LoginServlet extends HttpServlet {
 		
 		if(login!=null && password!=null){
 			if(administrationService.checkLoginData(login, password)){
-				LoginResponse loginResponse = administrationService.generateLoginResponse(login);
-				GsonBuilder gsonBuilder = new GsonBuilder();
-				Gson gson = gsonBuilder.create();
-				String json = gson.toJson(loginResponse);
-				HttpHelper.sendJSON(response, json);
+				HttpHelper.setStatusOrError(response, ServerResponse.OK);
 			} else{
 				HttpHelper.setStatusOrError(response, ServerResponse.NOT_AUTHORIZED);
 			}

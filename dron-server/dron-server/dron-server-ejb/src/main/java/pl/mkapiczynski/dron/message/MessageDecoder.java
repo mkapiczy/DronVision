@@ -40,7 +40,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
 			return decodeTrackerLoginMessage(jsonMessage);
 		} else if ("ClientLoginMessage".equals(messageType)) {
 			return decodeClientLoginMessage(jsonMessage);
-		}
+		} 
 		return null;
 	}
 
@@ -74,5 +74,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
 		Gson gson = gsonBuilder.create();
 		return gson.fromJson(jsonMessage, TrackerGeoDataMessage.class);
 	}
+	
+	
 
 }

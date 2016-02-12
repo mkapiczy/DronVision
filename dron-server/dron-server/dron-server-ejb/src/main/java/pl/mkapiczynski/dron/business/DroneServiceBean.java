@@ -50,6 +50,7 @@ public class DroneServiceBean implements DroneService {
 			droneSession.setLastSearchedArea(lastSearchedArea);
 			droneSession.setSessionStarted(new Date());
 			droneSession.setStatus(DroneSessionStatus.ACTIVE);
+			drone.setActiveSession(droneSession);
 			entityManager.persist(droneSession);
 			return true;
 		} else {
@@ -74,7 +75,6 @@ public class DroneServiceBean implements DroneService {
 					lastSearchedArea = new SearchedArea();
 					lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
 				}
-
 			}
 		} else {
 			log.info("No drone with id: " + drone.getDroneId() + " was found");

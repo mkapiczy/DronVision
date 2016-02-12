@@ -44,6 +44,10 @@ public class Drone {
 	@OneToMany(mappedBy = "drone", cascade = CascadeType.ALL)
 	private List<DroneSession> sessions;
 
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "activeSession")
+	private DroneSession activeSession;
+
 	public Long getDroneId() {
 		return droneId;
 	}
@@ -98,6 +102,14 @@ public class Drone {
 
 	public void setAssignedUsers(List<CSTUser> assignedUsers) {
 		this.assignedUsers = assignedUsers;
+	}
+
+	public DroneSession getActiveSession() {
+		return activeSession;
+	}
+
+	public void setActiveSession(DroneSession activeSession) {
+		this.activeSession = activeSession;
 	}
 
 }
