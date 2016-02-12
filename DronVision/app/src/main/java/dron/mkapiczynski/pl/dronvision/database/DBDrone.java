@@ -2,23 +2,23 @@ package dron.mkapiczynski.pl.dronvision.database;
 
 import org.osmdroid.util.GeoPoint;
 
+import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
+
 /**
  * Created by Miix on 2016-01-13.
  */
 public class DBDrone {
-    private Integer droneId;
+    private Long droneId;
     private String droneName;
     private String droneDescription;
-    private DroneStatusEnum droneStatus;
-    private GeoPoint lastLocation;
-    private Boolean tracked;
-    private Boolean visualized;
+    private DroneStatusEnum status;
+    private MyGeoPoint lastLocation;
 
-    public Integer getDroneId() {
+    public Long getDroneId() {
         return droneId;
     }
 
-    public void setDroneId(Integer droneId) {
+    public void setDroneId(Long droneId) {
         this.droneId = droneId;
     }
 
@@ -38,35 +38,19 @@ public class DBDrone {
         this.droneDescription = droneDescription;
     }
 
-    public DroneStatusEnum getDroneStatus() {
-        return droneStatus;
+    public DroneStatusEnum getStatus() {
+        return status;
     }
 
-    public void setDroneStatus(DroneStatusEnum droneStatus) {
-        this.droneStatus = droneStatus;
+    public void setStatus(DroneStatusEnum status) {
+        this.status = status;
     }
 
-    public GeoPoint getLastLocation() {
+    public MyGeoPoint getLastLocation() {
         return lastLocation;
     }
 
-    public void setLastLocation(GeoPoint lastLocation) {
+    public void setLastLocation(MyGeoPoint lastLocation) {
         this.lastLocation = lastLocation;
-    }
-
-    public Boolean getTracked() {
-        return tracked;
-    }
-
-    public void setTracked(Boolean tracked) {
-        this.tracked = tracked;
-    }
-
-    public Boolean getVisualized() {
-        return visualized;
-    }
-
-    public void setVisualized(Boolean visualized) {
-        this.visualized = visualized;
     }
 }

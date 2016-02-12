@@ -42,6 +42,10 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... params) {
         DroneUtils.updateDronesSet(drones, drone);
         mapOverlays = MapUtils.updateMapOverlays(drones, mapView, activity);
+        /**
+         * TODO
+         * Do usunięcia - po stronie apki tylko wyświetlamy - cały update po stronie servera
+         */
         //DroneUtils.updateDronesSearchedArea(drones);
         return true;
     }

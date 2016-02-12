@@ -318,12 +318,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
             String urlParameters = "login="+login+"&password="+password;
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = "http://0.tcp.ngrok.io:10330/dron-server-web/login";
+            String requestUrl = "http://0.tcp.ngrok.io:10350/dron-server-web/login";
 
             URL url = null;
             try {
@@ -344,15 +343,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 int responseCode = conn.getResponseCode();
                 if(responseCode == HttpURLConnection.HTTP_OK){
                     return true;
-                   /* BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line+"\n");
-                    }
-                    br.close();
-                    Gson gson = new Gson();
-                    gson.fromJson(sb.toString(), );*/
                 }
 
             } catch (MalformedURLException e) {

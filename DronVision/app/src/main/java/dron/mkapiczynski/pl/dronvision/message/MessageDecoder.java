@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import java.util.Date;
 
 import dron.mkapiczynski.pl.dronvision.helper.JsonDateDeserializer;
-import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 
 
 /**
@@ -19,5 +18,12 @@ public class MessageDecoder  {
         gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
         Gson gson = gsonBuilder.create();
         return gson.fromJson(jsonMessage, GeoDataMessage.class);
+    }
+
+    public static GetPreferencesMessage decodePreferencesMessage(String jsonMessage){
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
+        Gson gson = gsonBuilder.create();
+        return gson.fromJson(jsonMessage, GetPreferencesMessage.class);
     }
 }

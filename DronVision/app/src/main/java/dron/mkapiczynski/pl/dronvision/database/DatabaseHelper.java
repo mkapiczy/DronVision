@@ -1,20 +1,12 @@
 package dron.mkapiczynski.pl.dronvision.database;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import org.osmdroid.util.GeoPoint;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Miix on 2016-01-13.
- */
+ *//*
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = DatabaseHelper.TAG;
@@ -65,11 +57,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_ID, drone.getDroneId());
         values.put(KEY_NAME, drone.getDroneName());
         values.put(KEY_DESCRIPTION, drone.getDroneDescription());
-        values.put(KEY_STATUS, drone.getDroneStatus().name());
+        values.put(KEY_STATUS, drone.getStatus().name());
         values.put(KEY_LATITUDE, drone.getLastLocation().getLatitude());
         values.put(KEY_LONGITUDE, drone.getLastLocation().getLongitude());
-        values.put(KEY_TRACKED, drone.getTracked());
-        values.put(KEY_VISUALIZED, drone.getVisualized());
+
 
         long drone_id = db.insert(TABLE_DRONES, null, values);
 
@@ -248,4 +239,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return drones;
     }
-}
+}*/

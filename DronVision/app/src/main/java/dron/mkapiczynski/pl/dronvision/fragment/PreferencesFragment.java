@@ -1,26 +1,43 @@
 package dron.mkapiczynski.pl.dronvision.fragment;
 
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 
-import org.osmdroid.util.GeoPoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
-import dron.mkapiczynski.pl.dronvision.database.DroneStatusEnum;
+import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.helper.CustomListViewAdapter;
+import dron.mkapiczynski.pl.dronvision.helper.JsonDateSerializer;
+import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
+import dron.mkapiczynski.pl.dronvision.message.SetPreferencesMessage;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,13 +47,22 @@ public class PreferencesFragment extends Fragment {
 
     private ListView trackedDronesListView;
     private ListView visualizedDronesListView;
+    private CustomListViewAdapter trackedDronesCustomAdapter;
+    private CustomListViewAdapter visualizedDronesCustomAdapter;
+    private List<DBDrone> assignedDrones;
+    private List<DBDrone> trackedDrones;
+    private List<DBDrone> visualizedDrones;
 
-    private List<DBDrone> drones;
+    ProgressDialog progress;
 
+    private GetPreferencesTask getPreferencesTask = null;
+    private SetPreferencesTask setPreferencesTask = null;
 
     public PreferencesFragment() {
         // Required empty public constructor
     }
+
+    private boolean created=false;
 
 
     @Override
@@ -46,26 +72,7 @@ public class PreferencesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_preferences, container, false);
         trackedDronesListView = (ListView) view.findViewById(R.id.trackedDroneList);
         visualizedDronesListView = (ListView) view.findViewById(R.id.visualizedDroneList);
-
-        drones = new ArrayList<>();
-        for (int i = 1; i < 10; i++) {
-            DBDrone dbDrone = new DBDrone();
-            dbDrone.setDroneId(i);
-            dbDrone.setDroneName("Drone" + i);
-            dbDrone.setDroneDescription("To jest drone nr: " + i);
-            dbDrone.setTracked(true);
-            dbDrone.setVisualized(true);
-            dbDrone.setDroneStatus(DroneStatusEnum.ONLINE);
-            dbDrone.setLastLocation(new GeoPoint(22.54, 58.64));
-            drones.add(dbDrone);
-        }
-        CustomListViewAdapter customAdapter = new CustomListViewAdapter(getContext(), drones);
-        trackedDronesListView.setAdapter(customAdapter);
-        visualizedDronesListView.setAdapter(customAdapter);
-
-        setListViewHeightBasedOnChildren(trackedDronesListView);
-        setListViewHeightBasedOnChildren(visualizedDronesListView);
-
+        created = true;
         return view;
     }
 
@@ -73,26 +80,70 @@ public class PreferencesFragment extends Fragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
-            if (false) { // jeśli dane uległy zmianie
-                /**
-                 * aktualizacja dronów z serwera i bazy
-                 */
-                drones = new ArrayList<>();
-                for (int i = 1; i < 10; i++) {
-                    DBDrone dbDrone = new DBDrone();
-                    dbDrone.setDroneId(i);
-                    dbDrone.setDroneName("Drone" + i);
-                    dbDrone.setDroneDescription("To jest drone nr: " + i);
-                    dbDrone.setTracked(true);
-                    dbDrone.setVisualized(true);
-                    dbDrone.setDroneStatus(DroneStatusEnum.ONLINE);
-                    dbDrone.setLastLocation(new GeoPoint(22.54, 58.64));
-                    drones.add(dbDrone);
-                }
-                CustomListViewAdapter customAdapter = new CustomListViewAdapter(getContext(), drones);
-                trackedDronesListView.setAdapter(customAdapter);
-                visualizedDronesListView.setAdapter(customAdapter);
+                progress = ProgressDialog.show(getActivity(), "Połączenie z serwerem",
+                        "Pobieranie danych z serwera", true);
+                getPreferencesTask = new GetPreferencesTask("Mix");
+                getPreferencesTask.execute((Void) null);
+        } else if (hidden ==true){
+            if(created) {
+                List<DBDrone> newTrackedDrones = getUpdatedDronesList(assignedDrones, trackedDronesCustomAdapter.getCheckedDrones());
+                List<DBDrone> newVisualizedDrones = getUpdatedDronesList(assignedDrones, visualizedDronesCustomAdapter.getCheckedDrones());
+
+                progress = ProgressDialog.show(getActivity(), "Połączenie z serwerem",
+                        "Wysyłanie danych do serwera", true);
+                setPreferencesTask = new SetPreferencesTask("Mix", newTrackedDrones, newVisualizedDrones, true, true);
+                setPreferencesTask.execute((Void) null);
             }
+
+        }
+    }
+
+    private List<DBDrone> getUpdatedDronesList(List<DBDrone> assignedDrones, List<DBDrone> checkedDrones){
+        List<DBDrone> updatedDronesList = new ArrayList<>();
+        for(int i=0; i<assignedDrones.size();i++){
+            for(int j=0; j<checkedDrones.size();j++){
+                if(assignedDrones.get(i).getDroneId() == checkedDrones.get(j).getDroneId()){
+                    updatedDronesList.add(assignedDrones.get(i));
+                }
+            }
+        }
+        return updatedDronesList;
+    }
+    private boolean listChanged(List<DBDrone> nativeList, List<DBDrone> newList){
+        boolean nativeContainsAllNew = false;
+        for(int i=0; i<nativeList.size();i++){
+            boolean nativeContainsThisNew = false;
+            for(int j=0; j<newList.size();j++){
+                if(nativeList.get(i).getDroneId() == newList.get(j).getDroneId()){
+                    nativeContainsThisNew = true;
+                }
+            }
+            if(nativeContainsThisNew){
+                nativeContainsAllNew = true;
+            } else{
+                nativeContainsAllNew = false;
+            }
+        }
+
+        boolean newContainsAllNative = false;
+        for(int i=0; i<newList.size();i++){
+            boolean newContainsThisNative = false;
+            for(int j=0; j<nativeList.size();j++){
+                if(newList.get(i).getDroneId() == nativeList.get(j).getDroneId()){
+                    newContainsThisNative = true;
+                }
+            }
+            if(newContainsThisNative){
+                newContainsAllNative = true;
+            } else{
+                newContainsAllNative = false;
+            }
+        }
+
+        if(nativeContainsAllNew && newContainsAllNative){
+            return false;
+        } else{
+            return true;
         }
     }
 
@@ -115,5 +166,178 @@ public class PreferencesFragment extends Fragment {
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
+    }
+
+    public class GetPreferencesTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String login;
+
+
+        GetPreferencesTask(String login) {
+            this.login = login;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            String requestUrl = "http://0.tcp.ngrok.io:10350/dron-server-web/preferences";
+            try {
+                requestUrl += "?login="+ URLEncoder.encode(login, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            URL url = null;
+            try {
+                url = new URL(requestUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("charset", "UTF-8");
+                conn.setUseCaches(false);
+
+
+
+                int responseCode = conn.getResponseCode();
+                if(responseCode == HttpURLConnection.HTTP_OK){
+
+                     BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line+"\n");
+                    }
+                    br.close();
+                    GetPreferencesMessage getPreferencesMessage = MessageDecoder.decodePreferencesMessage(sb.toString());
+                    if(getPreferencesMessage !=null) {
+                        assignedDrones = getPreferencesMessage.getAssignedDrones();
+                        trackedDrones = getPreferencesMessage.getTrackedDrones();
+                        visualizedDrones = getPreferencesMessage.getVisualizedDrones();
+                    }
+                    return true;
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            getPreferencesTask = null;
+            progress.dismiss();
+            if (success) {
+                trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, trackedDrones);
+                trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
+                visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, visualizedDrones);
+                visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
+                setListViewHeightBasedOnChildren(trackedDronesListView);
+                setListViewHeightBasedOnChildren(visualizedDronesListView);
+            } else {
+                /*
+                Wiadomość o braku dostępu do internetu
+                 */
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            getPreferencesTask = null;
+            progress.dismiss();
+        }
+    }
+
+    public class SetPreferencesTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String login;
+        private final List<DBDrone> trackedDrones;
+        private final List<DBDrone> visualizedDrones;
+        private final boolean trackedDronesChanged;
+        private final boolean visualizedDronesChanged;
+
+
+        SetPreferencesTask(String login, List<DBDrone> trackedDrones, List<DBDrone> visualizedDrones, boolean trackedDronesChanged, boolean visualizedDronesChanged) {
+            this.login = login;
+            this.trackedDrones = trackedDrones;
+            this.visualizedDrones = visualizedDrones;
+            this.trackedDronesChanged= trackedDronesChanged;
+            this.visualizedDronesChanged = visualizedDronesChanged;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SetPreferencesMessage message = new SetPreferencesMessage();
+            message.setLogin(login);
+            if(trackedDronesChanged){
+                message.setTrackedDronesChanged(true);
+                message.setTrackedDrones(trackedDrones);
+            }
+            if(visualizedDronesChanged){
+                message.setVisualizedDronesChanged(true);
+                message.setVisualizedDrones(visualizedDrones);
+            }
+
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            Gson gson = gsonBuilder.create();
+            String urlParameters = "message="+gson.toJson(message);
+            byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
+            int postDataLength = postData.length;
+
+            String requestUrl = "http://0.tcp.ngrok.io:10350/dron-server-web/preferences";
+
+            URL url = null;
+            try {
+                url = new URL(requestUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setDoOutput(true);
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                conn.setRequestProperty("charset", "UTF-8");
+                conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                conn.setUseCaches(false);
+
+
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                wr.write(postData);
+
+                int responseCode = conn.getResponseCode();
+                if(responseCode == HttpURLConnection.HTTP_OK){
+                    return true;
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            setPreferencesTask = null;
+            progress.dismiss();
+            if (success) {
+
+            } else {
+                /*
+                Wiadomość o braku dostępu do internetu
+                 */
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            getPreferencesTask = null;
+            progress.dismiss();
+        }
     }
 }

@@ -19,27 +19,67 @@ import dron.mkapiczynski.pl.dronvision.database.DBDrone;
  */
 public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
 
-    private List<DBDrone> drones;
+    private List<DBDrone> assignedDrones;
+    private List<DBDrone> checkedDrones;
     private Context context;
 
-    public CustomListViewAdapter(Context context, List<DBDrone> drones) {
-        super(context, R.layout.row, drones);
+
+    public CustomListViewAdapter(Context context, List<DBDrone> assignedDrones, List<DBDrone> checkedDrones) {
+        super(context, R.layout.row, assignedDrones);
         this.context = context;
-        this.drones = drones;
+        this.assignedDrones = assignedDrones;
+        this.checkedDrones = checkedDrones;
+
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         convertView = inflater.inflate(R.layout.row, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.textView1);
-        CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox1);
-        name.setText(drones.get(position).getDroneName());
-        if(drones.get(position).getTracked()==true){
+        final CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox1);
+        name.setText("Id: " + assignedDrones.get(position).getDroneName() + " Status: (" + assignedDrones.get(position).getStatus() + ")");
+        if (droneIsChecked(assignedDrones.get(position), checkedDrones)) {
             checkBox.setChecked(true);
-        } else{
+        } else {
             checkBox.setChecked(false);
         }
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(checkBox.isChecked()) {
+                    checkedDrones.add(assignedDrones.get(position));
+                } else{
+                    removeDroneWithId(assignedDrones.get(position).getDroneId(), checkedDrones);
+                }
+            }
+        });
         return convertView;
+    }
+
+    private void removeDroneWithId(Long id, List<DBDrone> drones){
+        for(int i=0;i<drones.size();i++){
+            if(drones.get(i).getDroneId()==id){
+                drones.remove(drones.get(i));
+            }
+        }
+    }
+
+    @Override
+    public void setNotifyOnChange(boolean notifyOnChange) {
+        super.setNotifyOnChange(notifyOnChange);
+    }
+
+    public List<DBDrone> getCheckedDrones(){
+        return checkedDrones;
+    }
+
+    private boolean droneIsChecked(DBDrone drone, List<DBDrone> checkedDrones) {
+        for (int i = 0; i < checkedDrones.size(); i++) {
+            if (checkedDrones.get(i).getDroneId() == drone.getDroneId()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
