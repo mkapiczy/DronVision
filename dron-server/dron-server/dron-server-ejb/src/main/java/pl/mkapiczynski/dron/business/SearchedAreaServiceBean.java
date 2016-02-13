@@ -59,13 +59,13 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			List<Location> areaToAdd) {
 		List<Location> newSearchedArea = new ArrayList<>();
 
-		/*
+	
 		List<Location> sortedCurrentSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedArea);
 		List<Location> sortedAreaToAdd = sortGeoPointsListByDistanceAndRemoveRepetitions(areaToAdd);
-		 */
+		/*
 		List<Location> sortedCurrentSearchedArea = currentSearchedArea;
 		List<Location> sortedAreaToAdd = areaToAdd;
-		
+		*/
 		List<Location> mutualPoints = getMutualPoints(sortedCurrentSearchedArea, sortedAreaToAdd);
 
 		for (int i = 0; i < sortedCurrentSearchedArea.size(); i++) {
@@ -91,8 +91,8 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			Location pointFromAreaToAdd = areaToAdd.get(i);
 			for (int j = 0; j < searchedArea.size(); j++) {
 				Location pointFromSearchedArea = searchedArea.get(j);
-				if (pointFromAreaToAdd.getLatitude() == pointFromSearchedArea.getLatitude()
-						&& pointFromAreaToAdd.getLongitude() == pointFromSearchedArea.getLongitude()) {
+				if ((pointFromAreaToAdd.getLatitude().compareTo(pointFromSearchedArea.getLatitude().doubleValue())==0)
+						&& (pointFromAreaToAdd.getLongitude().compareTo(pointFromSearchedArea.getLongitude())==0)) {
 					mutualPoints.add(pointFromSearchedArea);
 				}
 			}
@@ -163,7 +163,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 	}
 
 	private boolean nearesPointIsTheSamePoint(Location point, Location nearestPoint) {
-		if (point.getLatitude() == nearestPoint.getLatitude() && point.getLongitude() == nearestPoint.getLongitude()) {
+		if ((point.getLatitude().compareTo(nearestPoint.getLatitude())==0) && (point.getLongitude().compareTo(nearestPoint.getLongitude())==0)) {
 			return true;
 		} else {
 			return false;

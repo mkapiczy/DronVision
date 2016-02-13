@@ -51,7 +51,11 @@ public class LoginServlet extends HttpServlet {
 		
 		if(login!=null && password!=null){
 			if(administrationService.checkLoginData(login, password)){
-				HttpHelper.setStatusOrError(response, ServerResponse.OK);
+				PreferencesResponse preferencesResponse = administrationService.getPreferencesForClient(login);
+				GsonBuilder gsonBuilder = new GsonBuilder();
+				Gson gson = gsonBuilder.create();
+				String json = gson.toJson(preferencesResponse);
+				HttpHelper.sendJSON(response, json);
 			} else{
 				HttpHelper.setStatusOrError(response, ServerResponse.NOT_AUTHORIZED);
 			}
