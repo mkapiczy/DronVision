@@ -59,9 +59,13 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			List<Location> areaToAdd) {
 		List<Location> newSearchedArea = new ArrayList<>();
 
+		/*
 		List<Location> sortedCurrentSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedArea);
 		List<Location> sortedAreaToAdd = sortGeoPointsListByDistanceAndRemoveRepetitions(areaToAdd);
-
+		 */
+		List<Location> sortedCurrentSearchedArea = currentSearchedArea;
+		List<Location> sortedAreaToAdd = areaToAdd;
+		
 		List<Location> mutualPoints = getMutualPoints(sortedCurrentSearchedArea, sortedAreaToAdd);
 
 		for (int i = 0; i < sortedCurrentSearchedArea.size(); i++) {
