@@ -345,6 +345,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setRequestProperty("charset", "UTF-8");
                 conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                conn.setConnectTimeout(2500);
+                conn.setReadTimeout(2500);
                 conn.setUseCaches(false);
 
 

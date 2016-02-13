@@ -161,6 +161,8 @@ public class PreferencesFragment extends Fragment {
                 conn.setInstanceFollowRedirects(false);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("charset", "UTF-8");
+                conn.setConnectTimeout(2500);
+                conn.setReadTimeout(2500);
                 conn.setUseCaches(false);
 
 
@@ -271,6 +273,8 @@ public class PreferencesFragment extends Fragment {
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setRequestProperty("charset", "UTF-8");
                 conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                conn.setConnectTimeout(2500);
+                conn.setReadTimeout(2500);
                 conn.setUseCaches(false);
 
 
