@@ -4,25 +4,24 @@ package dron.mkapiczynski.pl.dronvision.domain;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Miix on 2016-01-05.
  */
 public class Drone {
-    private Long deviceId;
+    private Long droneId;
     private String deviceName;
     private GeoPoint currentPosition;
     private List<GeoPoint> searchedArea;
     private List<GeoPoint> lastSearchedArea;
     private int color;
 
-    public Long getDeviceId() {
-        return deviceId;
+    public Long getDroneId() {
+        return droneId;
     }
 
-    public void setDeviceId(Long deviceId) {
-        this.deviceId = deviceId;
+    public void setDroneId(Long droneId) {
+        this.droneId = droneId;
     }
 
     public String getDeviceName() {

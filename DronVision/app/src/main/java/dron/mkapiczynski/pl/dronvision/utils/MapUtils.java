@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 
 /**
@@ -39,30 +40,57 @@ public class MapUtils {
         double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);*/
     }
 
-    public static List<Overlay> updateMapOverlays(Set<Drone> drones, MapView mapView, Activity activity){
+    public static List<Overlay> updateMapOverlays(Set<Drone> drones,List<DBDrone> trackedDrones, List<DBDrone> visualizedDroned, MapView mapView, Activity activity){
         List<Overlay> mapOverlays = new ArrayList<>();
         addScaleBarOverlayToMapView(mapOverlays, activity);
 
         Iterator<Drone> dronesIterator = drones.iterator();
         while(dronesIterator.hasNext()){
             Drone currentIteratedDrone = dronesIterator.next();
-            updateDroneOverlays(currentIteratedDrone, mapOverlays,mapView,activity);
+            if(droneIsVisualized(currentIteratedDrone, visualizedDroned)){
+                updateDroneVisuazliedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
+            } else if(droneIsTracked(currentIteratedDrone, trackedDrones)){
+                updateDroneTrackedOverlays(currentIteratedDrone, mapOverlays, mapView,activity);
+            }
+
         }
 
         return mapOverlays;
     }
 
-    private static void updateDroneOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
+    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones){
+        for(int i=0; i<trackedDrones.size();i++){
+            if(trackedDrones.get(i).getDroneId() == drone.getDroneId()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean droneIsVisualized(Drone drone, List<DBDrone> visualizedDrones){
+        for(int i=0; i<visualizedDrones.size();i++){
+            if(visualizedDrones.get(i).getDroneId() == drone.getDroneId()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void updateDroneVisuazliedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
         updateDroneLastSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
         updateDroneSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
+    }
+
+    private static void updateDroneTrackedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
+        updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
     }
 
 
     private static void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         Marker marker = new Marker(mapView);
         marker.setPosition(new GeoPoint(droneToUpdate.getCurrentPosition()));
-        marker.setTitle(droneToUpdate.getDeviceId().toString());
+        marker.setTitle(droneToUpdate.getDroneId().toString());
         Drawable droneIcon = DroneUtils.getDroneMarkerIcon(droneToUpdate, activity);
         marker.setIcon(droneIcon);
         mapOverlays.add(marker);

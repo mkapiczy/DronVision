@@ -1,6 +1,7 @@
 package dron.mkapiczynski.pl.dronvision.fragment;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,9 +14,11 @@ import org.osmdroid.views.MapView;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
+import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
@@ -71,6 +74,17 @@ public class VisionFragment extends Fragment {
         } else{
             throw new ClassCastException( context.toString() + " musi implementować interfejs: " +
                     "VisionFragment.VisionFragmentActivityListener");
+        }
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden == false) {
+            updateMapView(null);
+        } else if (hidden ==true){
+
+
         }
     }
 

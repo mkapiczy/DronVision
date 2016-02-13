@@ -6,18 +6,18 @@ package dron.mkapiczynski.pl.dronvision.message;
 public class ClientLoginMessage {
     private static final String MESSAGE_TYPE = "ClientLoginMessage";
     private final String messageType = MESSAGE_TYPE;
-    private String clientId;
+    private Long clientId;
 
 
     public String getMessageType() {
         return messageType;
     }
 
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 

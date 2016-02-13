@@ -31,10 +31,12 @@ import java.util.Date;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
+import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.helper.CustomListViewAdapter;
 import dron.mkapiczynski.pl.dronvision.helper.JsonDateSerializer;
+import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
 import dron.mkapiczynski.pl.dronvision.message.SetPreferencesMessage;
@@ -44,7 +46,7 @@ import dron.mkapiczynski.pl.dronvision.message.SetPreferencesMessage;
  */
 public class PreferencesFragment extends Fragment {
 
-
+    private final String PREFERENCES_URL = "http://0.tcp.ngrok.io:18721/dron-server-web/preferences";
     private ListView trackedDronesListView;
     private ListView visualizedDronesListView;
     private CustomListViewAdapter trackedDronesCustomAdapter;
@@ -57,6 +59,8 @@ public class PreferencesFragment extends Fragment {
 
     private GetPreferencesTask getPreferencesTask = null;
     private SetPreferencesTask setPreferencesTask = null;
+
+    private SessionManager sessionManager;
 
     public PreferencesFragment() {
         // Required empty public constructor
@@ -73,6 +77,8 @@ public class PreferencesFragment extends Fragment {
         trackedDronesListView = (ListView) view.findViewById(R.id.trackedDroneList);
         visualizedDronesListView = (ListView) view.findViewById(R.id.visualizedDroneList);
         created = true;
+
+        sessionManager = new SessionManager(getActivity().getApplicationContext());
         return view;
     }
 
@@ -109,43 +115,6 @@ public class PreferencesFragment extends Fragment {
         }
         return updatedDronesList;
     }
-    private boolean listChanged(List<DBDrone> nativeList, List<DBDrone> newList){
-        boolean nativeContainsAllNew = false;
-        for(int i=0; i<nativeList.size();i++){
-            boolean nativeContainsThisNew = false;
-            for(int j=0; j<newList.size();j++){
-                if(nativeList.get(i).getDroneId() == newList.get(j).getDroneId()){
-                    nativeContainsThisNew = true;
-                }
-            }
-            if(nativeContainsThisNew){
-                nativeContainsAllNew = true;
-            } else{
-                nativeContainsAllNew = false;
-            }
-        }
-
-        boolean newContainsAllNative = false;
-        for(int i=0; i<newList.size();i++){
-            boolean newContainsThisNative = false;
-            for(int j=0; j<nativeList.size();j++){
-                if(newList.get(i).getDroneId() == nativeList.get(j).getDroneId()){
-                    newContainsThisNative = true;
-                }
-            }
-            if(newContainsThisNative){
-                newContainsAllNative = true;
-            } else{
-                newContainsAllNative = false;
-            }
-        }
-
-        if(nativeContainsAllNew && newContainsAllNative){
-            return false;
-        } else{
-            return true;
-        }
-    }
 
     private void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
@@ -179,7 +148,7 @@ public class PreferencesFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String requestUrl = "http://0.tcp.ngrok.io:10350/dron-server-web/preferences";
+            String requestUrl = PREFERENCES_URL;
             try {
                 requestUrl += "?login="+ URLEncoder.encode(login, "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -237,6 +206,9 @@ public class PreferencesFragment extends Fragment {
                 visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
                 setListViewHeightBasedOnChildren(trackedDronesListView);
                 setListViewHeightBasedOnChildren(visualizedDronesListView);
+                sessionManager.setAssignedDrones(assignedDrones);
+                sessionManager.setTrackedDrones(trackedDrones);
+                sessionManager.setVisuazliedDrones(visualizedDrones);
             } else {
                 /*
                 Wiadomość o braku dostępu do internetu
@@ -287,7 +259,7 @@ public class PreferencesFragment extends Fragment {
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = "http://0.tcp.ngrok.io:10350/dron-server-web/preferences";
+            String requestUrl = PREFERENCES_URL;
 
             URL url = null;
             try {
@@ -326,7 +298,10 @@ public class PreferencesFragment extends Fragment {
             setPreferencesTask = null;
             progress.dismiss();
             if (success) {
-
+                sessionManager.setTrackedDrones(trackedDrones);
+                sessionManager.setVisuazliedDrones(visualizedDrones);
+                MainActivity activity = (MainActivity) getActivity();
+                activity.updateDronesOnMap(null);
             } else {
                 /*
                 Wiadomość o braku dostępu do internetu

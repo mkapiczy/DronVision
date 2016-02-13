@@ -1,6 +1,7 @@
 package dron.mkapiczynski.pl.dronvision.map;
 
 import android.app.Activity;
+import android.content.pm.PackageInstaller;
 import android.os.AsyncTask;
 
 import org.osmdroid.views.MapController;
@@ -11,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.utils.DroneUtils;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 
@@ -24,12 +27,18 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     private Set<Drone> drones;
     private MapView mapView;
     private List<Overlay> mapOverlays = new ArrayList<>();
+    private SessionManager sessionManager;
+    private List<DBDrone> trackedDrones;
+    private List<DBDrone> visualizedDrones;
 
     public MapAsyncTask(MapView mapView, Drone drone, Set<Drone> drones, Activity activity) {
         this.drone = drone;
         this.drones = drones;
         this.activity = activity;
         this.mapView = mapView;
+        sessionManager = new SessionManager(activity.getApplicationContext());
+        trackedDrones = sessionManager.getTrackedDrones();
+        visualizedDrones = sessionManager.getVisualizedDrones();
     }
 
     @Override
@@ -40,8 +49,10 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        DroneUtils.updateDronesSet(drones, drone);
-        mapOverlays = MapUtils.updateMapOverlays(drones, mapView, activity);
+        if(drone!=null) {
+            DroneUtils.updateDronesSet(drones, drone);
+        }
+        mapOverlays = MapUtils.updateMapOverlays(drones,trackedDrones,visualizedDrones, mapView, activity);
         /**
          * TODO
          * Do usunięcia - po stronie apki tylko wyświetlamy - cały update po stronie servera
@@ -57,7 +68,9 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
         mapView.getOverlays().addAll(mapOverlays);
         mapView.postInvalidateOnAnimation();
         MapController mapController = (MapController) mapView.getController();
-        mapController.animateTo(drone.getCurrentPosition());
+        if(drone!=null) {
+            mapController.animateTo(drone.getCurrentPosition());
+        }
     }
 
     @Override

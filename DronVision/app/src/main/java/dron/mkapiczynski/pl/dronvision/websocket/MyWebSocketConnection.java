@@ -28,7 +28,7 @@ import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:10350/dron-server-web/server";
+    private static final String SERVER = "ws://0.tcp.ngrok.io:18721/dron-server-web/server";
     private MainActivity activity;
     private boolean deviceIsLoggedIn = false;
 
@@ -66,7 +66,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
                         }
 
                         Drone drone = new Drone();
-                        drone.setDeviceId(geoMessage.getDeviceId());
+                        drone.setDroneId(geoMessage.getDeviceId());
                         drone.setCurrentPosition(currentDronePosition);
                         drone.setSearchedArea(searchedArea);
                         drone.setLastSearchedArea(lastSearchedArea);
@@ -95,7 +95,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
     }
     private boolean sendLoginMessage() {
         ClientLoginMessage clientLoginMessage = new ClientLoginMessage();
-        clientLoginMessage.setClientId("Client2");
+        clientLoginMessage.setClientId(1l);
         Gson gson = new Gson();
         if (isConnected()) {
             sendTextMessage(gson.toJson(clientLoginMessage));

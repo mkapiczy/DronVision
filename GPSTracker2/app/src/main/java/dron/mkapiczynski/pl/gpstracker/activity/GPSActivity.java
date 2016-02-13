@@ -32,8 +32,8 @@ public class GPSActivity extends Activity implements LocationListener {
     private boolean requestLocationUpdatesFlag = false;
 
     // Gps parameters
-    private static int UPDATE_INTERVAL = 1000; // 1 sec
-    private static int DISPLACEMENT = 1; //  meters
+    private static int UPDATE_INTERVAL = 2000; // 1 sec
+    private static int DISPLACEMENT = 2; //  meters
 
     // UI
     private TextView locationTextView;
@@ -41,7 +41,6 @@ public class GPSActivity extends Activity implements LocationListener {
     private Button btnShowLocation, btnStartLocationUpdates;
 
     // Websocket
-    private static final String SERVER = "ws://0.tcp.ngrok.io:47929/dron-server-web/server";
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
 
 

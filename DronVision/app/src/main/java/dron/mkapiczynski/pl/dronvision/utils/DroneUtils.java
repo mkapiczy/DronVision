@@ -53,7 +53,7 @@ public class DroneUtils {
         Iterator<Drone> iterator = drones.iterator();
         while (iterator.hasNext()) {
             Drone currentDroneOnList = iterator.next();
-            if (currentDroneOnList.getDeviceId().equals(droneToUpdate.getDeviceId())) {
+            if (currentDroneOnList.getDroneId().equals(droneToUpdate.getDroneId())) {
                 return true;
             }
         }
@@ -64,7 +64,7 @@ public class DroneUtils {
         Iterator<Drone> iterator = dronesSet.iterator();
         while (iterator.hasNext()) {
             Drone currentDroneOnList = iterator.next();
-            if (currentDroneOnList.getDeviceId().equals(droneToUpdate.getDeviceId())) {
+            if (currentDroneOnList.getDroneId().equals(droneToUpdate.getDroneId())) {
                 currentDroneOnList.setCurrentPosition(droneToUpdate.getCurrentPosition());
                 currentDroneOnList.setLastSearchedArea(droneToUpdate.getLastSearchedArea());
                 currentDroneOnList.setSearchedArea(droneToUpdate.getSearchedArea());
