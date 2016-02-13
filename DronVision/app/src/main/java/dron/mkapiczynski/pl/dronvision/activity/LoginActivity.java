@@ -47,6 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
+import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
+import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -78,6 +82,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
+    private SessionManager sessionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +114,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        sessionManager = new SessionManager(this);
     }
 
     private void populateAutoComplete() {
@@ -310,6 +318,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String login;
         private final String password;
+        private List<DBDrone> assignedDrones;
+        private List<DBDrone> trackedDrones;
+        private List<DBDrone> visualizedDrones;
 
         UserLoginTask(String login, String password) {
             this.login = login;
@@ -342,6 +353,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 int responseCode = conn.getResponseCode();
                 if(responseCode == HttpURLConnection.HTTP_OK){
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line+"\n");
+                    }
+                    br.close();
+                    GetPreferencesMessage getPreferencesMessage = MessageDecoder.decodePreferencesMessage(sb.toString());
+                    if(getPreferencesMessage !=null) {
+                        assignedDrones = getPreferencesMessage.getAssignedDrones();
+                        trackedDrones = getPreferencesMessage.getTrackedDrones();
+                        visualizedDrones = getPreferencesMessage.getVisualizedDrones();
+                    }
                     return true;
                 }
 
@@ -362,6 +386,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
+                sessionManager.setAssignedDrones(assignedDrones);
+                sessionManager.setTrackedDrones(trackedDrones);
+                sessionManager.setVisuazliedDrones(visualizedDrones);
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
