@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -39,6 +40,12 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
         TextView name = (TextView) convertView.findViewById(R.id.textView1);
         final CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox1);
         name.setText("Id: " + assignedDrones.get(position).getDroneName() + " Status: (" + assignedDrones.get(position).getStatus() + ")");
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(),"Click!", Toast.LENGTH_SHORT).show();
+            }
+        });
         if (droneIsChecked(assignedDrones.get(position), checkedDrones)) {
             checkBox.setChecked(true);
         } else {
@@ -63,6 +70,11 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
                 drones.remove(drones.get(i));
             }
         }
+    }
+
+    @Override
+    public DBDrone getItem(int position) {
+        return super.getItem(position);
     }
 
     @Override

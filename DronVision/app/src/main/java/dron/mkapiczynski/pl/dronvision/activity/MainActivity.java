@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.SettingsFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.VisionFragment;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     private VisionFragment visionFragment;
     private PreferencesFragment preferencesFragment;
     private SettingsFragment settingsFragment;
+    private HistoryFragment historyFragment;
 
 
     // Websocket
@@ -66,14 +68,17 @@ public class MainActivity extends AppCompatActivity
         visionFragment = new VisionFragment();
         preferencesFragment = new PreferencesFragment();
         settingsFragment = new SettingsFragment();
+        historyFragment = new HistoryFragment();
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(R.id.fragment_container, visionFragment)
                 .add(R.id.fragment_container, preferencesFragment)
                 .add(R.id.fragment_container, settingsFragment)
+                .add(R.id.fragment_container, historyFragment)
                 .hide(preferencesFragment)
                 .hide(settingsFragment)
+                .hide(historyFragment)
                 .commit();
     }
 
@@ -99,6 +104,9 @@ public class MainActivity extends AppCompatActivity
                         currentMenuItem.setChecked(false);
                     } else if (settingsFragment.isVisible()) {
                         fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                        currentMenuItem.setChecked(false);
+                    } else if(historyFragment.isVisible()){
+                        fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
                         currentMenuItem.setChecked(false);
                     }
                 }
@@ -140,6 +148,8 @@ public class MainActivity extends AppCompatActivity
                     fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
                 } else if(settingsFragment.isVisible()){
                     fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+                } else if(historyFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
                 }
             }
         } else if (id == R.id.nav_preferences) {
@@ -148,6 +158,8 @@ public class MainActivity extends AppCompatActivity
                     fragmentManager.beginTransaction().hide(visionFragment).show(preferencesFragment).commit();
                 } else if(settingsFragment.isVisible()){
                     fragmentManager.beginTransaction().hide(settingsFragment).show(preferencesFragment).commit();
+                }else if(historyFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(historyFragment).show(preferencesFragment).commit();
                 }
             }
         } else if (id == R.id.nav_settings) {
@@ -156,6 +168,18 @@ public class MainActivity extends AppCompatActivity
                     fragmentManager.beginTransaction().hide(visionFragment).show(settingsFragment).commit();
                 } else if(preferencesFragment.isVisible()){
                     fragmentManager.beginTransaction().hide(preferencesFragment).show(settingsFragment).commit();
+                }else if(historyFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(historyFragment).show(settingsFragment).commit();
+                }
+            }
+        } else if(id == R.id.nav_history){
+            if(historyFragment.isHidden()){
+                if(visionFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(visionFragment).show(historyFragment).commit();
+                } else if(preferencesFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(preferencesFragment).show(historyFragment).commit();
+                }else if(settingsFragment.isVisible()){
+                    fragmentManager.beginTransaction().hide(settingsFragment).show(historyFragment).commit();
                 }
             }
         } else if (id == R.id.nav_share) {

@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:nestedScrollingEnabled="true"
+    tools:context="dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment"
+    tools:showIn="@layout/fragment_history">>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:text="Historia wizualizacji"
+        android:id="@+id/historyTitle"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/assignedDronesListTitle"
+        android:text="Dostępne drony"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/historyTitle"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="@dimen/listView_horizontal_margin"/>
+
+    <ListView
+        android:id="@+id/assignedDrones"
+        android:paddingLeft="@dimen/listView_horizontal_margin"
+        android:paddingRight="@dimen/listView_horizontal_margin"
+        android:layout_below="@+id/assignedDronesListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        tools:showIn="@layout/fragment_history"/>
+
+
+
+
+</RelativeLayout>

@@ -20,6 +20,7 @@
     <string name="nav_vision_title">Wizualizacja</string>
     <string name="nav_preferences_title">Preferencje</string>
     <string name="nav_settings_title">Ustawienia</string>
+    <string name="nav_history_title">Historia wizualizacji</string>
 
     <string name="action_settings">Settings</string>
 

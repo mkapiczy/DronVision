@@ -14,7 +14,7 @@
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:text="Preferencje wizualizacji"
-        android:id="@+id/preferencesTitle"
+        android:id="@+id/historyTitle"
         android:layout_gravity="center" />
 
     <TextView
@@ -22,7 +22,7 @@
         android:text="Drony śledzone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/preferencesTitle"
+        android:layout_below="@+id/historyTitle"
         android:layout_marginTop="20dp"
         android:paddingLeft="@dimen/listView_horizontal_margin"/>
 
