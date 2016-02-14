@@ -17,6 +17,7 @@ import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketHandler;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
+import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
@@ -28,7 +29,7 @@ import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:18721/dron-server-web/server";
+    private static final String SERVER = Parameters.SERVER;
     private MainActivity activity;
     private boolean deviceIsLoggedIn = false;
 

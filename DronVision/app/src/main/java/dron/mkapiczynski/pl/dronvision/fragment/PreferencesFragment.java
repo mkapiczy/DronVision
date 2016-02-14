@@ -27,15 +27,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
-import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomListViewAdapter;
-import dron.mkapiczynski.pl.dronvision.helper.JsonDateSerializer;
 import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
@@ -46,7 +44,7 @@ import dron.mkapiczynski.pl.dronvision.message.SetPreferencesMessage;
  */
 public class PreferencesFragment extends Fragment {
 
-    private final String PREFERENCES_URL = "http://0.tcp.ngrok.io:18721/dron-server-web/preferences";
+
     private ListView trackedDronesListView;
     private ListView visualizedDronesListView;
     private CustomListViewAdapter trackedDronesCustomAdapter;
@@ -148,7 +146,7 @@ public class PreferencesFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String requestUrl = PREFERENCES_URL;
+            String requestUrl = Parameters.PREFERENCES_REQUEST_URL;
             try {
                 requestUrl += "?login="+ URLEncoder.encode(login, "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -261,7 +259,7 @@ public class PreferencesFragment extends Fragment {
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = PREFERENCES_URL;
+            String requestUrl = Parameters.PREFERENCES_REQUEST_URL;
 
             URL url = null;
             try {

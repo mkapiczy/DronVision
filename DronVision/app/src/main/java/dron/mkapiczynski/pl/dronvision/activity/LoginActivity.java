@@ -30,24 +30,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
@@ -333,7 +330,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = "http://0.tcp.ngrok.io:18721/dron-server-web/login";
+            String requestUrl = Parameters.LOGIN_REQUEST_URL;
 
             URL url = null;
             try {
