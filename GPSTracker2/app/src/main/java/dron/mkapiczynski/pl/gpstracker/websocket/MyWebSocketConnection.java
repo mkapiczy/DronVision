@@ -15,6 +15,7 @@ import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketHandler;
 import dron.mkapiczynski.pl.gpstracker.R;
 import dron.mkapiczynski.pl.gpstracker.domain.GeoPoint;
+import dron.mkapiczynski.pl.gpstracker.domain.Parameters;
 import dron.mkapiczynski.pl.gpstracker.jsonHelper.JsonDateSerializer;
 import dron.mkapiczynski.pl.gpstracker.message.GeoDataMessage;
 import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
@@ -24,7 +25,7 @@ import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = "ws://0.tcp.ngrok.io:18721/dron-server-web/server";
+    private static final String SERVER = Parameters.SERVER;
     private final Long DRONE_ID = 1l;
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
