@@ -14,7 +14,7 @@ import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
-import pl.mkapiczynski.dron.database.DroneSessionStatus;
+import pl.mkapiczynski.dron.database.DroneSessionStatusEnum;
 import pl.mkapiczynski.dron.database.DroneStatusEnum;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
@@ -24,10 +24,10 @@ import pl.mkapiczynski.dron.domain.GeoPoint;
 @Stateless(name = "DroneService")
 public class DroneServiceBean implements DroneService {
 	private static final Logger log = Logger.getLogger(DroneServiceBean.class);
-	
+
 	@PersistenceContext(name = "dron")
 	private EntityManager entityManager;
-	
+
 	@Inject
 	private SearchedAreaService searchedAreaService;
 
@@ -41,15 +41,16 @@ public class DroneServiceBean implements DroneService {
 	public boolean createNewDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if (drone != null) {
+			closePreviousActiveSession(drone);
+			DroneSession droneSession = new DroneSession();
 			drone.setStatus(DroneStatusEnum.ONLINE);
 			SearchedArea searchedArea = new SearchedArea();
-			DroneSession droneSession = new DroneSession();
 			SearchedArea lastSearchedArea = new SearchedArea();
 			droneSession.setDrone(drone);
 			droneSession.setSearchedArea(searchedArea);
 			droneSession.setLastSearchedArea(lastSearchedArea);
 			droneSession.setSessionStarted(new Date());
-			droneSession.setStatus(DroneSessionStatus.ACTIVE);
+			droneSession.setStatus(DroneSessionStatusEnum.ACTIVE);
 			drone.setActiveSession(droneSession);
 			entityManager.persist(droneSession);
 			return true;
@@ -60,36 +61,36 @@ public class DroneServiceBean implements DroneService {
 	}
 
 	@Override
-	public void updateDroneSearchedArea(Drone drone, Location newSearchedLocation) {
-		if (drone != null && newSearchedLocation != null) {
-			DroneSession activeSession = getActiveDroneSession(drone);
-			if (activeSession != null) {
-				SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(newSearchedLocation);
-				SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
-				SearchedArea currentSearchedArea = activeSession.getSearchedArea();
-				
-				if(lastSearchedArea!=null){
-					searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
-					lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
-				} else if(lastSearchedArea==null && recentSearchedArea!=null){
-					lastSearchedArea = new SearchedArea();
-					lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
-				}
+	public void updateDroneSearchedArea(Drone drone) {
+		DroneSession activeSession = getActiveDroneSession(drone);
+		if (activeSession != null) {
+			SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(drone.getLastLocation());
+			SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
+			SearchedArea currentSearchedArea = activeSession.getSearchedArea();
+
+			if (lastSearchedArea != null) {
+				searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
+				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
+			} else if (lastSearchedArea == null && recentSearchedArea != null) {
+				lastSearchedArea = new SearchedArea();
+				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
 			}
-		} else {
-			log.info("No drone with id: " + drone.getDroneId() + " was found");
+		} else{
+			log.info("No active session for drone with id: " + drone.getDroneId());
 		}
 	}
 
 	@Override
 	public void closeDroneSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
-		if(drone!=null){
+		if (drone != null) {
 			DroneSession activeSession = getActiveDroneSession(drone);
-			activeSession.setStatus(DroneSessionStatus.FINISHED);
-			activeSession.setSessionEnded(new Date());
+			if (activeSession != null) {
+				activeSession.setStatus(DroneSessionStatusEnum.FINISHED);
+				activeSession.setSessionEnded(new Date());
+			}
 			drone.setStatus(DroneStatusEnum.OFFLINE);
-		} else{
+		} else {
 			log.info("No drone with id: " + droneId + " was found");
 		}
 
@@ -97,19 +98,21 @@ public class DroneServiceBean implements DroneService {
 
 	@Override
 	public DroneSession getActiveDroneSession(Drone drone) {
-		List<DroneSession> droneSessions = drone.getSessions();
-		DroneSession activeSession = null;
-		for (int i = 0; i < droneSessions.size(); i++) {
-			if (droneSessions.get(i).getStatus().equals(DroneSessionStatus.ACTIVE)) {
-				activeSession = droneSessions.get(i);
-			}
-		}
-		return activeSession;
+		DroneSession activeDroneSession = drone.getActiveSession();
+		return activeDroneSession;
 	}
-	
+
+	private void closePreviousActiveSession(Drone drone) {
+		DroneSession activeSession = getActiveDroneSession(drone);
+		if (activeSession != null) {
+			activeSession.setStatus(DroneSessionStatusEnum.FINISHED);
+			activeSession.setSessionEnded(new Date());
+		}
+	}
+
 	private List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
 		List<Location> locationSearchedArea = new ArrayList();
-		for(int i=0; i<geoPointSearchedArea.size();i++){
+		for (int i = 0; i < geoPointSearchedArea.size(); i++) {
 			GeoPoint tempPoint = geoPointSearchedArea.get(i);
 			Location loc = new Location();
 			loc.setLatitude(tempPoint.getLatitude());

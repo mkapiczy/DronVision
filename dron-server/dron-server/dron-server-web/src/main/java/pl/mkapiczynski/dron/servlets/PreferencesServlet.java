@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.servlets.login;
+package pl.mkapiczynski.dron.servlets;
 
 import java.io.IOException;
 import java.net.URI;
@@ -42,10 +42,10 @@ public class PreferencesServlet extends HttpServlet {
     
     public PreferencesServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		log.info("GetPreferencesRequest received");
 		String url = request.getRequestURL()+("?")+request.getQueryString();
 		Map<String, String> parameters = readRequestParameters(url);
 		String login = parameters.get("login");
@@ -53,6 +53,7 @@ public class PreferencesServlet extends HttpServlet {
 		log.info("getPreferences request for login " + login);
 		
 		if(login!=null){
+			log.info("Request for login " + login);
 			PreferencesResponse preferencesResponse = administrationService.getPreferencesForClient(login);
 			GsonBuilder gsonBuilder = new GsonBuilder();
 			Gson gson = gsonBuilder.create();
@@ -65,13 +66,13 @@ public class PreferencesServlet extends HttpServlet {
 
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("SetPreferencesRequest");
+		log.info("SetPreferencesRequest received");
 		String message = request.getParameter("message");
 		SetPreferencesMessage setPreferencesMessage = decodeSetPreferencesMessage(message);
 		if(setPreferencesMessage!=null){
 			String login = setPreferencesMessage.getLogin();
 			if(login!=null){
-				log.info("Request for login " + setPreferencesMessage.getLogin());
+				log.info("Request for login " + login);
 				boolean updateSuccess = administrationService.updateUserDronesPreferences(setPreferencesMessage);
 				if(updateSuccess){
 					HttpHelper.setStatusOrError(response, ServerResponse.OK);

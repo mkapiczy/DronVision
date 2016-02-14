@@ -32,14 +32,14 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 	public void handleTrackerLoginMessage(Message incomingMessage, Session session, Set<Session> gpsTrackerDeviceSessions) {
 		TrackerLoginMessage trackerLoginMessage = (TrackerLoginMessage) incomingMessage;
 		Long droneId = trackerLoginMessage.getDeviceId();
-		if (gpsTrackerDeviceHasNotRegisteredSession(session, gpsTrackerDeviceSessions)) {
+		if (!gpsTrackerDeviceHasRegisteredSession(session, gpsTrackerDeviceSessions)) {
 			if (droneService.createNewDroneSession(droneId)) {
 				session.getUserProperties().put("deviceId", droneId);
 				gpsTrackerDeviceSessions.add(session);
 				System.out.println("New trackerDevice with id: " + droneId);
 			}
 		} else {
-			log.info("Login message from unregistered tracker device with id: " + droneId);
+			log.info("Login message from  already registered tracker device with id: " + droneId);
 		}
 
 	}
@@ -47,31 +47,29 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 	@Override
 	public void handleTrackerGeoDataMessage(Message incomingMessage, Session session, 
 			Set<Session> gpsTrackerDeviceSessions, Set<Session> clientSessions) {
-		ClientGeoDataMessage clientGeoMessage = null;
-		if (gpsTrackerDeviceSessions.contains(session)) {
+		if (gpsTrackerDeviceHasRegisteredSession(session, gpsTrackerDeviceSessions)) {
 			TrackerGeoDataMessage trackerGeoDataMessage = (TrackerGeoDataMessage) incomingMessage;
 			Long droneId = trackerGeoDataMessage.getDeviceId();
 			GeoPoint lastPosition = trackerGeoDataMessage.getLastPosition();
-			if(lastPosition!=null){
+			if(droneId!=null && lastPosition!=null){
 				Drone drone = droneService.getDroneById(droneId);
 				if(drone!=null){
-					Location lastLocation = new Location(lastPosition);
-					drone.setLastLocation(lastLocation);
-					droneService.updateDroneSearchedArea(drone, lastLocation);
+					drone.setLastLocation(new Location(lastPosition));
+					droneService.updateDroneSearchedArea(drone);
 					clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
 				} else{
-					log.error("Drone can't be NULL!");
+					log.error("No drone with id: " + droneId);
 				}
 			} else{
-				log.error("Last position can't be NULL!");
+				log.error("Last position and droneId can not be NULL!");
 			}
 		} else {
-			log.info("Message from unregistered tracker device");
+			log.info("Message from unregistered session tracker device");
 		}
 	}
 
-	private boolean gpsTrackerDeviceHasNotRegisteredSession(Session session, Set<Session> gpsTrackerDeviceSessions) {
-		if (!gpsTrackerDeviceSessions.contains(session)) {
+	private boolean gpsTrackerDeviceHasRegisteredSession(Session session, Set<Session> gpsTrackerDeviceSessions) {
+		if (gpsTrackerDeviceSessions.contains(session)) {
 			return true;
 		}
 		return false;

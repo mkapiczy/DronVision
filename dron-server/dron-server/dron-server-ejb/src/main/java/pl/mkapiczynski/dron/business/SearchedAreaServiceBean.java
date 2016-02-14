@@ -8,19 +8,13 @@ import javax.ejb.Stateless;
 
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
+import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 
 @Local
 @Stateless(name = "SearchedAreaService")
 public class SearchedAreaServiceBean implements SearchedAreaService {
-	public static final float DEG2RAD = (float) (Math.PI / 180.0);
-	public static final float RAD2DEG = (float) (180.0 / Math.PI);
-
-	public static final int RADIUS_EARTH_METERS = 6378137; // http://en.wikipedia.org/wiki/Earth_radius#Equatorial_radius
-	public static final double METERS_PER_STATUTE_MILE = 1609.344; // http://en.wikipedia.org/wiki/Mile
-	public static final double METERS_PER_NAUTICAL_MILE = 1852; // http://en.wikipedia.org/wiki/Nautical_mile
-	public static final double FEET_PER_METER = 3.2808399; // http://en.wikipedia.org/wiki/Feet_%28unit_of_length%29
-	public static final int EQUATORCIRCUMFENCE = (int) (2 * Math.PI * RADIUS_EARTH_METERS);
+	
 
 	@Override
 	public SearchedArea calculateSearchedArea(Location geoLocation) {
@@ -32,56 +26,60 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 	@Override
 	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea) {
-		List<Location> sortedSearchedAreaLocations = new ArrayList<>();
 		if (currentSearchedArea != null && lastSearchedArea != null) {
 			List<Location> currentSearchedAreaLocations = currentSearchedArea.getSearchedLocations();
 			List<Location> lastSearchedAreaLocations = lastSearchedArea.getSearchedLocations();
-			if (currentSearchedAreaLocations != null && !currentSearchedAreaLocations.isEmpty() && lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty()) {
-				List<Location> updatedCurrentSearchedArea = addPointsWhichAreOutOfCurrentSearchedArea(currentSearchedAreaLocations, lastSearchedAreaLocations);
+			if (currentSearchedAreaLocations != null && !currentSearchedAreaLocations.isEmpty()
+					&& lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty()) {
+				List<Location> updatedCurrentSearchedAreaLocations = addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(
+						currentSearchedAreaLocations, lastSearchedAreaLocations);
 				currentSearchedAreaLocations.clear();
-				currentSearchedAreaLocations.addAll(updatedCurrentSearchedArea);
-			} else if ((currentSearchedAreaLocations == null || currentSearchedAreaLocations.isEmpty()) && (lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty())) {
-				if(currentSearchedAreaLocations==null){
+				currentSearchedAreaLocations.addAll(updatedCurrentSearchedAreaLocations);
+			} else if ((currentSearchedAreaLocations == null || currentSearchedAreaLocations.isEmpty())
+					&& (lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty())) {
+				if (currentSearchedAreaLocations == null) {
 					currentSearchedAreaLocations = new ArrayList<>();
 				}
 				currentSearchedAreaLocations.addAll(lastSearchedAreaLocations);
 			}
-			if(!currentSearchedAreaLocations.isEmpty()){
-				sortedSearchedAreaLocations = sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedAreaLocations);
-			}
+			List<Location> sortedSearchedAreaLocations = sortGeoPointsListByDistanceAndRemoveRepetitions(
+					currentSearchedAreaLocations);
+			currentSearchedArea.setSearchedLocations(sortedSearchedAreaLocations);
 		}
-		currentSearchedArea.setSearchedLocations(sortedSearchedAreaLocations);
 	}
-	
 
-
-	private List<Location> addPointsWhichAreOutOfCurrentSearchedArea(List<Location> currentSearchedArea,
-			List<Location> areaToAdd) {
+	private List<Location> addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(List<Location> currentSearchedArea,
+			List<Location> lastSearchedArea) {
 		List<Location> newSearchedArea = new ArrayList<>();
 
-	
+		/**
+		 * TODO Do sprawdzenia, czy sortowanie tutaj jest potrzebne i czy
+		 * poprawia, czy pogarsza wydajność
+		 */
 		List<Location> sortedCurrentSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedArea);
-		List<Location> sortedAreaToAdd = sortGeoPointsListByDistanceAndRemoveRepetitions(areaToAdd);
-		/*
-		List<Location> sortedCurrentSearchedArea = currentSearchedArea;
-		List<Location> sortedAreaToAdd = areaToAdd;
-		*/
-		List<Location> mutualPoints = getMutualPoints(sortedCurrentSearchedArea, sortedAreaToAdd);
+		List<Location> sortedLastSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(lastSearchedArea);
 
-		for (int i = 0; i < sortedCurrentSearchedArea.size(); i++) {
-			if (!pointInPolygon(sortedCurrentSearchedArea.get(i), sortedAreaToAdd)) {
-				newSearchedArea.add(sortedCurrentSearchedArea.get(i));
-			}
-		}
+		List<Location> mutualPoints = getMutualPoints(sortedCurrentSearchedArea, sortedLastSearchedArea);
 
-		for (int i = 0; i < sortedAreaToAdd.size(); i++) {
-			if (!pointInPolygon(sortedAreaToAdd.get(i), sortedCurrentSearchedArea)) {
-				newSearchedArea.add(sortedAreaToAdd.get(i));
-			}
-		}
+		newSearchedArea = addOuterPoints(sortedCurrentSearchedArea, sortedLastSearchedArea);
 
 		newSearchedArea.addAll(mutualPoints);
 
+		return newSearchedArea;
+	}
+
+	private List<Location> addOuterPoints(List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
+		List<Location> newSearchedArea = new ArrayList<>();
+		for (int i = 0; i < currentSearchedArea.size(); i++) {
+			if (!pointInPolygon(currentSearchedArea.get(i), lastSearchedArea)) {
+				newSearchedArea.add(currentSearchedArea.get(i));
+			}
+		}
+		for (int i = 0; i < lastSearchedArea.size(); i++) {
+			if (!pointInPolygon(lastSearchedArea.get(i), currentSearchedArea)) {
+				newSearchedArea.add(lastSearchedArea.get(i));
+			}
+		}
 		return newSearchedArea;
 	}
 
@@ -91,8 +89,8 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			Location pointFromAreaToAdd = areaToAdd.get(i);
 			for (int j = 0; j < searchedArea.size(); j++) {
 				Location pointFromSearchedArea = searchedArea.get(j);
-				if ((pointFromAreaToAdd.getLatitude().compareTo(pointFromSearchedArea.getLatitude().doubleValue())==0)
-						&& (pointFromAreaToAdd.getLongitude().compareTo(pointFromSearchedArea.getLongitude())==0)) {
+				if ((pointFromAreaToAdd.getLatitude().compareTo(pointFromSearchedArea.getLatitude().doubleValue()) == 0)
+						&& (pointFromAreaToAdd.getLongitude().compareTo(pointFromSearchedArea.getLongitude()) == 0)) {
 					mutualPoints.add(pointFromSearchedArea);
 				}
 			}
@@ -101,34 +99,40 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 	}
 
 	private List<Location> sortGeoPointsListByDistanceAndRemoveRepetitions(List<Location> searchedArea) {
-
 		List<Location> orderedSearchedArea = new ArrayList<>();
-		Location firstPoint = searchedArea.get(0);
-		orderedSearchedArea.add(firstPoint);
+		if (searchedArea != null && !searchedArea.isEmpty()) {
+			Location firstPoint = searchedArea.get(0);
+			orderedSearchedArea.add(firstPoint);
 
-		while (searchedArea.size() > 0) {
-			Location point = orderedSearchedArea.get(orderedSearchedArea.size() - 1);
-			int nearestPointIndex = findNearestPointIndex(point, searchedArea);
-			Location nearestPoint = searchedArea.get(nearestPointIndex);
-			if (nearesPointIsTheSamePoint(point, nearestPoint)) {
-				searchedArea.remove(nearestPointIndex);
-			} /*
-				 * else if(nearesPointIsTheSamePoint(firstPoint, nearestPoint))
-				 * { /* Dodaj ten punkt, ale potem zacznij od kolejnego punktu z
-				 * searchedArea (od drugiej krawędzi). Pomiń szukanie
-				 * najbliższego punktu dla tego jednego przypadku.
-				 */
-			/*
-			 * orderedSearchedArea.add(searchedArea.remove(nearestPointIndex));
-			 * if(searchedArea.size()>0) { List<Location> secondEdge =
-			 * sortGeoPointsListByDistanceAndRemoveRepetitions(searchedArea);
-			 * for (int i = 0; i < secondEdge.size(); i++) {
-			 * orderedSearchedArea.add(secondEdge.get(i)); } } }
-			 */ else {
-				orderedSearchedArea.add(searchedArea.remove(nearestPointIndex));
+			while (searchedArea.size() > 0) {
+				Location lastOrderedSearchedAreaPoint = orderedSearchedArea.get(orderedSearchedArea.size() - 1);
+				int nearestPointIndex = findNearestPointIndex(lastOrderedSearchedAreaPoint, searchedArea);
+				Location nearestPoint = searchedArea.get(nearestPointIndex);
+				if (nearestPointIsTheSamePoint(lastOrderedSearchedAreaPoint, nearestPoint)) {
+					searchedArea.remove(nearestPointIndex);
+				} else if (nearestPointIsTheSamePoint(firstPoint, nearestPoint)) {
+					/**
+					 * TODO Do sprawdzenia, czy działa. (Raczej nie :o)
+					 */
+					/*
+					 * Dodaj ten punkt, ale potem zacznij od kolejnego punktu z
+					 * searchedArea (od drugiej krawędzi). Pomiń szukanie
+					 * najbliższego punktu dla tego jednego przypadku.
+					 */
+
+					orderedSearchedArea.add(searchedArea.remove(nearestPointIndex));
+					if (searchedArea.size() > 0) {
+						List<Location> secondEdge = sortGeoPointsListByDistanceAndRemoveRepetitions(searchedArea);
+						for (int i = 0; i < secondEdge.size(); i++) {
+							orderedSearchedArea.add(secondEdge.get(i));
+						}
+					}
+				} else {
+					orderedSearchedArea.add(searchedArea.remove(nearestPointIndex));
+				}
 			}
-		}
 
+		}
 		return orderedSearchedArea;
 	}
 
@@ -162,8 +166,9 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		return dist;
 	}
 
-	private boolean nearesPointIsTheSamePoint(Location point, Location nearestPoint) {
-		if ((point.getLatitude().compareTo(nearestPoint.getLatitude())==0) && (point.getLongitude().compareTo(nearestPoint.getLongitude())==0)) {
+	private boolean nearestPointIsTheSamePoint(Location point, Location nearestPoint) {
+		if ((point.getLatitude().compareTo(nearestPoint.getLatitude()) == 0)
+				&& (point.getLongitude().compareTo(nearestPoint.getLongitude()) == 0)) {
 			return true;
 		} else {
 			return false;
@@ -194,26 +199,6 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 		// odd number of crossings?
 		return (crossings % 2 == 1);
-	}
-
-	private boolean coordinateInRegion(List<GeoPoint> region, GeoPoint coord) {
-		int i, j;
-		boolean isInside = false;
-		// create an array of coordinates from the region boundary list
-		GeoPoint[] verts = region.toArray(new GeoPoint[region.size()]);
-		int sides = verts.length;
-		for (i = 0, j = sides - 1; i < sides; j = i++) {
-			// verifying if your coordinate is inside your region
-			if ((((verts[i].getLongitude() <= coord.getLongitude()) && (coord.getLongitude() < verts[j].getLongitude()))
-					|| ((verts[j].getLongitude() <= coord.getLongitude())
-							&& (coord.getLongitude() < verts[i].getLongitude())))
-					&& (coord.getLatitude() < (verts[j].getLatitude() - verts[i].getLatitude())
-							* (coord.getLongitude() - verts[i].getLongitude())
-							/ (verts[j].getLongitude() - verts[i].getLongitude()) + verts[i].getLatitude())) {
-				isInside = !isInside;
-			}
-		}
-		return isInside;
 	}
 
 	private boolean rayCrossesSegment(Location point, Location a, Location b) {
@@ -273,24 +258,48 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 	private Location destinationPoint(Location center, final double aDistanceInMeters, final float aBearingInDegrees) {
 
 		// convert distance to angular distance
-		final double dist = aDistanceInMeters / RADIUS_EARTH_METERS;
+		final double dist = aDistanceInMeters / Constants.RADIUS_EARTH_METERS;
 
 		// convert bearing to radians
-		final float brng = DEG2RAD * aBearingInDegrees;
+		final float brng = Constants.DEG2RAD * aBearingInDegrees;
 
 		// get current location in radians
-		final double lat1 = DEG2RAD * center.getLatitude();
-		final double lon1 = DEG2RAD * center.getLongitude();
+		final double lat1 = Constants.DEG2RAD * center.getLatitude();
+		final double lon1 = Constants.DEG2RAD * center.getLongitude();
 
 		final double lat2 = Math
 				.asin(Math.sin(lat1) * Math.cos(dist) + Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
 		final double lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) * Math.cos(lat1),
 				Math.cos(dist) - Math.sin(lat1) * Math.sin(lat2));
 
-		final double lat2deg = lat2 / DEG2RAD;
-		final double lon2deg = lon2 / DEG2RAD;
+		final double lat2deg = lat2 / Constants.DEG2RAD;
+		final double lon2deg = lon2 / Constants.DEG2RAD;
 
 		return new Location(lat2deg, lon2deg);
+	}
+
+	/**
+	 * TODO Najprawdopodobniej do wywalenia. Do sprawdzenia, czy nei jest lepsze
+	 * od pointInPolygon
+	 */
+	private boolean coordinateInRegion(List<GeoPoint> region, GeoPoint coord) {
+		int i, j;
+		boolean isInside = false;
+		// create an array of coordinates from the region boundary list
+		GeoPoint[] verts = region.toArray(new GeoPoint[region.size()]);
+		int sides = verts.length;
+		for (i = 0, j = sides - 1; i < sides; j = i++) {
+			// verifying if your coordinate is inside your region
+			if ((((verts[i].getLongitude() <= coord.getLongitude()) && (coord.getLongitude() < verts[j].getLongitude()))
+					|| ((verts[j].getLongitude() <= coord.getLongitude())
+							&& (coord.getLongitude() < verts[i].getLongitude())))
+					&& (coord.getLatitude() < (verts[j].getLatitude() - verts[i].getLatitude())
+							* (coord.getLongitude() - verts[i].getLongitude())
+							/ (verts[j].getLongitude() - verts[i].getLongitude()) + verts[i].getLatitude())) {
+				isInside = !isInside;
+			}
+		}
+		return isInside;
 	}
 
 }

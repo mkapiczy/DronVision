@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.servlets.login;
+package pl.mkapiczynski.dron.servlets;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,8 +39,8 @@ public class LoginServlet extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		log.info("Unexpected GET request for LoginServlet");
+		HttpHelper.setStatusOrError(response, ServerResponse.METHOD_NOT_ALLOWED);
 	}
 
 

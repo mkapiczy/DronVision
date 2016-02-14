@@ -15,10 +15,11 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.database.CSTUser;
+import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.Location;
+import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
@@ -72,7 +73,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	private ClientGeoDataMessage generateClientGeoDataMessage(Drone drone) {
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
 		clientGeoDataMessage.setDeviceId(drone.getDroneId());
-		clientGeoDataMessage.setDeviceType("GPSTracker");
+		clientGeoDataMessage.setDeviceType(Constants.GPS_TRACKED_DEVICE_TYPE);
 		clientGeoDataMessage.setLastPosition(new GeoPoint(drone.getLastLocation().getLatitude(),
 				drone.getLastLocation().getLongitude(), drone.getLastLocation().getAltitude()));
 		clientGeoDataMessage.setTimestamp(new Date());
@@ -118,15 +119,13 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	};
 	
 	private boolean clientIsAssignedToDrone(Session clientSession, Drone drone){
-		boolean clientIsAssignedToDrone = false;
 		for (int i = 0; i < drone.getAssignedUsers().size(); i++) {
-			CSTUser userClient = drone.getAssignedUsers().get(i);
+			ClientUser userClient = drone.getAssignedUsers().get(i);
 			if (userClient.getUserId() == clientSession.getUserProperties().get("clientId")) {
-				clientIsAssignedToDrone = true;
-				break;
+				return true;
 			}
 		}
-		return clientIsAssignedToDrone;
+		return false;
 	}
 
 }

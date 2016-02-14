@@ -25,7 +25,7 @@ public class UserAccount {
 	private String email;
 
 	@OneToOne(mappedBy="userAccount")
-	private CSTUser accountUser;
+	private ClientUser accountUser;
 
 	public Long getAccountId() {
 		return accountId;
@@ -75,11 +75,11 @@ public class UserAccount {
 		this.email = email;
 	}
 
-	public CSTUser getCustomerUser() {
+	public ClientUser getCustomerUser() {
 		return accountUser;
 	}
 
-	public void setCustomerUser(CSTUser customerUser) {
+	public void setCustomerUser(ClientUser customerUser) {
 		this.accountUser = customerUser;
 	}
 

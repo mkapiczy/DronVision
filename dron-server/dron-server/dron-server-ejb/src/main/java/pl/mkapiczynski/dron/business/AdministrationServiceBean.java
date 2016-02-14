@@ -12,10 +12,10 @@ import javax.persistence.RollbackException;
 
 import org.jboss.logging.Logger;
 
-import pl.mkapiczynski.dron.database.CSTUser;
+import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.domain.GeoPoint;
-import pl.mkapiczynski.dron.domain.NDTDrone;
+import pl.mkapiczynski.dron.domain.NDBDrone;
 import pl.mkapiczynski.dron.message.PreferencesResponse;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
 
@@ -29,11 +29,11 @@ public class AdministrationServiceBean implements AdministrationService {
 
 	@Override
 	public boolean checkLoginData(String login, String password) {
-		String queryStr = "SELECT u FROM CSTUser u WHERE u.userAccount.login = :login";
+		String queryStr = "SELECT u FROM ClientUser u WHERE u.userAccount.login = :login";
 		Query query = entityManager.createQuery(queryStr);
 		query.setParameter("login", login);
-		List<CSTUser> userList = query.getResultList();
-		CSTUser user = null;
+		List<ClientUser> userList = query.getResultList();
+		ClientUser user = null;
 		if (userList != null && !userList.isEmpty()) {
 			user = userList.get(0);
 		}
@@ -45,7 +45,7 @@ public class AdministrationServiceBean implements AdministrationService {
 		return false;
 	}
 
-	private boolean userPasswordIsCorrect(CSTUser user, String password) {
+	private boolean userPasswordIsCorrect(ClientUser user, String password) {
 		if (user.getUserAccount() != null) {
 			if (password.equals(user.getUserAccount().getPassword())) {
 				return true;
@@ -57,11 +57,11 @@ public class AdministrationServiceBean implements AdministrationService {
 	@Override
 	public PreferencesResponse getPreferencesForClient(String login) {
 		PreferencesResponse preferencesResponse = new PreferencesResponse();
-		String queryStr = "SELECT u FROM CSTUser u WHERE u.userAccount.login = :login";
+		String queryStr = "SELECT u FROM ClientUser u WHERE u.userAccount.login = :login";
 		Query query = entityManager.createQuery(queryStr);
 		query.setParameter("login", login);
-		List<CSTUser> userList = query.getResultList();
-		CSTUser user = null;
+		List<ClientUser> userList = query.getResultList();
+		ClientUser user = null;
 		if (userList != null && !userList.isEmpty()) {
 			user = userList.get(0);
 		}
@@ -74,10 +74,10 @@ public class AdministrationServiceBean implements AdministrationService {
 		return preferencesResponse;
 	}
 
-	private List<NDTDrone> convertDronesToNDTDrones(List<Drone> drones) {
-		List<NDTDrone> ndtDronesList = new ArrayList<>();
+	private List<NDBDrone> convertDronesToNDTDrones(List<Drone> drones) {
+		List<NDBDrone> ndtDronesList = new ArrayList<>();
 		for (int i = 0; i < drones.size(); i++) {
-			NDTDrone ndtDrone = new NDTDrone();
+			NDBDrone ndtDrone = new NDBDrone();
 			Drone drone = drones.get(i);
 			ndtDrone.setDroneId(drone.getDroneId());
 			ndtDrone.setDroneName(drone.getDroneName());
@@ -95,13 +95,13 @@ public class AdministrationServiceBean implements AdministrationService {
 	@Override
 	public boolean updateUserDronesPreferences(SetPreferencesMessage setPreferencesMessage) {
 		String login = setPreferencesMessage.getLogin();
-		CSTUser userToUpdate = getUserForLogin(login);
+		ClientUser userToUpdate = getUserForLogin(login);
 		if (userToUpdate != null) {
 			List<Drone> userAssignedDrones = userToUpdate.getAssignedDrones();
 			if (userAssignedDrones != null) {
 				boolean trackedDronesChanged = setPreferencesMessage.isTrackedDronesChanged();
 				if (trackedDronesChanged) {
-					List<NDTDrone> trackedDrones = setPreferencesMessage.getTrackedDrones();
+					List<NDBDrone> trackedDrones = setPreferencesMessage.getTrackedDrones();
 					List<Drone> dbTrackedDrones = getDBDronesFromNDTDrones(trackedDrones, userAssignedDrones);
 					if (dbTrackedDrones != null && !dbTrackedDrones.isEmpty()) {
 						userToUpdate.setTrackedDrones(dbTrackedDrones);
@@ -113,7 +113,7 @@ public class AdministrationServiceBean implements AdministrationService {
 
 			boolean visualizedDronesChanged = setPreferencesMessage.isVisualizedDronesChanged();
 			if (visualizedDronesChanged) {
-				List<NDTDrone> visualizedDrones = setPreferencesMessage.getVisualizedDrones();
+				List<NDBDrone> visualizedDrones = setPreferencesMessage.getVisualizedDrones();
 				List<Drone> dbVisualizedDrones = getDBDronesFromNDTDrones(visualizedDrones, userAssignedDrones);
 				if (dbVisualizedDrones != null && !dbVisualizedDrones.isEmpty()) {
 					userToUpdate.setVisualizedDrones(dbVisualizedDrones);
@@ -128,7 +128,7 @@ public class AdministrationServiceBean implements AdministrationService {
 
 	}
 
-	private List<Drone> getDBDronesFromNDTDrones(List<NDTDrone> ndtDrones, List<Drone> assignedDrones) {
+	private List<Drone> getDBDronesFromNDTDrones(List<NDBDrone> ndtDrones, List<Drone> assignedDrones) {
 		List<Drone> drones = new ArrayList<>();
 		for (int i = 0; i < assignedDrones.size(); i++) {
 			for (int j = 0; j < ndtDrones.size(); j++) {
@@ -140,12 +140,12 @@ public class AdministrationServiceBean implements AdministrationService {
 		return drones;
 	}
 
-	public CSTUser getUserForLogin(String login) {
-		CSTUser foundUser = null;
-		String queryStr = "Select c FROM CSTUser c where c.userAccount.login = :login";
+	public ClientUser getUserForLogin(String login) {
+		ClientUser foundUser = null;
+		String queryStr = "Select c FROM ClientUser c where c.userAccount.login = :login";
 		Query query = entityManager.createQuery(queryStr);
 		query.setParameter("login", login);
-		List<CSTUser> users = query.getResultList();
+		List<ClientUser> users = query.getResultList();
 		if (users != null && users.size() > 0) {
 			foundUser = users.get(0);
 		}

@@ -2,7 +2,7 @@ package pl.mkapiczynski.dron.domain;
 
 import pl.mkapiczynski.dron.database.DroneStatusEnum;
 
-public class NDTDrone {
+public class NDBDrone {
 	private Long droneId;
 	private String droneName;
 	private String droneDescription;

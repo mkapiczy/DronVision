@@ -16,7 +16,7 @@
 		<class>pl.mkapiczynski.dron.database.SearchedArea</class>
 
 		
-		<class>pl.mkapiczynski.dron.database.CSTUser</class>
+		<class>pl.mkapiczynski.dron.database.ClientUser</class>
 		<class>pl.mkapiczynski.dron.database.UserAccount</class>
 
 		<properties>

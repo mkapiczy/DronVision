@@ -39,7 +39,7 @@ public class Drone {
 	private Location lastLocation;
 
 	@ManyToMany(mappedBy = "assignedDrones")
-	private List<CSTUser> assignedUsers;
+	private List<ClientUser> assignedUsers;
 
 	@OneToMany(mappedBy = "drone", cascade = CascadeType.ALL)
 	private List<DroneSession> sessions;
@@ -96,11 +96,11 @@ public class Drone {
 		this.lastLocation = lastLocation;
 	}
 
-	public List<CSTUser> getAssignedUsers() {
+	public List<ClientUser> getAssignedUsers() {
 		return assignedUsers;
 	}
 
-	public void setAssignedUsers(List<CSTUser> assignedUsers) {
+	public void setAssignedUsers(List<ClientUser> assignedUsers) {
 		this.assignedUsers = assignedUsers;
 	}
 

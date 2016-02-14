@@ -41,7 +41,7 @@ public class DroneSession {
 	private SearchedArea lastSearchedArea;
 
 	@Enumerated(EnumType.STRING)
-	private DroneSessionStatus status;
+	private DroneSessionStatusEnum status;
 
 	public Long getSessionId() {
 		return sessionId;
@@ -91,11 +91,11 @@ public class DroneSession {
 		this.lastSearchedArea = lastSearchedArea;
 	}
 
-	public DroneSessionStatus getStatus() {
+	public DroneSessionStatusEnum getStatus() {
 		return status;
 	}
 
-	public void setStatus(DroneSessionStatus status) {
+	public void setStatus(DroneSessionStatusEnum status) {
 		this.status = status;
 	}
 

@@ -11,12 +11,9 @@ import javax.websocket.EndpointConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.helpers.JsonDateDeserializer;
 import pl.mkapiczynski.dron.helpers.JsonDateSerializer;
-import pl.mkapiczynski.dron.message.ClientLoginMessage;
-import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
-import pl.mkapiczynski.dron.message.TrackerLoginMessage;
-import pl.mkapiczynski.dron.message.Message;
 
 public class MessageDecoder implements Decoder.Text<Message> {
 	private String messageType;
@@ -34,11 +31,11 @@ public class MessageDecoder implements Decoder.Text<Message> {
 	@Override
 	public Message decode(String jsonMessage) throws DecodeException {
 		messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
-		if ("GeoDataMessage".equals(messageType)) {
+		if (Constants.GEO_DATA_MESSAGE_TYPE.equals(messageType)) {
 			return decodeGeoDataMessage(jsonMessage);
-		} else if ("TrackerLoginMessage".equals(messageType)) {
+		} else if (Constants.TRACKER_LOGIN_MESSAGE_TYPE.equals(messageType)) {
 			return decodeTrackerLoginMessage(jsonMessage);
-		} else if ("ClientLoginMessage".equals(messageType)) {
+		} else if (Constants.CLIENT_LOGIN_MESSAGE_TYPE.equals(messageType)) {
 			return decodeClientLoginMessage(jsonMessage);
 		} 
 		return null;

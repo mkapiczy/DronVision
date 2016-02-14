@@ -76,7 +76,7 @@ public class ServerEndpoint {
 	
 	private void handleCloseClientDeviceSession(Session closingSession){
 		clientDeviceSessions.remove(closingSession);
-		log.info("Client : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
+		log.info("Client : " + closingSession.getUserProperties().get("clientId") + " disconnected");
 	}
 	
 	private void handleCloseGPSTrackerDeviceSession(Session closingSession){

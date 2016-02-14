@@ -15,8 +15,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "CSTUser")
-public class CSTUser {
+@Table(name = "ClientUser")
+public class ClientUser {
 
 	@Id
 	@GeneratedValue
