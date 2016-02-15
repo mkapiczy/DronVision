@@ -110,19 +110,17 @@ public class SessionManager {
         return pref.getBoolean(KEY_IS_LOGGEDIN, false);
     }
 
-    public void setLoggedUser(User user){
-        editor.putString("login", user.getLogin());
+    public void setLoggedUserLogin(String login){
+        editor.putString("login", login);
 
         editor.commit();
-        Log.d(TAG, "User session data saved");
+        Log.d(TAG, "User with login: " + login + " session data saved");
     }
 
-    public User getLoggedUser(){
+    public String getLoggedUserLogin(){
         String login = pref.getString("login","");
-        User loggedUser = new User();
-        loggedUser.setLogin(login);
 
-        return loggedUser;
+        return login;
     }
 
     public void clear(){

@@ -1,5 +1,7 @@
 package dron.mkapiczynski.pl.dronvision.websocket;
 
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,6 +12,8 @@ import org.osmdroid.util.GeoPoint;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.json.Json;
 
@@ -32,6 +36,8 @@ public class MyWebSocketConnection extends WebSocketConnection {
     private static final String SERVER = Parameters.SERVER;
     private MainActivity activity;
     private boolean deviceIsLoggedIn = false;
+    private ReestablishConnectionTask reestablishConnectionTask = null;
+
 
     public MyWebSocketConnection(MainActivity activity){
         super();
@@ -47,6 +53,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     if(sendLoginMessage()){
                         deviceIsLoggedIn=true;
                     }
+                    if(reestablishConnectionTask!=null){
+                        reestablishConnectionTask.cancel(true);
+                    }
+
                     Toast.makeText(activity.getApplicationContext(), "You are now connected to the server", Toast.LENGTH_LONG).show();
                 }
 
@@ -81,13 +91,16 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     Toast.makeText(activity.getApplicationContext(), "Connection closed Code:" + code + " Reason: " + reason, Toast.LENGTH_LONG).show();
                     Log.d("WEBSOCKETS", "Connection closed Code:" + code + " Reason: " + reason);
                     deviceIsLoggedIn=false;
-                    //startReestablishingConnectionScheduler();
+                    reestablishConnectionTask = new ReestablishConnectionTask();
+                    reestablishConnectionTask.execute();
                 }
+
             });
         } catch (WebSocketException e) {
             Log.e(TAG, e.getMessage());
         }
     }
+
 
     public void disconnectFromWebsocketServer(){
         if(isConnected()){
@@ -104,6 +117,36 @@ public class MyWebSocketConnection extends WebSocketConnection {
         } else{
             Log.i(TAG, "Coudn't send a login message. No connection with server");
             return false;
+        }
+    }
+
+    public class ReestablishConnectionTask extends AsyncTask<Void, Void, Boolean> {
+
+        ReestablishConnectionTask() {
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            while (!isConnected()){
+                connectToWebSocketServer();
+                try {
+                    wait(2000);
+                } catch (InterruptedException e){
+                    Log.e(TAG, "Exception while waiting in backgrounds thread ReestablishConnecionTask: " + e);
+                }
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            reestablishConnectionTask = null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            reestablishConnectionTask = null;
         }
     }
 

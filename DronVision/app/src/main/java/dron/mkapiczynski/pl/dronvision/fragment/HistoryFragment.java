@@ -6,10 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -21,9 +19,6 @@ import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 
 public class HistoryFragment extends Fragment {
 
-
-
-
     private SessionManager sessionManager;
     private boolean created = false;
 
@@ -34,8 +29,6 @@ public class HistoryFragment extends Fragment {
     public HistoryFragment() {
         // Required empty public constructor
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,8 +58,6 @@ public class HistoryFragment extends Fragment {
 
         }
     }
-
-
 
     private void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();

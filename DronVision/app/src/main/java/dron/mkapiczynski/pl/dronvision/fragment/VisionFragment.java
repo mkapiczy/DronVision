@@ -31,7 +31,6 @@ public class VisionFragment extends Fragment {
 
     private VisionFragmentActivityListener listener;
 
-
     // User Interface
     private MapView mapView;
     private Button refreshConnectionButton;
@@ -42,7 +41,6 @@ public class VisionFragment extends Fragment {
     public VisionFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,20 +80,17 @@ public class VisionFragment extends Fragment {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
             updateMapView(null);
-        } else if (hidden ==true){
-
-
         }
-    }
-
-    // interfejs, który będzie implementować aktywność
-    public interface VisionFragmentActivityListener {
-        public void onRefreshConnectionButtonClicked();
     }
 
     public void updateMapView(Drone drone){
             MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity());
             mapAsyncTask.execute();
+    }
+
+    // interfejs, który będzie implementować aktywność
+    public interface VisionFragmentActivityListener {
+        public void onRefreshConnectionButtonClicked();
     }
 
 }

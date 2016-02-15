@@ -49,11 +49,12 @@ public class PreferencesFragment extends Fragment {
     private ListView visualizedDronesListView;
     private CustomListViewAdapter trackedDronesCustomAdapter;
     private CustomListViewAdapter visualizedDronesCustomAdapter;
+
     private List<DBDrone> assignedDrones;
     private List<DBDrone> trackedDrones;
     private List<DBDrone> visualizedDrones;
 
-    ProgressDialog progress;
+    private ProgressDialog progress;
 
     private GetPreferencesTask getPreferencesTask = null;
     private SetPreferencesTask setPreferencesTask = null;
@@ -86,7 +87,7 @@ public class PreferencesFragment extends Fragment {
         if (hidden == false) {
                 progress = ProgressDialog.show(getActivity(), "Połączenie z serwerem",
                         "Pobieranie danych z serwera", true);
-                getPreferencesTask = new GetPreferencesTask("Mix");
+                getPreferencesTask = new GetPreferencesTask(sessionManager.getLoggedUserLogin());
                 getPreferencesTask.execute((Void) null);
         } else if (hidden ==true){
             if(created) {
@@ -95,7 +96,7 @@ public class PreferencesFragment extends Fragment {
 
                 progress = ProgressDialog.show(getActivity(), "Połączenie z serwerem",
                         "Wysyłanie danych do serwera", true);
-                setPreferencesTask = new SetPreferencesTask("Mix", newTrackedDrones, newVisualizedDrones, true, true);
+                setPreferencesTask = new SetPreferencesTask(sessionManager.getLoggedUserLogin(), newTrackedDrones, newVisualizedDrones, true, true);
                 setPreferencesTask.execute((Void) null);
             }
 

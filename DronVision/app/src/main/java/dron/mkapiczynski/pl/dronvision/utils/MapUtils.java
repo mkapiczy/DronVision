@@ -48,7 +48,7 @@ public class MapUtils {
         while(dronesIterator.hasNext()){
             Drone currentIteratedDrone = dronesIterator.next();
             if(droneIsVisualized(currentIteratedDrone, visualizedDroned)){
-                updateDroneVisuazliedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
+                updateDroneVisualizedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
             } else if(droneIsTracked(currentIteratedDrone, trackedDrones)){
                 updateDroneTrackedOverlays(currentIteratedDrone, mapOverlays, mapView,activity);
             }
@@ -56,15 +56,6 @@ public class MapUtils {
         }
 
         return mapOverlays;
-    }
-
-    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones){
-        for(int i=0; i<trackedDrones.size();i++){
-            if(trackedDrones.get(i).getDroneId() == drone.getDroneId()){
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean droneIsVisualized(Drone drone, List<DBDrone> visualizedDrones){
@@ -76,7 +67,16 @@ public class MapUtils {
         return false;
     }
 
-    private static void updateDroneVisuazliedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
+    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones){
+        for(int i=0; i<trackedDrones.size();i++){
+            if(trackedDrones.get(i).getDroneId() == drone.getDroneId()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void updateDroneVisualizedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
         updateDroneLastSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
         updateDroneSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
@@ -85,7 +85,6 @@ public class MapUtils {
     private static void updateDroneTrackedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
     }
-
 
     private static void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         Marker marker = new Marker(mapView);

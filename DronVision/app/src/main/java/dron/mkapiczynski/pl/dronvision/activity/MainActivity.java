@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity
     private SettingsFragment settingsFragment;
     private HistoryFragment historyFragment;
 
-
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
 
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -62,9 +60,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         client.connectToWebSocketServer();
-        //ask for drones ascribed to this client account
 
+       initiateFragmentManager();
+    }
 
+    private void initiateFragmentManager(){
         visionFragment = new VisionFragment();
         preferencesFragment = new PreferencesFragment();
         settingsFragment = new SettingsFragment();
@@ -97,20 +97,22 @@ public class MainActivity extends AppCompatActivity
             } else if (visionFragment.isVisible()) {
                 AlertDialog logoutDialog = createLogoutDialog(this);
                 logoutDialog.show();
-            } else {
-                if (visionFragment.isHidden()) {
-                    if (preferencesFragment.isVisible()) {
-                        fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
-                        currentMenuItem.setChecked(false);
-                    } else if (settingsFragment.isVisible()) {
-                        fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
-                        currentMenuItem.setChecked(false);
-                    } else if(historyFragment.isVisible()){
-                        fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
-                        currentMenuItem.setChecked(false);
-                    }
-                }
+            } else if(visionFragment.isHidden()){
+                goBackToVisionFragmentView();
             }
+        }
+    }
+
+    private void goBackToVisionFragmentView(){
+        if (preferencesFragment.isVisible()) {
+            fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
+            currentMenuItem.setChecked(false);
+        } else if (settingsFragment.isVisible()) {
+            fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
+            currentMenuItem.setChecked(false);
+        } else if(historyFragment.isVisible()){
+            fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
+            currentMenuItem.setChecked(false);
         }
     }
 

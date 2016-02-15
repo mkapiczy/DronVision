@@ -30,25 +30,6 @@ public class DroneUtils {
         }
     }
 
-    public static void updateDronesSearchedArea(Set<Drone> drones){
-        Iterator<Drone> dronesIterator = drones.iterator();
-        while(dronesIterator.hasNext()) {
-            Drone droneToUpdate = dronesIterator.next();
-            List<GeoPoint> updatedSearchedArea = SearchedAreaUtil.updateSearchedAreaSet(droneToUpdate.getSearchedArea(), droneToUpdate.getLastSearchedArea());
-            droneToUpdate.getSearchedArea().clear();
-            droneToUpdate.getSearchedArea().addAll(updatedSearchedArea);
-        }
-    }
-
-        public static Drawable getDroneMarkerIcon(Drone dronToUpdate, Activity activity) {
-        Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
-        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 1);
-        droneIcon.setColorFilter(filter);
-        return droneIcon;
-    }
-
-
-
     private static boolean dronesSetContainsThisDrone(Drone droneToUpdate, Set<Drone> drones) {
         Iterator<Drone> iterator = drones.iterator();
         while (iterator.hasNext()) {
@@ -81,6 +62,13 @@ public class DroneUtils {
             droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
         }
         dronesSet.add(droneToAdd);
+    }
+
+    public static Drawable getDroneMarkerIcon(Drone dronToUpdate, Activity activity) {
+        Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
+        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 1);
+        droneIcon.setColorFilter(filter);
+        return droneIcon;
     }
 
     private static int getRandomColor() {

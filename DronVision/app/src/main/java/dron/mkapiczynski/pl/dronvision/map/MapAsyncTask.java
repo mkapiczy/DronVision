@@ -23,13 +23,17 @@ import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
  */
 public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
     private Activity activity;
-    private Drone drone;
-    private Set<Drone> drones;
+
     private MapView mapView;
     private List<Overlay> mapOverlays = new ArrayList<>();
-    private SessionManager sessionManager;
+
+
+    private Drone drone;
+    private Set<Drone> drones;
     private List<DBDrone> trackedDrones;
     private List<DBDrone> visualizedDrones;
+
+    private SessionManager sessionManager;
 
     public MapAsyncTask(MapView mapView, Drone drone, Set<Drone> drones, Activity activity) {
         this.drone = drone;
@@ -53,11 +57,7 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
             DroneUtils.updateDronesSet(drones, drone);
         }
         mapOverlays = MapUtils.updateMapOverlays(drones,trackedDrones,visualizedDrones, mapView, activity);
-        /**
-         * TODO
-         * Do usunięcia - po stronie apki tylko wyświetlamy - cały update po stronie servera
-         */
-        //DroneUtils.updateDronesSearchedArea(drones);
+
         return true;
     }
 

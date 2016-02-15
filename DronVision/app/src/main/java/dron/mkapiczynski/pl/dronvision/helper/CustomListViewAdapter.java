@@ -77,10 +77,6 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
         return super.getItem(position);
     }
 
-    @Override
-    public void setNotifyOnChange(boolean notifyOnChange) {
-        super.setNotifyOnChange(notifyOnChange);
-    }
 
     public List<DBDrone> getCheckedDrones(){
         return checkedDrones;
