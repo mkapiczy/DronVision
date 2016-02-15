@@ -23,6 +23,7 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
     private List<DBDrone> assignedDrones;
     private List<DBDrone> checkedDrones;
     private Context context;
+    private boolean changed = false;
 
 
     public CustomListViewAdapter(Context context, List<DBDrone> assignedDrones, List<DBDrone> checkedDrones) {
@@ -54,6 +55,7 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                changed = true;
                 if(checkBox.isChecked()) {
                     checkedDrones.add(assignedDrones.get(position));
                 } else{
@@ -89,5 +91,9 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
             }
         }
         return false;
+    }
+
+    public boolean wasChanged(){
+        return changed;
     }
 }

@@ -1,11 +1,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preferencesView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:nestedScrollingEnabled="true"
     tools:context="dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment"
-    tools:showIn="@layout/fragment_preferences">>
+    tools:showIn="@layout/fragment_preferences">
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,6 +59,22 @@
         android:layout_centerHorizontal="true"
         android:nestedScrollingEnabled="true"
         tools:showIn="@layout/fragment_preferences"/>
+
+    <TextView
+        android:id="@+id/preferencesNetworkErrorTextView"
+        android:maxLines="6"
+        android:lineSpacingExtra="15dp"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:text="Nie udało się pobrać preferencji wizualizacji. \n Sprawdź połączenie z internetem. \n Przepraszamy za kłopot :("
+        android:textStyle="bold"
+        android:textSize="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/visualizedDroneList"
+        android:layout_marginTop="25dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"/>
 
 
 </RelativeLayout>

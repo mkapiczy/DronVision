@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -61,10 +63,10 @@ public class MainActivity extends AppCompatActivity
 
         client.connectToWebSocketServer();
 
-       initiateFragmentManager();
+        initiateFragmentManager();
     }
 
-    private void initiateFragmentManager(){
+    private void initiateFragmentManager() {
         visionFragment = new VisionFragment();
         preferencesFragment = new PreferencesFragment();
         settingsFragment = new SettingsFragment();
@@ -90,27 +92,27 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if(hasWindowFocus()) {
+        if (hasWindowFocus()) {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else if (visionFragment.isVisible()) {
                 AlertDialog logoutDialog = createLogoutDialog(this);
                 logoutDialog.show();
-            } else if(visionFragment.isHidden()){
+            } else if (visionFragment.isHidden()) {
                 goBackToVisionFragmentView();
             }
         }
     }
 
-    private void goBackToVisionFragmentView(){
+    private void goBackToVisionFragmentView() {
         if (preferencesFragment.isVisible()) {
             fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
             currentMenuItem.setChecked(false);
         } else if (settingsFragment.isVisible()) {
             fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
             currentMenuItem.setChecked(false);
-        } else if(historyFragment.isVisible()){
+        } else if (historyFragment.isVisible()) {
             fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
             currentMenuItem.setChecked(false);
         }
@@ -148,39 +150,39 @@ public class MainActivity extends AppCompatActivity
             if (visionFragment.isHidden()) {
                 if (preferencesFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
-                } else if(settingsFragment.isVisible()){
+                } else if (settingsFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
-                } else if(historyFragment.isVisible()){
+                } else if (historyFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
                 }
             }
         } else if (id == R.id.nav_preferences) {
-            if(preferencesFragment.isHidden()){
-                if(visionFragment.isVisible()){
+            if (preferencesFragment.isHidden()) {
+                if (visionFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(visionFragment).show(preferencesFragment).commit();
-                } else if(settingsFragment.isVisible()){
+                } else if (settingsFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(settingsFragment).show(preferencesFragment).commit();
-                }else if(historyFragment.isVisible()){
+                } else if (historyFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(historyFragment).show(preferencesFragment).commit();
                 }
             }
         } else if (id == R.id.nav_settings) {
-            if(settingsFragment.isHidden()){
-                if(visionFragment.isVisible()){
+            if (settingsFragment.isHidden()) {
+                if (visionFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(visionFragment).show(settingsFragment).commit();
-                } else if(preferencesFragment.isVisible()){
+                } else if (preferencesFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(preferencesFragment).show(settingsFragment).commit();
-                }else if(historyFragment.isVisible()){
+                } else if (historyFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(historyFragment).show(settingsFragment).commit();
                 }
             }
-        } else if(id == R.id.nav_history){
-            if(historyFragment.isHidden()){
-                if(visionFragment.isVisible()){
+        } else if (id == R.id.nav_history) {
+            if (historyFragment.isHidden()) {
+                if (visionFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(visionFragment).show(historyFragment).commit();
-                } else if(preferencesFragment.isVisible()){
+                } else if (preferencesFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(preferencesFragment).show(historyFragment).commit();
-                }else if(settingsFragment.isVisible()){
+                } else if (settingsFragment.isVisible()) {
                     fragmentManager.beginTransaction().hide(settingsFragment).show(historyFragment).commit();
                 }
             }
