@@ -61,6 +61,7 @@ public class ServerEndpoint {
 
 	@OnClose
 	public void handleClose(Session closingSession) throws IOException, EncodeException {
+		log.info("Closing session");
 		if (clientDeviceSessions.contains(closingSession)) {
 			handleCloseClientDeviceSession(closingSession);
 		} else if (gpsTrackerDeviceSessions.contains(closingSession)) {
@@ -70,8 +71,18 @@ public class ServerEndpoint {
 	}
 
 	@OnError
-	public void handleError(Throwable t) {
-		log.error("Error has occured : " + t.getMessage().toString());
+	public void handleError(Session sessionOnError, Throwable t) {
+		if (sessionOnError.isOpen()) {
+			try {
+				handleClose(sessionOnError);
+				sessionOnError.close();
+			} catch (IOException e) {
+				log.error("Error while closing session " + e);
+			} catch (EncodeException e) {
+				log.error("Error while closing session " + e);
+			}
+		}
+		log.error("Websocket connection error has occured : " + t.getMessage().toString());
 	}
 	
 	private void handleCloseClientDeviceSession(Session closingSession){

@@ -12,26 +12,25 @@
             android:icon="@drawable/ic_action_settings"
             android:title="@string/nav_preferences_title" />
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/nav_settings_title" />
-        <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_history"
             android:title="@string/nav_history_title" />
-
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/nav_settings_title" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Dodatkowe">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="O aplikacji" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="O autorze" />
         </menu>
     </item>
 

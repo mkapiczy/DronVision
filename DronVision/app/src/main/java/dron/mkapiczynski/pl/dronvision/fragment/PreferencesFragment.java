@@ -270,13 +270,6 @@ public class PreferencesFragment extends Fragment {
         }
 
         private void updateListViewsWithReceivedData() {
-            for (int i = 0; i < 5; i++) {
-                DBDrone drone = new DBDrone();
-                drone.setStatus(DroneStatusEnum.OFFLINE);
-                drone.setDroneName("Mockowy " + i);
-                drone.setDroneId(2l);
-                assignedDrones.add(drone);
-            }
             trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, trackedDrones);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
             visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, visualizedDrones);
