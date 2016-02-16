@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity
                         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                         intent.putExtra("prevActivity", "GPS");
                         startActivity(intent);
+                        client.disconnectFromWebsocketServer();
                         MainActivity.this.finish();
                         Toast.makeText(getApplicationContext(), "Zostałeś wylogowany", Toast.LENGTH_SHORT).show();
                     }

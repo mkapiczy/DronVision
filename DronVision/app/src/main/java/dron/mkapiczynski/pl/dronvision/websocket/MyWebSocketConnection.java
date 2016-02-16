@@ -20,6 +20,7 @@ import javax.json.Json;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketHandler;
+import de.tavendo.autobahn.WebSocketOptions;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
@@ -39,12 +40,17 @@ public class MyWebSocketConnection extends WebSocketConnection {
     private ReestablishConnectionTask reestablishConnectionTask = null;
     private Button refreshConnectionButton;
     private String buttonState;
+    private boolean shouldBeReconnecting = true;
     private boolean recentlyConnected = true;
+    private WebSocketOptions webSocketOptions;
 
 
     public MyWebSocketConnection(MainActivity activity) {
         super();
         this.activity = activity;
+        webSocketOptions = new WebSocketOptions();
+        webSocketOptions.setMaxFramePayloadSize(2000000);
+        webSocketOptions.setMaxMessagePayloadSize(2000000);
     }
 
     public void connectToWebSocketServer() {
@@ -52,6 +58,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
             connect(SERVER, new WebSocketHandler() {
                 @Override
                 public void onOpen() {
+                    shouldBeReconnecting = true;
                     Log.d("WEBSOCKETS", "Connected to server");
                     sendLoginMessage();
 
@@ -96,13 +103,15 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     Log.d("WEBSOCKETS", "Connection closed Code:" + code + " Reason: " + reason);
                     if(recentlyConnected) {
                         setRefreshConnectionButtonState("DISCONNECTED");
-                        reestablishConnectionTask = new ReestablishConnectionTask();
-                        reestablishConnectionTask.execute();
+                        if(shouldBeReconnecting) {
+                            reestablishConnectionTask = new ReestablishConnectionTask();
+                            reestablishConnectionTask.execute();
+                        }
                         recentlyConnected = false;
                     }
                 }
 
-            });
+            }, webSocketOptions);
         } catch (WebSocketException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -111,6 +120,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
     public void disconnectFromWebsocketServer() {
         if (isConnected()) {
+            shouldBeReconnecting=false;
             disconnect();
         }
     }
