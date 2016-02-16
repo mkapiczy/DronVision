@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.websocket.EncodeException;
 import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
@@ -41,6 +40,16 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	public void handleClientLoginMessage(Message incomingMessage, Session session, Set<Session> clientSessions) {
 		ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
 		Long clientId = clientLoginMessage.getClientId();
+		Session alreadyRegisteredClientSession = findSessionForClinetId(clientSessions, clientId);
+		if(alreadyRegisteredClientSession!=null){
+			log.info("Client wid id: " + clientId + " had already registered session. - Previous session is being removed");
+			try {
+				alreadyRegisteredClientSession.getUserProperties().put("clientId", "Previous session for client with id: " + clientId);
+				alreadyRegisteredClientSession.close();
+			} catch (IOException e) {
+				log.error("Exception while closing session with id " + clientId +" : " + e);
+			}
+		}
 		if (clientDeviceHasNotRegisteredSession(session, clientSessions)) {
 			session.getUserProperties().put("clientId", clientId);
 			clientSessions.add(session);
@@ -48,6 +57,17 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		} else {
 			System.out.println("Client device with id: " + clientId + " already registered");
 		}
+	}
+	
+	private Session findSessionForClinetId(Set<Session> clientSessions, Long clientId){
+		Iterator<Session> clientIterator = clientSessions.iterator();
+		while(clientIterator.hasNext()){
+			Session currentIteratedClientSession = clientIterator.next();
+			if(((Long)currentIteratedClientSession.getUserProperties().get("clientId")).equals(clientId)){
+				return currentIteratedClientSession;
+			}
+		}
+		return null;
 	}
 
 	@Override

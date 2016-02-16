@@ -61,7 +61,6 @@ public class ServerEndpoint {
 
 	@OnClose
 	public void handleClose(Session closingSession) throws IOException, EncodeException {
-		log.info("Closing session");
 		if (clientDeviceSessions.contains(closingSession)) {
 			handleCloseClientDeviceSession(closingSession);
 		} else if (gpsTrackerDeviceSessions.contains(closingSession)) {
