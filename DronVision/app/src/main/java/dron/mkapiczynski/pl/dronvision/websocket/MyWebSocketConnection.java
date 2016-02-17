@@ -12,7 +12,9 @@ import com.google.gson.Gson;
 import org.osmdroid.util.GeoPoint;
 
 import java.io.StringReader;
+import java.security.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.json.Json;
@@ -77,24 +79,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     String messageType = Json.createReader(new StringReader(jsonMessage)).readObject().getString("messageType");
                     if ("ClientGeoDataMessage".equals(messageType)) {
                         GeoDataMessage geoMessage = MessageDecoder.decodeGeoDataMessage(jsonMessage);
-                        MyGeoPoint point = geoMessage.getLastPosition();
-                        GeoPoint currentDronePosition = new GeoPoint(point.getLatitude(), point.getLongitude(), point.getAltitude());
-                        List<GeoPoint> searchedArea = new ArrayList<>();
-                        for (int i = 0; i < geoMessage.getSearchedArea().size(); i++) {
-                            searchedArea.add(new GeoPoint(geoMessage.getSearchedArea().get(i).getLatitude(), geoMessage.getSearchedArea().get(i).getLongitude()));
+                        Date messageSentTime = geoMessage.getTimestamp();
+                        if(messageWasSentMax3SeconsAgo(messageSentTime)) {
+                            handleGeoMessage(geoMessage);
                         }
-                        List<GeoPoint> lastSearchedArea = new ArrayList<>();
-                        for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
-                            lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
-                        }
-
-                        Drone drone = new Drone();
-                        drone.setDroneId(geoMessage.getDeviceId());
-                        drone.setCurrentPosition(currentDronePosition);
-                        drone.setSearchedArea(searchedArea);
-                        drone.setLastSearchedArea(lastSearchedArea);
-
-                        activity.updateDronesOnMap(drone);
                     }
                 }
 
@@ -134,6 +122,34 @@ public class MyWebSocketConnection extends WebSocketConnection {
         } else {
             Log.i(TAG, "Coudn't send a login message. No connection with server");
         }
+    }
+
+    private boolean messageWasSentMax3SeconsAgo(Date messageSentTime){
+        if(messageSentTime.after(new Date(System.currentTimeMillis() - 3 * 1000))){
+            return true;
+        }
+        return false;
+    }
+
+    private void handleGeoMessage(GeoDataMessage geoMessage){
+        MyGeoPoint point = geoMessage.getLastPosition();
+        GeoPoint currentDronePosition = new GeoPoint(point.getLatitude(), point.getLongitude(), point.getAltitude());
+        List<GeoPoint> searchedArea = new ArrayList<>();
+        for (int i = 0; i < geoMessage.getSearchedArea().size(); i++) {
+            searchedArea.add(new GeoPoint(geoMessage.getSearchedArea().get(i).getLatitude(), geoMessage.getSearchedArea().get(i).getLongitude()));
+        }
+        List<GeoPoint> lastSearchedArea = new ArrayList<>();
+        for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
+            lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
+        }
+
+        Drone drone = new Drone();
+        drone.setDroneId(geoMessage.getDeviceId());
+        drone.setCurrentPosition(currentDronePosition);
+        drone.setSearchedArea(searchedArea);
+        drone.setLastSearchedArea(lastSearchedArea);
+
+        activity.updateDronesOnMap(drone);
     }
 
     private void setRefreshConnectionButtonState(String state){
