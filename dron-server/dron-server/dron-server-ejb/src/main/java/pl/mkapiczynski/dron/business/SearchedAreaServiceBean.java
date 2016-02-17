@@ -247,7 +247,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 	private List<Location> poinsAsCircle(Location center, double radiusInMeters) {
 		ArrayList<Location> circlePoints = new ArrayList<>();
 
-		for (int f = 0; f < 360; f += 2) {
+		for (int f = 0; f < 360; f += 8) {
 			Location onCircle = destinationPoint(center, radiusInMeters, (float) f);
 			circlePoints.add(onCircle);
 		}

@@ -42,12 +42,11 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		Long clientId = clientLoginMessage.getClientId();
 		Session alreadyRegisteredClientSession = findSessionForClinetId(clientSessions, clientId);
 		if(alreadyRegisteredClientSession!=null){
-			log.info("Client wid id: " + clientId + " had already registered session. - Previous session is being removed");
 			try {
 				alreadyRegisteredClientSession.getUserProperties().put("clientId", "Previous session for client with id: " + clientId);
 				alreadyRegisteredClientSession.close();
 			} catch (IOException e) {
-				log.error("Exception while closing session with id " + clientId +" : " + e);
+				log.error("Exception while closing previous session for client with id " + clientId +" : " + e);
 			}
 		}
 		if (clientDeviceHasNotRegisteredSession(session, clientSessions)) {
