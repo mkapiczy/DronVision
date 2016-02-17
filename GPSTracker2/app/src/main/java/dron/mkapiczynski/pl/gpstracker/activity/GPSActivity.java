@@ -32,7 +32,7 @@ public class GPSActivity extends Activity implements LocationListener {
     private boolean requestLocationUpdatesFlag = false;
 
     // Gps parameters
-    private static int UPDATE_INTERVAL = 2000; // 1 sec
+    private static int UPDATE_INTERVAL = 500; // 1 sec
     private static int DISPLACEMENT = 2; //  meters
 
     // UI
