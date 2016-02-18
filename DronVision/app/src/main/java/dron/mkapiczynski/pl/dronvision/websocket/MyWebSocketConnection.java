@@ -45,6 +45,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
     private boolean shouldBeReconnecting = true;
     private boolean recentlyConnected = true;
     private WebSocketOptions webSocketOptions;
+    private Date lastMessageDate;
 
 
     public MyWebSocketConnection(MainActivity activity) {
@@ -80,8 +81,12 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     if ("ClientGeoDataMessage".equals(messageType)) {
                         GeoDataMessage geoMessage = MessageDecoder.decodeGeoDataMessage(jsonMessage);
                         Date messageSentTime = geoMessage.getTimestamp();
-                        if(messageWasSentMax3SeconsAgo(messageSentTime)) {
+                        if(lastMessageDate==null){
+                            lastMessageDate = messageSentTime;
                             handleGeoMessage(geoMessage);
+                        } else if(messageSentTime.after(lastMessageDate)){
+                            handleGeoMessage(geoMessage);
+                            lastMessageDate =messageSentTime;
                         }
                     }
                 }
@@ -125,7 +130,8 @@ public class MyWebSocketConnection extends WebSocketConnection {
     }
 
     private boolean messageWasSentMax3SeconsAgo(Date messageSentTime){
-        if(messageSentTime.after(new Date(System.currentTimeMillis() - 3 * 1000))){
+        Date compare = new Date(System.currentTimeMillis() - 3 * 1000);
+        if(messageSentTime.after(compare)){
             return true;
         }
         return false;

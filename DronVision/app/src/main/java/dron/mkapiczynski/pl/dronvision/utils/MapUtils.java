@@ -111,6 +111,11 @@ public class MapUtils {
             searchedArea.setFillColor(0x32121212);
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(5);
+            List<List<GeoPoint>> holes = new ArrayList<>();
+            List<GeoPoint> singleHole = new ArrayList<>();
+            singleHole.addAll(droneToUpdate.getLastSearchedArea());
+            holes.add(singleHole);
+            searchedArea.setHoles(holes);
             mapOverlays.add(searchedArea);
         }
     }
