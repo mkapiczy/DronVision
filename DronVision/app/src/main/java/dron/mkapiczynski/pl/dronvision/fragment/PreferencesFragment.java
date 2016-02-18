@@ -4,7 +4,6 @@ package dron.mkapiczynski.pl.dronvision.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +37,6 @@ import java.util.List;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
-import dron.mkapiczynski.pl.dronvision.database.DroneStatusEnum;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomListViewAdapter;
 import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
@@ -57,13 +54,18 @@ public class PreferencesFragment extends Fragment {
 
     private ListView trackedDronesListView;
     private ListView visualizedDronesListView;
+    private ListView followedDroneListView;
+
     private CustomListViewAdapter trackedDronesCustomAdapter;
     private CustomListViewAdapter visualizedDronesCustomAdapter;
+    private CustomListViewAdapter followedDroneCustomAdapter;
+
     private TextView networkErrorTextView;
 
     private List<DBDrone> assignedDrones;
     private List<DBDrone> trackedDrones;
     private List<DBDrone> visualizedDrones;
+    private DBDrone followedDrone;
 
     private GetPreferencesTask getPreferencesTask = null;
     private SetPreferencesTask setPreferencesTask = null;
@@ -74,7 +76,7 @@ public class PreferencesFragment extends Fragment {
         // Required empty public constructor
     }
 
-    private boolean created = false;
+    private boolean viewCreated = false;
 
 
     @Override
@@ -84,14 +86,17 @@ public class PreferencesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_preferences, container, false);
         trackedDronesListView = (ListView) view.findViewById(R.id.trackedDroneList);
         visualizedDronesListView = (ListView) view.findViewById(R.id.visualizedDroneList);
+        followedDroneListView = (ListView) view.findViewById(R.id.folllowedDroneList);
+
         networkErrorTextView = (TextView) view.findViewById(R.id.preferencesNetworkErrorTextView);
         networkErrorTextView.setVisibility(View.INVISIBLE);
-        created = true;
 
         sessionManager = new SessionManager(getActivity().getApplicationContext());
 
         preferencesView = view.findViewById(R.id.preferencesView);
         progressView = view.findViewById(R.id.preferencesProgress);
+
+        viewCreated = true;
 
         return view;
     }
@@ -105,19 +110,35 @@ public class PreferencesFragment extends Fragment {
             getPreferencesTask = new GetPreferencesTask(sessionManager.getLoggedUserLogin());
             getPreferencesTask.execute((Void) null);
         } else if (hidden == true) {
-            if (created) {
+            if (viewCreated) {
                 if (trackedDronesCustomAdapter != null && visualizedDronesCustomAdapter != null) {
                     boolean trackedDronesChanged = trackedDronesCustomAdapter.wasChanged();
                     boolean visualizedDronesChanged = visualizedDronesCustomAdapter.wasChanged();
                     if (trackedDronesChanged || visualizedDronesChanged) {
-                        List<DBDrone> newTrackedDrones = getUpdatedDronesList(assignedDrones, trackedDronesCustomAdapter.getCheckedDrones());
-                        List<DBDrone> newVisualizedDrones = getUpdatedDronesList(assignedDrones, visualizedDronesCustomAdapter.getCheckedDrones());
-                        setPreferencesTask = new SetPreferencesTask(sessionManager.getLoggedUserLogin(), newTrackedDrones, newVisualizedDrones, trackedDronesChanged, visualizedDronesChanged);
-                        setPreferencesTask.execute((Void) null);
+                        updateTrackedAndVisualizedDronesPreferences(trackedDronesChanged,visualizedDronesChanged);
                     }
+                }
+                if (followedDroneCustomAdapter != null) {
+                    updateFollowedDronePreference();
                 }
             }
 
+        }
+    }
+
+    private void updateTrackedAndVisualizedDronesPreferences(boolean trackedDronesChanged, boolean visualizedDronesChanged){
+        List<DBDrone> newTrackedDrones = getUpdatedDronesList(assignedDrones, trackedDronesCustomAdapter.getCheckedDrones());
+        List<DBDrone> newVisualizedDrones = getUpdatedDronesList(assignedDrones, visualizedDronesCustomAdapter.getCheckedDrones());
+        setPreferencesTask = new SetPreferencesTask(sessionManager.getLoggedUserLogin(), newTrackedDrones, newVisualizedDrones, trackedDronesChanged, visualizedDronesChanged);
+        setPreferencesTask.execute((Void) null);
+    }
+    private void updateFollowedDronePreference(){
+        List<DBDrone> followedDronesList = followedDroneCustomAdapter.getCheckedDrones();
+        if (followedDronesList != null && !followedDronesList.isEmpty()) {
+            followedDrone = followedDronesList.get(0);
+            sessionManager.setFollowedDrone(followedDrone);
+        } else {
+            sessionManager.setFollowedDrone(null);
         }
     }
 
@@ -270,12 +291,20 @@ public class PreferencesFragment extends Fragment {
         }
 
         private void updateListViewsWithReceivedData() {
-            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, trackedDrones);
+            followedDrone = sessionManager.getFollowedDrone();
+            List<DBDrone> followedDroneList = new ArrayList<>();
+            if (followedDrone != null) {
+                followedDroneList.add(followedDrone);
+            }
+            followedDroneCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, followedDroneList, true);
+            followedDroneListView.setAdapter(followedDroneCustomAdapter);
+            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, trackedDrones, false);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
-            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, visualizedDrones);
+            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, visualizedDrones, false);
             visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(trackedDronesListView);
             setListViewHeightBasedOnChildren(visualizedDronesListView);
+            setListViewHeightBasedOnChildren(followedDroneListView);
         }
 
         private void updateSharedPreferencesWithReceivedData() {
@@ -285,14 +314,18 @@ public class PreferencesFragment extends Fragment {
         }
 
         private void clearListViews() {
-            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>());
+            followedDroneCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
+            followedDroneListView.setAdapter(followedDroneCustomAdapter);
+            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
-            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>());
+            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(trackedDronesListView);
             setListViewHeightBasedOnChildren(visualizedDronesListView);
+            setListViewHeightBasedOnChildren(followedDroneListView);
             trackedDronesCustomAdapter = null;
             visualizedDronesCustomAdapter = null;
+            followedDroneCustomAdapter = null;
         }
     }
 
@@ -393,14 +426,18 @@ public class PreferencesFragment extends Fragment {
         }
 
         private void clearListViews() {
-            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>());
+            followedDroneCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
+            followedDroneListView.setAdapter(followedDroneCustomAdapter);
+            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
-            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>());
+            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(trackedDronesListView);
             setListViewHeightBasedOnChildren(visualizedDronesListView);
+            setListViewHeightBasedOnChildren(followedDroneListView);
             trackedDronesCustomAdapter = null;
             visualizedDronesCustomAdapter = null;
+            followedDroneCustomAdapter = null;
         }
     }
 }

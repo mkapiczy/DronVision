@@ -15,15 +15,35 @@
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:text="Preferencje wizualizacji"
-        android:id="@+id/historyTitle"
+        android:id="@+id/preferencesTitle"
         android:layout_gravity="center" />
 
     <TextView
-        android:id="@+id/trackedListTitle"
-        android:text="Drony śledzone"
+        android:id="@+id/stalkedListTitle"
+        android:text="Dron śledzony"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/historyTitle"
+        android:layout_below="@+id/preferencesTitle"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="@dimen/listView_horizontal_margin"/>
+
+    <ListView
+        android:id="@+id/folllowedDroneList"
+        android:paddingLeft="@dimen/listView_horizontal_margin"
+        android:paddingRight="@dimen/listView_horizontal_margin"
+        android:layout_below="@+id/stalkedListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        tools:showIn="@layout/fragment_preferences"/>
+
+    <TextView
+        android:id="@+id/trackedListTitle"
+        android:text="Drony pokazane na mapie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/folllowedDroneList"
         android:layout_marginTop="20dp"
         android:paddingLeft="@dimen/listView_horizontal_margin"/>
 

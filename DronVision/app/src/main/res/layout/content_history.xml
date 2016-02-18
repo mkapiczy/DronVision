@@ -12,10 +12,11 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
-        android:layout_centerHorizontal="true"
         android:text="Historia wizualizacji"
         android:id="@+id/historyTitle"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:id="@+id/assignedDronesListTitle"

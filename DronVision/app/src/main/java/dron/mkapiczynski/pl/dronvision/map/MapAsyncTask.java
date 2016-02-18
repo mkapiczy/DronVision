@@ -3,6 +3,7 @@ package dron.mkapiczynski.pl.dronvision.map;
 import android.app.Activity;
 import android.content.pm.PackageInstaller;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -63,13 +64,15 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        //GeoPoint mapCenter = getLastDroneInSetLocation(drones);
         mapView.getOverlays().clear();
         mapView.getOverlays().addAll(mapOverlays);
         mapView.postInvalidateOnAnimation();
         MapController mapController = (MapController) mapView.getController();
-        if(drone!=null) {
-            mapController.animateTo(drone.getCurrentPosition());
+        DBDrone followedDrone = sessionManager.getFollowedDrone();
+        if (drone != null) {
+            if (followedDrone != null && followedDrone.getDroneId()!=null && followedDrone.getDroneId().compareTo(drone.getDroneId()) == 0) {
+                mapController.animateTo(drone.getCurrentPosition());
+            }
         }
     }
 

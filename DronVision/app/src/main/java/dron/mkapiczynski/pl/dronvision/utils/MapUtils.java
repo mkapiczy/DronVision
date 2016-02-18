@@ -100,7 +100,7 @@ public class MapUtils {
         lastSearchedArea.setPoints(droneToUpdate.getLastSearchedArea());
         lastSearchedArea.setFillColor(0X285EAAF6);
         lastSearchedArea.setStrokeColor(0X285EAAF6);
-        lastSearchedArea.setStrokeWidth(0);
+        lastSearchedArea.setStrokeWidth(5);
         mapOverlays.add(lastSearchedArea);
     }
 

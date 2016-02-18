@@ -9,6 +9,7 @@ import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -20,7 +21,7 @@ import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 public class HistoryFragment extends Fragment {
 
     private SessionManager sessionManager;
-    private boolean created = false;
+    private boolean viewCreated = false;
 
     private CustomListViewAdapter assignedDronesCustomAdapter;
     private ListView assignedDronesListView;
@@ -36,9 +37,10 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         assignedDronesListView = (ListView) view.findViewById(R.id.assignedDrones);
-        created = true;
 
         sessionManager = new SessionManager(getActivity().getApplicationContext());
+
+        viewCreated = true;
 
         return view;
     }
@@ -48,11 +50,11 @@ public class HistoryFragment extends Fragment {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
             assignedDrones = sessionManager.getAssignedDrones();
-            assignedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, assignedDrones);
+            assignedDronesCustomAdapter = new CustomListViewAdapter(getContext(), assignedDrones, new ArrayList<DBDrone>(), false);
             assignedDronesListView.setAdapter(assignedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(assignedDronesListView);
         } else if (hidden ==true){
-            if(created) {
+            if(viewCreated) {
 
             }
 

@@ -12,7 +12,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
-import dron.mkapiczynski.pl.dronvision.domain.User;
 
 
 public class SessionManager {
@@ -33,6 +32,7 @@ public class SessionManager {
 
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
 
+    private static final String KEY_FOLLOWED_DRONE = "followedDrone";
     private static final String KEY_ASSIGNED_DRONES = "assignedDrones";
     private static final String KEY_TRACKED_DRONES = "trackedDrones";
     private static final String KEY_VIZUALIZED_DRONES = "visualizedDrones";
@@ -43,10 +43,30 @@ public class SessionManager {
         editor = pref.edit();
     }
 
+    public void setFollowedDrone(DBDrone followedDrone){
+        if(followedDrone!=null) {
+            Gson gson = new Gson();
+            String s = gson.toJson(followedDrone);
+            editor.putString(KEY_FOLLOWED_DRONE, s);
+        } else{
+            editor.putString(KEY_FOLLOWED_DRONE, "");
+        }
+
+        editor.commit();
+
+    }
+
+    public DBDrone getFollowedDrone(){
+        Gson gson = new Gson();
+        String followedDroneJsonString = pref.getString(KEY_FOLLOWED_DRONE, "");
+        DBDrone stalkedDrone = gson.fromJson(followedDroneJsonString, DBDrone.class);
+        return stalkedDrone;
+    }
+
     public void setAssignedDrones(List<DBDrone> assignedDrones){
         Gson gson = new Gson();
-        Type listOfTestObject = new TypeToken<List<DBDrone>>(){}.getType();
-        String s = gson.toJson(assignedDrones, listOfTestObject);
+        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        String s = gson.toJson(assignedDrones, listType);
         editor.putString(KEY_ASSIGNED_DRONES, s);
 
         editor.commit();
