@@ -37,36 +37,14 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	private DroneService droneService;
 
 	@Override
-	public void handleClientLoginMessage(Message incomingMessage, Session session, Set<Session> clientSessions) {
+	public void handleClientLoginMessage(Message incomingMessage, Session newsSession, Set<Session> clientSessions) {
 		ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
 		Long clientId = clientLoginMessage.getClientId();
 		Session alreadyRegisteredClientSession = findSessionForClinetId(clientSessions, clientId);
-		if(alreadyRegisteredClientSession!=null){
-			try {
-				alreadyRegisteredClientSession.getUserProperties().put("clientId", "Previous session for client with id: " + clientId);
-				alreadyRegisteredClientSession.close();
-			} catch (IOException e) {
-				log.error("Exception while closing previous session for client with id " + clientId +" : " + e);
-			}
+		if (alreadyRegisteredClientSession != null) {
+			closePreviousClientSession(clientId, alreadyRegisteredClientSession);
 		}
-		if (clientDeviceHasNotRegisteredSession(session, clientSessions)) {
-			session.getUserProperties().put("clientId", clientId);
-			clientSessions.add(session);
-			System.out.println("New clientDevice with id: " + clientId);
-		} else {
-			System.out.println("Client device with id: " + clientId + " already registered");
-		}
-	}
-	
-	private Session findSessionForClinetId(Set<Session> clientSessions, Long clientId){
-		Iterator<Session> clientIterator = clientSessions.iterator();
-		while(clientIterator.hasNext()){
-			Session currentIteratedClientSession = clientIterator.next();
-			if(((Long)currentIteratedClientSession.getUserProperties().get("clientId")).equals(clientId)){
-				return currentIteratedClientSession;
-			}
-		}
-		return null;
+		registerNewClientSession(clientId, newsSession, clientSessions);
 	}
 
 	@Override
@@ -86,8 +64,6 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 			}
 		}
 	}
-	
-
 
 	private ClientGeoDataMessage generateClientGeoDataMessage(Drone drone) {
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
@@ -114,12 +90,41 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		return clientGeoDataMessage;
 	}
 
-	private boolean clientDeviceHasNotRegisteredSession(Session session, Set<Session> clientSessions) {
-		if (!clientSessions.contains(session)) {
-			return true;
-		} else {
-			return false;
+	private void closePreviousClientSession(Long clientId, Session alreadyRegisteredClientSession) {
+		try {
+			alreadyRegisteredClientSession.getUserProperties().put("clientId",
+					"Previous session for client with id: " + clientId);
+			alreadyRegisteredClientSession.close();
+		} catch (IOException e) {
+			log.error("Exception while closing previous session for client with id " + clientId + " : " + e);
 		}
+	}
+
+	private void registerNewClientSession(Long clientId, Session newSession, Set<Session> clientSessions) {
+		newSession.getUserProperties().put("clientId", clientId);
+		clientSessions.add(newSession);
+		System.out.println("New clientDevice with id: " + clientId);
+	}
+
+	private Session findSessionForClinetId(Set<Session> clientSessions, Long clientId) {
+		Iterator<Session> clientIterator = clientSessions.iterator();
+		while (clientIterator.hasNext()) {
+			Session currentIteratedClientSession = clientIterator.next();
+			if (((Long) currentIteratedClientSession.getUserProperties().get("clientId")).equals(clientId)) {
+				return currentIteratedClientSession;
+			}
+		}
+		return null;
+	}
+	
+	private boolean clientIsAssignedToDrone(Session clientSession, Drone drone) {
+		for (int i = 0; i < drone.getAssignedUsers().size(); i++) {
+			ClientUser userClient = drone.getAssignedUsers().get(i);
+			if (userClient.getUserId() == clientSession.getUserProperties().get("clientId")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -136,15 +141,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 		return geoPointSearchedArea;
 	};
+
 	
-	private boolean clientIsAssignedToDrone(Session clientSession, Drone drone){
-		for (int i = 0; i < drone.getAssignedUsers().size(); i++) {
-			ClientUser userClient = drone.getAssignedUsers().get(i);
-			if (userClient.getUserId() == clientSession.getUserProperties().get("clientId")) {
-				return true;
-			}
-		}
-		return false;
-	}
 
 }
