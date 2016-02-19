@@ -24,13 +24,13 @@
     <item android:title="Dodatkowe">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_about_app"
                 android:icon="@drawable/ic_menu_share"
-                android:title="O aplikacji" />
+                android:title="@string/nav_about_app_title" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_about_author"
                 android:icon="@drawable/ic_menu_send"
-                android:title="O autorze" />
+                android:title="@string/nav_about_author_title" />
         </menu>
     </item>
 
