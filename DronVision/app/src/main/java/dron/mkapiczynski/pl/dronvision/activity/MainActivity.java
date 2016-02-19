@@ -4,22 +4,24 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.fragment.AboutAppFragment;
+import dron.mkapiczynski.pl.dronvision.fragment.AboutAuthorFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.SettingsFragment;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity
     private PreferencesFragment preferencesFragment;
     private SettingsFragment settingsFragment;
     private HistoryFragment historyFragment;
+    private AboutAppFragment aboutAppFragment;
+    private AboutAuthorFragment aboutAuthorFragment;
 
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
@@ -71,6 +75,8 @@ public class MainActivity extends AppCompatActivity
         preferencesFragment = new PreferencesFragment();
         settingsFragment = new SettingsFragment();
         historyFragment = new HistoryFragment();
+        aboutAppFragment = new AboutAppFragment();
+        aboutAuthorFragment = new AboutAuthorFragment();
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -78,9 +84,13 @@ public class MainActivity extends AppCompatActivity
                 .add(R.id.fragment_container, preferencesFragment)
                 .add(R.id.fragment_container, settingsFragment)
                 .add(R.id.fragment_container, historyFragment)
+                .add(R.id.fragment_container, aboutAppFragment)
+                .add(R.id.fragment_container, aboutAuthorFragment)
                 .hide(preferencesFragment)
                 .hide(settingsFragment)
                 .hide(historyFragment)
+                .hide(aboutAppFragment)
+                .hide(aboutAuthorFragment)
                 .commit();
     }
 
@@ -100,96 +110,54 @@ public class MainActivity extends AppCompatActivity
                 AlertDialog logoutDialog = createLogoutDialog(this);
                 logoutDialog.show();
             } else if (visionFragment.isHidden()) {
-                goBackToVisionFragmentView();
+                showFragmentAndHideTheOthers(visionFragment);
             }
         }
-    }
-
-    private void goBackToVisionFragmentView() {
-        if (preferencesFragment.isVisible()) {
-            fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
-            currentMenuItem.setChecked(false);
-        } else if (settingsFragment.isVisible()) {
-            fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
-            currentMenuItem.setChecked(false);
-        } else if (historyFragment.isVisible()) {
-            fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
-            currentMenuItem.setChecked(false);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.vision, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         currentMenuItem = item;
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_vision) {
-            if (visionFragment.isHidden()) {
-                if (preferencesFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(preferencesFragment).show(visionFragment).commit();
-                } else if (settingsFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(settingsFragment).show(visionFragment).commit();
-                } else if (historyFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(historyFragment).show(visionFragment).commit();
-                }
-            }
-        } else if (id == R.id.nav_preferences) {
-            if (preferencesFragment.isHidden()) {
-                if (visionFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(visionFragment).show(preferencesFragment).commit();
-                } else if (settingsFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(settingsFragment).show(preferencesFragment).commit();
-                } else if (historyFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(historyFragment).show(preferencesFragment).commit();
-                }
-            }
-        } else if (id == R.id.nav_settings) {
-            if (settingsFragment.isHidden()) {
-                if (visionFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(visionFragment).show(settingsFragment).commit();
-                } else if (preferencesFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(preferencesFragment).show(settingsFragment).commit();
-                } else if (historyFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(historyFragment).show(settingsFragment).commit();
-                }
-            }
-        } else if (id == R.id.nav_history) {
-            if (historyFragment.isHidden()) {
-                if (visionFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(visionFragment).show(historyFragment).commit();
-                } else if (preferencesFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(preferencesFragment).show(historyFragment).commit();
-                } else if (settingsFragment.isVisible()) {
-                    fragmentManager.beginTransaction().hide(settingsFragment).show(historyFragment).commit();
-                }
-            }
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
+        Fragment fragmentToBeShown = getFragmentToBeShownById(item.getItemId());
+        showFragmentAndHideTheOthers(fragmentToBeShown);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private Fragment getFragmentToBeShownById(int id){
+        Fragment fragmentToBeShown = new Fragment();
+        if (id == R.id.nav_vision) {
+            fragmentToBeShown = visionFragment;
+        } else if (id == R.id.nav_preferences) {
+            fragmentToBeShown=preferencesFragment;
+        } else if (id == R.id.nav_settings) {
+            fragmentToBeShown=settingsFragment;
+        } else if (id == R.id.nav_history) {
+            fragmentToBeShown=historyFragment;
+        } else if (id == R.id.nav_about_app) {
+            fragmentToBeShown=aboutAppFragment;
+        } else if (id == R.id.nav_about_author) {
+            fragmentToBeShown=aboutAuthorFragment;
+        }
+        return fragmentToBeShown;
+    }
+
+    private void showFragmentAndHideTheOthers(Fragment fragmentToBeShown) {
+        if (fragmentToBeShown!=null && fragmentToBeShown.isHidden()) {
+            List<Fragment> allFragments = fragmentManager.getFragments();
+            for (int i = 0; i < allFragments.size(); i++) {
+                Fragment currentIteratedFragment = allFragments.get(i);
+                if (!currentIteratedFragment.equals(fragmentToBeShown)) {
+                    if (currentIteratedFragment.isVisible()) {
+                        fragmentManager.beginTransaction().hide(currentIteratedFragment).show(fragmentToBeShown).commit();
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     public void updateDronesOnMap(Drone drone) {
