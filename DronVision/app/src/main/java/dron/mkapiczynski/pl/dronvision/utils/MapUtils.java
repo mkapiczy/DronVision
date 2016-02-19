@@ -98,9 +98,9 @@ public class MapUtils {
     private static void updateDroneLastSearchedAreaOnMap(Drone droneToUpdate, List<Overlay> mapOverlays, Activity activity) {
         Polygon lastSearchedArea = new Polygon(activity.getApplicationContext());
         lastSearchedArea.setPoints(droneToUpdate.getLastSearchedArea());
-        lastSearchedArea.setFillColor(0X285EAAF6);
-        lastSearchedArea.setStrokeColor(0X285EAAF6);
-        lastSearchedArea.setStrokeWidth(5);
+        lastSearchedArea.setFillColor(0X3C5EAAF6);
+        lastSearchedArea.setStrokeColor(0X3C5EAAF6);
+        lastSearchedArea.setStrokeWidth(3);
         mapOverlays.add(lastSearchedArea);
     }
 
@@ -110,12 +110,12 @@ public class MapUtils {
             searchedArea.setPoints(droneToUpdate.getSearchedArea());
             searchedArea.setFillColor(0x32121212);
             searchedArea.setStrokeColor(0x12121212);
-            searchedArea.setStrokeWidth(5);
-            List<List<GeoPoint>> holes = new ArrayList<>();
+            searchedArea.setStrokeWidth(3);
+            /*List<List<GeoPoint>> holes = new ArrayList<>();
             List<GeoPoint> singleHole = new ArrayList<>();
             singleHole.addAll(droneToUpdate.getLastSearchedArea());
             holes.add(singleHole);
-            searchedArea.setHoles(holes);
+            searchedArea.setHoles(holes);*/
             mapOverlays.add(searchedArea);
         }
     }
