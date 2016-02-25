@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,8 @@ public class GPSActivity extends Activity implements LocationListener {
     private TextView locationTextView;
     private TextView serverTextView;
     private Button btnShowLocation, btnStartLocationUpdates;
+    private EditText editTextLatitude;
+    private EditText editTextLongitude;
 
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
@@ -53,6 +56,8 @@ public class GPSActivity extends Activity implements LocationListener {
         serverTextView = (TextView) findViewById(R.id.serverTextView);
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
         btnStartLocationUpdates = (Button) findViewById(R.id.btnLocationUpdates);
+        editTextLatitude = (EditText) findViewById(R.id.editTextLatitude);
+        editTextLongitude = (EditText) findViewById(R.id.editTextLongitude);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         gpsSignalProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
@@ -74,6 +79,12 @@ public class GPSActivity extends Activity implements LocationListener {
                 }
 
                 if (mLastLocation != null) {
+                    if(editTextLatitude.getText()!=null && editTextLongitude.getText()!=null) {
+                        if (!editTextLatitude.getText().toString().isEmpty() && !editTextLongitude.getText().toString().isEmpty()) {
+                            mLastLocation.setLatitude(Double.parseDouble(editTextLatitude.getText().toString()));
+                            mLastLocation.setLongitude(Double.parseDouble(editTextLongitude.getText().toString()));
+                        }
+                    }
                     client.sendGeoDataMessageToServer(mLastLocation);
                 }
             }

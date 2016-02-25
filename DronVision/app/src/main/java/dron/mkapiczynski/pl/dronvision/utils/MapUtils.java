@@ -30,6 +30,7 @@ public class MapUtils {
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.setMinZoomLevel(14);
+        mapView.setMaxZoomLevel(20);
         MapController mapController = (MapController) mapView.getController();
         mapController.setZoom(16);
         mapController.setCenter(new GeoPoint(52.24695, 21.105083));

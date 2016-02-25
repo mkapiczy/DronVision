@@ -111,6 +111,12 @@
 			<version>2.5</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.osm.josm</groupId>
+			<artifactId>josm2</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

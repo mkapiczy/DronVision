@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="DronTracker"
         android:textStyle="bold"
@@ -21,14 +21,14 @@
     <ImageView
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:src="@drawable/marker"
         android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="15dp"
         android:text="@string/lbl_you_are_at"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -39,11 +39,27 @@
         android:id="@+id/lblLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:gravity="center_horizontal"
         android:padding="15dp"
         android:textColor="@color/white"
-        android:textSize="16dp" />
+        android:textSize="12dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/editTextLatitude"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/editTextLongitude"
+        android:layout_marginTop="10dp"/>
 
     <Button
         android:id="@+id/btnShowLocation"

@@ -6,22 +6,161 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import org.jboss.logging.Logger;
+import org.openstreetmap.josm.data.coor.LatLon;
+
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.Constants;
+import pl.mkapiczynski.dron.domain.DegreeLocation;
 import pl.mkapiczynski.dron.domain.GeoPoint;
+import pl.mkapiczynski.dron.helpers.HgtReader;
 
 @Local
 @Stateless(name = "SearchedAreaService")
 public class SearchedAreaServiceBean implements SearchedAreaService {
-	
+
+	private static final Logger log = Logger.getLogger(SearchedAreaServiceBean.class);
 
 	@Override
 	public SearchedArea calculateSearchedArea(Location geoLocation) {
 		SearchedArea newSearchedArea = new SearchedArea();
-		List<Location> newSearchedAreaLocations = poinsAsCircle(geoLocation, 20.0);
-		newSearchedArea.setSearchedLocations(newSearchedAreaLocations);
+		List<Location> newSearchedAreaLocations = new ArrayList<>();
+		int oboveTheGroundDronesAltitude = 30;
+		//geoLocation.setLatitude(49.07527777777778);
+		//geoLocation.setLongitude(22.725);
+		
+		// dobre dane 49.074444444444445,22.726388888888888
+		// 49.07527777777778, 22.725
+		//49.099917, 22.746356
+		HgtReader reader = new HgtReader();
+		double dronesPositionModelAltitude = reader
+				.getElevationFromHgt(new LatLon(geoLocation.getLatitude(), geoLocation.getLongitude()));
+
+		log.info("GPS altitude: " + geoLocation.getAltitude() + " | Model altitude: " + dronesPositionModelAltitude);
+
+		if (dronesPositionModelAltitude != 0) {
+			geoLocation.setAltitude(dronesPositionModelAltitude + oboveTheGroundDronesAltitude);
+			int cameraAngle = 60;
+
+			List<DegreeLocation> circle = new ArrayList<>();
+			int dh = 10;
+			int w = 0;
+			List<Integer> degrees = new ArrayList<>();
+			for (int i = 0; i < 360; i += 10) {
+				degrees.add(i);
+			}
+			do {
+				if (w != 0) {
+					degrees.clear();
+					for (int i = 0; i < circle.size(); i++) {
+						degrees.add(circle.get(i).getDegree());
+					}
+				}
+				double r = dh * Math.tan(cameraAngle) * 2;
+				log.info("dh = " + dh + " | r = " + r);
+				circle = pointsAsCircle(geoLocation, r, dh, degrees);
+
+				List<Location> realData = new ArrayList<>();
+				for (int i = 0; i < circle.size(); i++) {
+					realData.add(circle.get(i).getLocation());
+				}
+
+				List<Location> modelData = getModelData(realData);
+
+				if (w == 0) {
+					double dif = getMinimumAltitudeDifference(realData, modelData);
+					dh = ((int)dif - 1);
+				} else {
+					List<Location> newPoints = compare(circle, modelData);
+					newSearchedAreaLocations.addAll(newPoints);
+					dh += 1;
+				}
+				w++;
+			} while (!degrees.isEmpty());
+			List<Location> sorted = sortGeoPointsListByDistanceAndRemoveRepetitions(newSearchedAreaLocations);
+			newSearchedArea.setSearchedLocations(sorted);
+		}
+
 		return newSearchedArea;
+	}
+
+	private double getMinimumAltitudeDifference(List<Location> realData, List<Location> modelData) {
+		double minimumAltitudeDifference = 500;
+		for (int i = 0; i < realData.size(); i++) {
+			Location realPoint = realData.get(i);
+			for (int j = 0; j < modelData.size(); j++) {
+				Location modelPoint = modelData.get(j);
+				if (Double.compare(realPoint.getLatitude(), modelPoint.getLatitude()) == 0
+						&& Double.compare(realPoint.getLongitude(), modelPoint.getLongitude()) == 0) {
+					double difference = realPoint.getAltitude() - modelPoint.getAltitude();
+					if (difference < minimumAltitudeDifference) {
+						minimumAltitudeDifference = difference;
+					}
+				}
+			}
+
+		}
+		return minimumAltitudeDifference;
+	}
+
+	/**
+	 * Do poprawy
+	 * 
+	 * @param realData
+	 * @param modelData
+	 * @return
+	 */
+	private List<Location> compare(List<DegreeLocation> realData, List<Location> modelData) {
+		List<Location> result = new ArrayList<>();
+		List<DegreeLocation> realToIterate = new ArrayList<>();
+		realToIterate.addAll(realData);
+		for (int i = 0; i < realToIterate.size(); i++) {
+			Location realPoint = realToIterate.get(i).getLocation();
+			for (int j = 0; j < modelData.size(); j++) {
+				Location modelPoint = modelData.get(j);
+				if (pointIsTheSamePoint(realPoint, modelPoint)) {
+					if (modelPoint.getAltitude().compareTo(realPoint.getAltitude()) >= 0) {
+						result.add(modelPoint);
+						removePoint(realData, realPoint);
+						break;
+					}
+				}
+			}
+
+		}
+		return result;
+	}
+
+	private void removePoint(List<DegreeLocation> list, Location point) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getLocation().getLatitude().compareTo(point.getLatitude()) == 0
+					&& list.get(i).getLocation().getLongitude().compareTo(point.getLongitude()) == 0) {
+				list.remove(i);
+			}
+		}
+	}
+
+	private List<Location> getModelData(List<Location> realData) {
+		HgtReader reader = new HgtReader();
+		List<Location> result = new ArrayList<>();
+		for (int i = 0; i < realData.size(); i++) {
+			Location modelLocation = new Location();
+			Location realLocation = realData.get(i);
+			modelLocation.setLatitude(realLocation.getLatitude());
+			modelLocation.setLongitude(realLocation.getLongitude());
+			double modelLocationAltitude = reader
+					.getElevationFromHgt(new LatLon(realLocation.getLatitude(), realLocation.getLongitude()));
+			if (modelLocationAltitude != 0) {
+				modelLocation.setAltitude(modelLocationAltitude);
+			}
+			if(i>(realData.size()/2)){
+				modelLocation.setAltitude(modelLocationAltitude);
+			}
+			log.info(modelLocation.getAltitude());
+			result.add(modelLocation);
+		}
+		return result;
 	}
 
 	@Override
@@ -108,9 +247,9 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				Location lastOrderedSearchedAreaPoint = orderedSearchedArea.get(orderedSearchedArea.size() - 1);
 				int nearestPointIndex = findNearestPointIndex(lastOrderedSearchedAreaPoint, searchedArea);
 				Location nearestPoint = searchedArea.get(nearestPointIndex);
-				if (nearestPointIsTheSamePoint(lastOrderedSearchedAreaPoint, nearestPoint)) {
+				if (pointIsTheSamePoint(lastOrderedSearchedAreaPoint, nearestPoint)) {
 					searchedArea.remove(nearestPointIndex);
-				} else if (nearestPointIsTheSamePoint(firstPoint, nearestPoint)) {
+				} else if (pointIsTheSamePoint(firstPoint, nearestPoint)) {
 					/**
 					 * TODO Do sprawdzenia, czy działa. (Raczej nie :o)
 					 */
@@ -166,7 +305,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		return dist;
 	}
 
-	private boolean nearestPointIsTheSamePoint(Location point, Location nearestPoint) {
+	private boolean pointIsTheSamePoint(Location point, Location nearestPoint) {
 		if ((point.getLatitude().compareTo(nearestPoint.getLatitude()) == 0)
 				&& (point.getLongitude().compareTo(nearestPoint.getLongitude()) == 0)) {
 			return true;
@@ -244,14 +383,17 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 	}
 
-	private List<Location> poinsAsCircle(Location center, double radiusInMeters) {
-		ArrayList<Location> circlePoints = new ArrayList<>();
-
-		for (int f = 0; f < 360; f += 18) {
+	private List<DegreeLocation> pointsAsCircle(Location center, double radiusInMeters, int dh, List<Integer> degrees) {
+		List<DegreeLocation> circlePoints = new ArrayList<>();
+		for (int i = 0; i < degrees.size(); i++) {
+			int f = degrees.get(i);
 			Location onCircle = destinationPoint(center, radiusInMeters, (float) f);
-			circlePoints.add(onCircle);
+			onCircle.setAltitude(center.getAltitude() - dh);
+			DegreeLocation newLocation = new DegreeLocation();
+			newLocation.setLocation(onCircle);
+			newLocation.setDegree(f);
+			circlePoints.add(newLocation);
 		}
-
 		return circlePoints;
 	}
 
