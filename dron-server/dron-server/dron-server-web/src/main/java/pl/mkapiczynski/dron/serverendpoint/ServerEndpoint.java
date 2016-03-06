@@ -24,6 +24,7 @@ import pl.mkapiczynski.dron.message.MessageDecoder;
 import pl.mkapiczynski.dron.message.MessageEncoder;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
+import pl.mkapiczynski.dron.message.TrackerSimulationMessage;
 
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
@@ -56,6 +57,8 @@ public class ServerEndpoint {
 			clientDeviceService.handleClientLoginMessage(incomingMessage, session, clientDeviceSessions);
 		} else if (incomingMessage instanceof TrackerGeoDataMessage) {
 			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions, clientDeviceSessions);
+		} else if (incomingMessage instanceof TrackerSimulationMessage){
+			gpsTrackerDeviceService.handleTrackerSimulationMessage(incomingMessage, clientDeviceSessions);
 		}
 	}
 

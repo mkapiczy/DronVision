@@ -70,9 +70,9 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 							.findLocationsCrossingWithTheGround(locationsOnCircle, modelData, true);
 					currentCircle.addAll(newPoints);
 					if (newPoints.isEmpty()) {
-						dh += 5;
+						dh += 6;
 					} else {
-						dh += 1;
+						dh += 2;
 					}
 
 				} while (!degrees.isEmpty());

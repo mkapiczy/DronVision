@@ -12,6 +12,6 @@ import pl.mkapiczynski.dron.message.Message;
 public interface GPSTrackerDeviceService {
 	public void handleTrackerLoginMessage(Message incomingMessage, Session session, Set<Session> gpsTrackerDeviceSessions);
 	public void handleTrackerGeoDataMessage(Message incomingMessage, Session session, Set<Session> gpsTrackerDeviceSessions, Set<Session> clientSessions);
-	
+	public void handleTrackerSimulationMessage(Message incomingMessage, Set<Session> clientSessions);
 
 }

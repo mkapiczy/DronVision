@@ -67,6 +67,12 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			log.info("Message from unregistered session tracker device");
 		}
 	}
+	
+
+	@Override
+	public void handleTrackerSimulationMessage(Message incomingMessage, Set<Session> clientSessions) {
+		log.info("Simulation message came");
+	}
 
 	private boolean gpsTrackerDeviceHasRegisteredSession(Session session, Set<Session> gpsTrackerDeviceSessions) {
 		if (gpsTrackerDeviceSessions.contains(session)) {
@@ -74,5 +80,6 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		}
 		return false;
 	}
+
 
 }
