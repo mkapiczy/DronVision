@@ -19,6 +19,7 @@ import dron.mkapiczynski.pl.gpstracker.domain.Parameters;
 import dron.mkapiczynski.pl.gpstracker.jsonHelper.JsonDateSerializer;
 import dron.mkapiczynski.pl.gpstracker.message.GeoDataMessage;
 import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
+import dron.mkapiczynski.pl.gpstracker.message.TrackerSimulationMessage;
 
 /**
  * Created by Miix on 2016-01-08.
@@ -82,6 +83,19 @@ public class MyWebSocketConnection extends WebSocketConnection {
             sendTextMessage(gson.toJson(geoDataMessage));
         } else{
             Log.i(TAG, "Coudn't send a message. No connection with server");
+        }
+    }
+
+    public boolean sendTrackerSimulationMessageToServer(){
+        TrackerSimulationMessage simulationMessage = new TrackerSimulationMessage();
+        simulationMessage.setDeviceId(DRONE_ID);
+        Gson gson = new Gson();
+        if (isConnected()) {
+            sendTextMessage(gson.toJson(simulationMessage));
+            return true;
+        } else{
+            Log.i(TAG, "Coudn't send a message. No connection with server");
+            return false;
         }
     }
 

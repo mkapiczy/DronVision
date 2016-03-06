@@ -39,7 +39,7 @@ public class GPSActivity extends Activity implements LocationListener {
     // UI
     private TextView locationTextView;
     private TextView serverTextView;
-    private Button btnShowLocation, btnStartLocationUpdates;
+    private Button btnShowLocation, btnStartLocationUpdates, btnStartSimulation;
     private EditText editTextLatitude;
     private EditText editTextLongitude;
 
@@ -56,6 +56,7 @@ public class GPSActivity extends Activity implements LocationListener {
         serverTextView = (TextView) findViewById(R.id.serverTextView);
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
         btnStartLocationUpdates = (Button) findViewById(R.id.btnLocationUpdates);
+        btnStartSimulation = (Button) findViewById(R.id.btnSimulate);
         editTextLatitude = (EditText) findViewById(R.id.editTextLatitude);
         editTextLongitude = (EditText) findViewById(R.id.editTextLongitude);
 
@@ -96,6 +97,20 @@ public class GPSActivity extends Activity implements LocationListener {
                 togglePeriodicLocationUpdates();
             }
         });
+
+        btnStartSimulation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!client.isConnected() || client == null) {
+                    client.connectToWebSocketServer();
+                }
+
+                if(client.isConnected()){
+                    client.sendTrackerSimulationMessageToServer();
+                }
+            }
+        });
+
     }
 
     @Override

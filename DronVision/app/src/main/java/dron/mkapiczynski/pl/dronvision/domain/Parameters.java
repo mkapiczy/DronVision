@@ -10,4 +10,5 @@ public class Parameters {
     public static final String PREFERENCES_REQUEST_URL = "http://" + SERVER_HOST + "/dron-server-web/preferences";
 
     public static final String CLIENT_LOGIN_MESSAGE_TYPE = "ClientLoginMessage";
+
 }

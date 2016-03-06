@@ -64,20 +64,20 @@
     <Button
         android:id="@+id/btnSimulate"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
         android:background="@color/btn_bg"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="@string/btn_get_location"
+        android:text="@string/btn_simulate"
         android:textColor="@color/white"
         android:layout_gravity="center_horizontal"
-        android:textSize="5dp"/>
+        android:textSize="15dp"/>
 
     <Button
         android:id="@+id/btnShowLocation"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="40dp"
         android:layout_marginTop="10dp"
         android:background="@color/btn_bg"
         android:paddingLeft="20dp"
@@ -85,19 +85,19 @@
         android:text="@string/btn_get_location"
         android:textColor="@color/white"
         android:layout_gravity="center_horizontal"
-        android:textSize="5dp"/>
+        android:textSize="15dp"/>
 
     <Button
         android:id="@+id/btnLocationUpdates"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="40dp"
         android:layout_marginTop="10dp"
         android:background="@color/btn_bg"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:text="@string/btn_start_location_updates"
         android:textColor="@color/white"
-        android:textSize="5dp"/>
+        android:textSize="15dp"/>
 
     <TextView
         android:id="@+id/serverTextView"
@@ -107,7 +107,7 @@
         android:layout_marginTop="30dp"
         android:padding="15dp"
         android:textColor="@color/white"
-        android:textSize="1dp"
+        android:textSize="10dp"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>
