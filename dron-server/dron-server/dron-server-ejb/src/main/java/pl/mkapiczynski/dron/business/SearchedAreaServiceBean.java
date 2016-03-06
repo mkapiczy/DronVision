@@ -64,7 +64,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 					if (dh == 2) {
 						int minimumAltitudeDifferenceBetweenModelAndRealData = SearchedAreaHelper
 								.getMinimumAltitudeDifference(realData, modelData);
-						dh = minimumAltitudeDifferenceBetweenModelAndRealData / 2;
+						dh += minimumAltitudeDifferenceBetweenModelAndRealData / 2;
 					}
 					List<DegreeLocation> newPoints = SearchedAreaHelper
 							.findLocationsCrossingWithTheGround(locationsOnCircle, modelData, true);
@@ -80,7 +80,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				if (previousCircle.isEmpty()) {
 					previousCircle.addAll(currentCircle);
 				} else {
-					SearchedAreaHelper.findHoles(previousCircle, currentCircle, dh, currentCameraAngle, droneLocation);
+					//SearchedAreaHelper.findHoles(previousCircle, currentCircle, dh, currentCameraAngle, droneLocation);
 					previousCircle.clear();
 					previousCircle.addAll(currentCircle);
 				}

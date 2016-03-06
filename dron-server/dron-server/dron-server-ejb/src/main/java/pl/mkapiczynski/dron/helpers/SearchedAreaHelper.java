@@ -38,9 +38,11 @@ public class SearchedAreaHelper {
 				Location modelPoint = modelData.get(j);
 				if (Double.compare(realPoint.getLatitude(), modelPoint.getLatitude()) == 0
 						&& Double.compare(realPoint.getLongitude(), modelPoint.getLongitude()) == 0) {
-					double difference = realPoint.getAltitude() - modelPoint.getAltitude();
-					if (difference < minimumAltitudeDifference) {
-						minimumAltitudeDifference = difference;
+					if (realPoint.getAltitude() != null && modelPoint.getAltitude() != null) {
+						double difference = realPoint.getAltitude() - modelPoint.getAltitude();
+						if (difference < minimumAltitudeDifference) {
+							minimumAltitudeDifference = difference;
+						}
 					}
 				}
 			}
