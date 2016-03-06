@@ -40,39 +40,41 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 		if (dronesPositionModelAltitude != 0) {
 			droneLocation.setAltitude(dronesPositionModelAltitude + oboveTheGroundDronesAltitude);
-			int cameraAngle = 60;
+			int maxCameraAngle = 60;
 			List<DegreeLocation> previousCircle = new ArrayList<>();
 			List<DegreeLocation> currentCircle = new ArrayList<>();
 
-			for (int i = 2; i <= cameraAngle; i += 2) {
+			for (int currentCameraAngle = maxCameraAngle; currentCameraAngle > 0; currentCameraAngle -= 2) {
 				currentCircle.clear();
 				List<DegreeLocation> locationsOnCircle = new ArrayList<>();
 				List<Integer> degrees = new ArrayList<>();
-				int dh = 0;
+				int dh = 2;
 				do {
-					SearchedAreaHelper.prepareDegrees(degrees, locationsOnCircle);
+					SearchedAreaHelper.processDegrees(degrees, locationsOnCircle);
 
-					double radius = dh * Math.tan(i) * 2;
+					double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
 
 					locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
 
-					List<Location> realData = new ArrayList<>();
-					for (int j = 0; j < locationsOnCircle.size(); j++) {
-						realData.add(locationsOnCircle.get(j).getLocation());
-					}
+					List<Location> realData = SearchedAreaHelper
+							.convertDegreeLocationListToLocationList(locationsOnCircle);
 
 					List<Location> modelData = SearchedAreaHelper.getModelData(realData);
 
-					if (dh == 0) {
+					if (dh == 2) {
 						int minimumAltitudeDifferenceBetweenModelAndRealData = SearchedAreaHelper
 								.getMinimumAltitudeDifference(realData, modelData);
-						dh = minimumAltitudeDifferenceBetweenModelAndRealData - 1;
-					} else {
-						List<DegreeLocation> newPoints = SearchedAreaHelper
-								.findLocationsCrossingWithTheGround(locationsOnCircle, modelData);
-						currentCircle.addAll(newPoints);
-						dh += 1;
+						if (locationsOnCircle != null && !locationsOnCircle.isEmpty()) {
+							int initialAltitude = locationsOnCircle.get(0).getLocation().getAltitude().intValue();
+							dh = findOptimalDh(locationsOnCircle, modelData, initialAltitude,
+									minimumAltitudeDifferenceBetweenModelAndRealData);
+						}
 					}
+					List<DegreeLocation> newPoints = SearchedAreaHelper
+							.findLocationsCrossingWithTheGround(locationsOnCircle, modelData, true);
+					currentCircle.addAll(newPoints);
+					dh += 1;
+
 				} while (!degrees.isEmpty());
 
 				if (previousCircle.isEmpty()) {
@@ -82,7 +84,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 					previousCircle.clear();
 					previousCircle.addAll(currentCircle);
 				}
-				if (i == cameraAngle) {
+				if (currentCameraAngle == maxCameraAngle) {
 					for (int k = 0; k < currentCircle.size(); k++) {
 						newSearchedAreaLocations.add(currentCircle.get(k).getLocation());
 					}
@@ -90,11 +92,34 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 							.sortGeoPointsListByDistanceAndRemoveRepetitions(newSearchedAreaLocations);
 					newSearchedArea.setSearchedLocations(sorted);
 				}
-				
+
 			}
 		}
 
 		return newSearchedArea;
+	}
+
+	private int findOptimalDh(List<DegreeLocation> locationsOnCircle, List<Location> modelData, int initialAltitude,
+			int minimumAltitudeDifferenceBetweenModelAndRealData) {
+
+		updateAltitudeDueToMinimumDifference(locationsOnCircle, initialAltitude,
+				minimumAltitudeDifferenceBetweenModelAndRealData);
+
+		List<DegreeLocation> newPoints = SearchedAreaHelper.findLocationsCrossingWithTheGround(locationsOnCircle,
+				modelData, false);
+		if (!newPoints.isEmpty()) {
+			findOptimalDh(locationsOnCircle, modelData, initialAltitude,
+					minimumAltitudeDifferenceBetweenModelAndRealData * 3 / 5);
+		}
+		return minimumAltitudeDifferenceBetweenModelAndRealData;
+	}
+
+	private void updateAltitudeDueToMinimumDifference(List<DegreeLocation> locationsOnCircle, int initialAltitude,
+			int minimumAltitudeDifferenceBetweenModelAndRealData) {
+		for (int i = 0; i < locationsOnCircle.size(); i++) {
+			locationsOnCircle.get(i).getLocation()
+					.setAltitude((double) initialAltitude - minimumAltitudeDifferenceBetweenModelAndRealData);
+		}
 	}
 
 	@Override

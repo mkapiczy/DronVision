@@ -87,28 +87,39 @@ public class SearchedAreaHelper {
 	public static List<List<Location>> findHoles(List<DegreeLocation> previousCircle,
 			List<DegreeLocation> currentCircle) {
 		List<List<Location>> holesInSearchedAre = new ArrayList<>();
-		for (int i = 0; i < previousCircle.size(); i++) {
-			for (int j = 0; j < currentCircle.size(); j++) {
-				if (previousCircle.get(i).getDegree() == currentCircle.get(j).getDegree()) {
-					Location prevLocation = previousCircle.get(i).getLocation();
-					Location currLocation = currentCircle.get(j).getLocation();
-					double distance = SearchedAreaHelper.calculateDistanceBetweenTwooLocations(prevLocation,
-							currLocation);
+		for (int i = 0; i < currentCircle.size(); i++) {
+			for (int j = 0; j < previousCircle.size(); j++) {
+				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
+					Location currentLocation = currentCircle.get(i).getLocation();
+					Location previousLocation = previousCircle.get(j).getLocation();
+					if(previousLocation.getAltitude().compareTo(currentLocation.getAltitude())<0){
+						
+					}
+					double distance = SearchedAreaHelper.calculateDistanceBetweenTwooLocations(currentLocation,
+							previousLocation);
 					if(distance>2){
 						List<Location> singleHole = new ArrayList<>();
-						Location midPoint = findMidpoint(prevLocation, currLocation);
-						Location midPoint2 = findMidpoint(midPoint, prevLocation);
-						Location midPOint3 = findMidpoint(midPoint, currLocation);
+						Location midPoint = findMidpoint(previousLocation, currentLocation);
+						Location midPoint2 = findMidpoint(midPoint, previousLocation);
+						Location midPOint3 = findMidpoint(midPoint, currentLocation);
 						singleHole.add(midPoint);
 						singleHole.add(midPoint2);
 						singleHole.add(midPOint3);
 						holesInSearchedAre.add(singleHole);
 					}
-					log.info("Distance: " + distance + " dh = " + Double.sum(currLocation.getAltitude(), -prevLocation.getAltitude()));
+					log.info("Distance: " + distance + " dh = " + Double.sum(currentLocation.getAltitude(), -previousLocation.getAltitude()));
 				}
 			}
 		}
 		return holesInSearchedAre;
+	}
+	
+	public static List<Location> convertDegreeLocationListToLocationList(List<DegreeLocation> degreeLocationList){
+		List<Location> locationList = new ArrayList<>();
+		for (int i = 0; i < degreeLocationList.size(); i++) {
+			locationList.add(degreeLocationList.get(i).getLocation());
+		}
+		return locationList;
 	}
 	
 	private static Location findMidpoint(Location loc1, Location loc2){
@@ -126,17 +137,23 @@ public class SearchedAreaHelper {
 		return new Location(lat3, lon3);
 	}
 
-	public static void prepareDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
+
+
+	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
 		if (!degrees.isEmpty()) {
 			degrees.clear();
 			for (int i = 0; i < locationsOnCircle.size(); i++) {
 				degrees.add(locationsOnCircle.get(i).getDegree());
 			}
-		} else {
+		} else{
 			for (int i = 0; i < 360; i += 10) {
 				degrees.add(i);
 			}
 		}
+	}
+	
+	public static double calculateRadius(int dh, int cameraAngle){
+		return dh * Math.tan(cameraAngle) * 2;
 	}
 
 	/**
@@ -144,7 +161,7 @@ public class SearchedAreaHelper {
 	 * 
 	 */
 	public static List<DegreeLocation> findLocationsCrossingWithTheGround(List<DegreeLocation> realData,
-			List<Location> modelData) {
+			List<Location> modelData, boolean remove) {
 		List<DegreeLocation> result = new ArrayList<>();
 		List<DegreeLocation> realToIterate = new ArrayList<>();
 		realToIterate.addAll(realData);
@@ -158,7 +175,9 @@ public class SearchedAreaHelper {
 						degreeLocation.setLocation(modelPoint);
 						degreeLocation.setDegree(realToIterate.get(i).getDegree());
 						result.add(degreeLocation);
-						removePoint(realData, realPoint);
+						if (remove) {
+							removePoint(realData, realPoint);
+						}
 						break;
 					}
 				}
