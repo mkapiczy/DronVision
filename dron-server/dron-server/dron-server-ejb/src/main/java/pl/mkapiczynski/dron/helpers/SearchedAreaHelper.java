@@ -85,59 +85,81 @@ public class SearchedAreaHelper {
 	}
 
 	public static List<List<Location>> findHoles(List<DegreeLocation> previousCircle,
-			List<DegreeLocation> currentCircle) {
+			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
 		List<List<Location>> holesInSearchedAre = new ArrayList<>();
 		for (int i = 0; i < currentCircle.size(); i++) {
 			for (int j = 0; j < previousCircle.size(); j++) {
 				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
 					Location currentLocation = currentCircle.get(i).getLocation();
 					Location previousLocation = previousCircle.get(j).getLocation();
-					if(previousLocation.getAltitude().compareTo(currentLocation.getAltitude())<0){
-						
+					if (previousLocation.getAltitude().compareTo(currentLocation.getAltitude()) < 0) {
+						List<DegreeLocation> locationsOnCircle = new ArrayList<>();
+						List<Integer> degrees = new ArrayList<>();
+						for (int k = 0; k < 360; k += 10) {
+							degrees.add(k);
+						}
+						dh = (int) (droneLocation.getAltitude() - currentLocation.getAltitude());
+						do {
+							dh += 1;
+
+							double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
+
+							locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
+
+							Location loc = getLocationFromCircleForDegree(currentCircle.get(i).getDegree(),
+									locationsOnCircle);
+							HgtReader reader = new HgtReader();
+							double modelAltitude = reader
+									.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
+							List<Location> singleHole = new ArrayList<>();
+							if (modelAltitude < loc.getAltitude()) {
+								singleHole.add(loc);
+							}
+							if (!singleHole.isEmpty()) {
+								holesInSearchedAre.add(singleHole);
+							}
+
+						} while (((droneLocation.getAltitude() - dh) > previousLocation.getAltitude()));
 					}
-					double distance = SearchedAreaHelper.calculateDistanceBetweenTwooLocations(currentLocation,
-							previousLocation);
-					if(distance>2){
-						List<Location> singleHole = new ArrayList<>();
-						Location midPoint = findMidpoint(previousLocation, currentLocation);
-						Location midPoint2 = findMidpoint(midPoint, previousLocation);
-						Location midPOint3 = findMidpoint(midPoint, currentLocation);
-						singleHole.add(midPoint);
-						singleHole.add(midPoint2);
-						singleHole.add(midPOint3);
-						holesInSearchedAre.add(singleHole);
-					}
-					log.info("Distance: " + distance + " dh = " + Double.sum(currentLocation.getAltitude(), -previousLocation.getAltitude()));
 				}
 			}
 		}
 		return holesInSearchedAre;
 	}
-	
-	public static List<Location> convertDegreeLocationListToLocationList(List<DegreeLocation> degreeLocationList){
+
+	private static Location getLocationFromCircleForDegree(int degree, List<DegreeLocation> locationsOnCircle) {
+		Location result = new Location();
+		for (int i = 0; i < locationsOnCircle.size(); i++) {
+			if (locationsOnCircle.get(i).getDegree() == degree) {
+				result = locationsOnCircle.get(i).getLocation();
+			}
+		}
+		return result;
+	}
+
+	public static List<Location> convertDegreeLocationListToLocationList(List<DegreeLocation> degreeLocationList) {
 		List<Location> locationList = new ArrayList<>();
 		for (int i = 0; i < degreeLocationList.size(); i++) {
 			locationList.add(degreeLocationList.get(i).getLocation());
 		}
 		return locationList;
 	}
-	
-	private static Location findMidpoint(Location loc1, Location loc2){
+
+	private static Location findMidpoint(Location loc1, Location loc2) {
 		double lat1 = Math.toRadians(loc1.getLatitude());
 		double lon1 = Math.toRadians(loc1.getLongitude());
 		double lat2 = Math.toRadians(loc2.getLatitude());
 		double lon2 = Math.toRadians(loc2.getLongitude());
-		
-		double bx = Math.cos(lat2) * Math.cos(lon2-lon1);
-		double by = Math.cos(lat2) * Math.sin(lon2-lon1);
-		
-		double lat3  = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1)+bx)*(Math.cos(lat1)+bx)+by*by));
-		double lon3 = lon1 +Math.atan2(by,  Math.cos(lat1)*bx);
-		
+
+		double bx = Math.cos(lat2) * Math.cos(lon2 - lon1);
+		double by = Math.cos(lat2) * Math.sin(lon2 - lon1);
+
+		double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2),
+				Math.sqrt((Math.cos(lat1) + bx) * (Math.cos(lat1) + bx) + by * by));
+		double lon3 = lon1 + Math.atan2(by, Math.cos(lat1) * bx);
+
 		return new Location(lat3, lon3);
 	}
-
-
 
 	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
 		if (!degrees.isEmpty()) {
@@ -145,14 +167,14 @@ public class SearchedAreaHelper {
 			for (int i = 0; i < locationsOnCircle.size(); i++) {
 				degrees.add(locationsOnCircle.get(i).getDegree());
 			}
-		} else{
+		} else {
 			for (int i = 0; i < 360; i += 10) {
 				degrees.add(i);
 			}
 		}
 	}
-	
-	public static double calculateRadius(int dh, int cameraAngle){
+
+	public static double calculateRadius(int dh, int cameraAngle) {
 		return dh * Math.tan(cameraAngle) * 2;
 	}
 
