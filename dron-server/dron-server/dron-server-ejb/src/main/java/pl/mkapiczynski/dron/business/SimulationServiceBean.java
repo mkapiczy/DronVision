@@ -1,6 +1,8 @@
 package pl.mkapiczynski.dron.business;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -39,10 +41,12 @@ public class SimulationServiceBean implements SimulationService {
 	private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
 	@Override
-	public void handleTrackerSimulationMessage(Message incomingMessage, final Set<Session> clientSessions) {
+	public void handleTrackerSimulationMessage(Message incomingMessage, final Session session, final Set<Session> clientSessions) {
 		log.info("Simulation message came");
 		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate();
 		final int numberOfLocationsToSimulate = locationsToSimulate.size();
+		final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
+		sessions.add(session);
 
 		final Long droneId = 4l;
 		if (droneService.createNewDroneSession(droneId)) {
@@ -53,8 +57,9 @@ public class SimulationServiceBean implements SimulationService {
 				public void run() {
 					if (numberOfLocationsToSimulate > 0) {
 						if (i < numberOfLocationsToSimulate) {
+							log.info("Simulates location with id : " + i+1);
 							GeoPoint locationToSimulate = locationsToSimulate.get(i);
-							gpsTrackerDeviceService.simulate(locationToSimulate, clientSessions);
+							gpsTrackerDeviceService.simulate(locationToSimulate, sessions);
 							i++;
 						} else {
 							timer.shutdown();
@@ -63,7 +68,7 @@ public class SimulationServiceBean implements SimulationService {
 				}
 
 			}, 1, 1, TimeUnit.SECONDS);
-
+			
 		}
 	}
 

@@ -63,7 +63,7 @@ public class ServerEndpoint {
 			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions,
 					clientDeviceSessions);
 		} else if (incomingMessage instanceof TrackerSimulationMessage) {
-			simulationService.handleTrackerSimulationMessage(incomingMessage, clientDeviceSessions);
+			simulationService.handleTrackerSimulationMessage(incomingMessage,session, clientDeviceSessions);
 		}
 	}
 

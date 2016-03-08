@@ -5,7 +5,7 @@ public class Constants {
 	public static final String GEO_DATA_MESSAGE_TYPE = "GeoDataMessage";
 	public static final String TRACKER_LOGIN_MESSAGE_TYPE = "TrackerLoginMessage";
 	public static final String CLIENT_LOGIN_MESSAGE_TYPE = "ClientLoginMessage";
-	public static final String TRACKER_SIMULATION_MESSAGE_TYPE = "TrackerSimulationMessage";
+	public static final String SIMULATION_MESSAGE_TYPE = "SimulationMessage";
 
 	/**
 	 * SearchedArea Constants
