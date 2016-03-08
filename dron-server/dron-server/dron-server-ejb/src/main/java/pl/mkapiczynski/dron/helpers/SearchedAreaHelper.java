@@ -30,10 +30,10 @@ public class SearchedAreaHelper {
 		return circlePoints;
 	}
 
-	public static int getMinimumAltitudeDifference(List<Location> realData, List<Location> modelData) {
+	public static int getMinimumAltitudeDifference(List<DegreeLocation> realData, List<Location> modelData) {
 		double minimumAltitudeDifference = 2000;
 		for (int i = 0; i < realData.size(); i++) {
-			Location realPoint = realData.get(i);
+			Location realPoint = realData.get(i).getLocation();
 			for (int j = 0; j < modelData.size(); j++) {
 				Location modelPoint = modelData.get(j);
 				if (Double.compare(realPoint.getLatitude(), modelPoint.getLatitude()) == 0
@@ -51,12 +51,12 @@ public class SearchedAreaHelper {
 		return (int) minimumAltitudeDifference;
 	}
 
-	public static List<Location> getModelData(List<Location> realData) {
+	public static List<Location> getModelData(List<DegreeLocation> realData) {
 		HgtReader reader = new HgtReader();
 		List<Location> result = new ArrayList<>();
 		for (int i = 0; i < realData.size(); i++) {
 			Location modelLocation = new Location();
-			Location realLocation = realData.get(i);
+			Location realLocation = realData.get(i).getLocation();
 			modelLocation.setLatitude(realLocation.getLatitude());
 			modelLocation.setLongitude(realLocation.getLongitude());
 			double modelLocationAltitude = reader

@@ -18,6 +18,7 @@ import org.jboss.logging.Logger;
 import pl.mkapiczynski.dron.business.ClientDeviceService;
 import pl.mkapiczynski.dron.business.DroneService;
 import pl.mkapiczynski.dron.business.GPSTrackerDeviceService;
+import pl.mkapiczynski.dron.business.SimulationService;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.MessageDecoder;
@@ -33,12 +34,15 @@ public class ServerEndpoint {
 
 	@Inject
 	private GPSTrackerDeviceService gpsTrackerDeviceService;
-	
+
 	@Inject
 	private ClientDeviceService clientDeviceService;
-	
+
 	@Inject
-	DroneService droneService;
+	private DroneService droneService;
+
+	@Inject
+	private SimulationService simulationService;
 
 	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
 	public static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
@@ -56,9 +60,10 @@ public class ServerEndpoint {
 		} else if (incomingMessage instanceof ClientLoginMessage) {
 			clientDeviceService.handleClientLoginMessage(incomingMessage, session, clientDeviceSessions);
 		} else if (incomingMessage instanceof TrackerGeoDataMessage) {
-			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions, clientDeviceSessions);
-		} else if (incomingMessage instanceof TrackerSimulationMessage){
-			gpsTrackerDeviceService.handleTrackerSimulationMessage(incomingMessage, clientDeviceSessions);
+			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions,
+					clientDeviceSessions);
+		} else if (incomingMessage instanceof TrackerSimulationMessage) {
+			simulationService.handleTrackerSimulationMessage(incomingMessage, clientDeviceSessions);
 		}
 	}
 
@@ -86,20 +91,17 @@ public class ServerEndpoint {
 		}
 		log.error("Websocket connection error has occured : " + t.getMessage().toString());
 	}
-	
-	private void handleCloseClientDeviceSession(Session closingSession){
+
+	private void handleCloseClientDeviceSession(Session closingSession) {
 		clientDeviceSessions.remove(closingSession);
 		log.info("Client : " + closingSession.getUserProperties().get("clientId") + " disconnected");
 	}
-	
-	private void handleCloseGPSTrackerDeviceSession(Session closingSession){
+
+	private void handleCloseGPSTrackerDeviceSession(Session closingSession) {
 		Long droneId = (long) closingSession.getUserProperties().get("deviceId");
 		droneService.closeDroneSession(droneId);
 		gpsTrackerDeviceSessions.remove(closingSession);
 		log.info("Tracker device : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
 	}
-	
-
-	
 
 }

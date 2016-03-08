@@ -44,7 +44,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			List<DegreeLocation> previousCircle = new ArrayList<>();
 			List<DegreeLocation> currentCircle = new ArrayList<>();
 
-			for (int currentCameraAngle = maxCameraAngle; currentCameraAngle > 0; currentCameraAngle -= 2) {
+			for (int currentCameraAngle = maxCameraAngle; currentCameraAngle > 0; currentCameraAngle -= 10) {
 				currentCircle.clear();
 				List<DegreeLocation> locationsOnCircle = new ArrayList<>();
 				List<Integer> degrees = new ArrayList<>();
@@ -56,14 +56,11 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 					locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
 
-					List<Location> realData = SearchedAreaHelper
-							.convertDegreeLocationListToLocationList(locationsOnCircle);
-
-					List<Location> modelData = SearchedAreaHelper.getModelData(realData);
+					List<Location> modelData = SearchedAreaHelper.getModelData(locationsOnCircle);
 
 					if (dh == 2) {
 						int minimumAltitudeDifferenceBetweenModelAndRealData = SearchedAreaHelper
-								.getMinimumAltitudeDifference(realData, modelData);
+								.getMinimumAltitudeDifference(locationsOnCircle, modelData);
 						dh += minimumAltitudeDifferenceBetweenModelAndRealData / 2;
 					}
 					List<DegreeLocation> newPoints = SearchedAreaHelper
@@ -99,29 +96,6 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		return newSearchedArea;
 	}
 
-	private int findOptimalDh(List<DegreeLocation> locationsOnCircle, List<Location> modelData, int initialAltitude,
-			int minimumAltitudeDifferenceBetweenModelAndRealData) {
-
-		updateAltitudeDueToMinimumDifference(locationsOnCircle, initialAltitude,
-				minimumAltitudeDifferenceBetweenModelAndRealData);
-
-		List<DegreeLocation> newPoints = SearchedAreaHelper.findLocationsCrossingWithTheGround(locationsOnCircle,
-				modelData, false);
-		if (!newPoints.isEmpty()) {
-			minimumAltitudeDifferenceBetweenModelAndRealData = minimumAltitudeDifferenceBetweenModelAndRealData * 3 / 5;
-			findOptimalDh(locationsOnCircle, modelData, initialAltitude,
-					minimumAltitudeDifferenceBetweenModelAndRealData);
-		}
-		return minimumAltitudeDifferenceBetweenModelAndRealData;
-	}
-
-	private void updateAltitudeDueToMinimumDifference(List<DegreeLocation> locationsOnCircle, int initialAltitude,
-			int minimumAltitudeDifferenceBetweenModelAndRealData) {
-		for (int i = 0; i < locationsOnCircle.size(); i++) {
-			locationsOnCircle.get(i).getLocation()
-					.setAltitude((double) initialAltitude - minimumAltitudeDifferenceBetweenModelAndRealData);
-		}
-	}
 
 	@Override
 	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea) {
