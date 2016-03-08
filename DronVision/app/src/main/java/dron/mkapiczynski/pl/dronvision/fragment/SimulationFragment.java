@@ -1,6 +1,7 @@
 package dron.mkapiczynski.pl.dronvision.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import dron.mkapiczynski.pl.dronvision.R;
 
 public class SimulationFragment extends Fragment {
 
+    private SimulationFragmentActivityListener simulationFragmentActivityListener;
     private ToggleButton simulationTurnOnOffButton;
 
     public SimulationFragment() {
@@ -31,14 +33,31 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (simulationTurnOnOffButton.isChecked()) {
-                    Toast.makeText(getActivity().getApplicationContext(), "Włączono symulację!", Toast.LENGTH_SHORT).show();
+                    simulationFragmentActivityListener.onTurnOnSimulationButtonClicked();
                 } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
+                    simulationFragmentActivityListener.onTurnOffSimulationButtonClicked();
                 }
 
             }
         });
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(context instanceof SimulationFragmentActivityListener){
+            simulationFragmentActivityListener = (SimulationFragmentActivityListener) context;
+        } else{
+            throw new ClassCastException( context.toString() + " musi implementować interfejs: " +
+                    "SimulationFragment.SimulationFragmentActivityListener");
+        }
+    }
+
+    // interfejs, który będzie implementować aktywność
+    public interface SimulationFragmentActivityListener {
+        public void onTurnOnSimulationButtonClicked();
+        public void onTurnOffSimulationButtonClicked();
     }
 
 }

@@ -32,7 +32,7 @@ import dron.mkapiczynski.pl.dronvision.fragment.VisionFragment;
 import dron.mkapiczynski.pl.dronvision.websocket.MyWebSocketConnection;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener {
+        implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener, SimulationFragment.SimulationFragmentActivityListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     // UI
@@ -227,5 +227,21 @@ public class MainActivity extends AppCompatActivity
         AlertDialog logoutDialog = alertDialogBuilder.create();
 
         return logoutDialog;
+    }
+
+    @Override
+    public void onTurnOnSimulationButtonClicked() {
+        if(client.isConnected()){
+            Toast.makeText(this.getApplicationContext(), "Włączono symulację!", Toast.LENGTH_SHORT).show();
+            client.sendSimulationMessageToServer();
+            currentMenuItem.setChecked(false);
+            visionMenuItem.setChecked(true);
+            showFragmentAndHideTheOthers(visionFragment);
+        }
+    }
+
+    @Override
+    public void onTurnOffSimulationButtonClicked() {
+        Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
     }
 }

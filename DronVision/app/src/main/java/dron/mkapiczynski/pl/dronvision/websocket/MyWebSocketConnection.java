@@ -31,6 +31,7 @@ import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
 
 /**
  * Created by Miix on 2016-01-08.
@@ -126,6 +127,19 @@ public class MyWebSocketConnection extends WebSocketConnection {
             sendTextMessage(gson.toJson(clientLoginMessage));
         } else {
             Log.i(TAG, "Coudn't send a login message. No connection with server");
+        }
+    }
+
+    public boolean sendSimulationMessageToServer(){
+        SimulationMessage simulationMessage = new SimulationMessage();
+        simulationMessage.setDeviceId(1l);
+        Gson gson = new Gson();
+        if (isConnected()) {
+            sendTextMessage(gson.toJson(simulationMessage));
+            return true;
+        } else{
+            Log.i(TAG, "Coudn't send a message. No connection with server");
+            return false;
         }
     }
 
