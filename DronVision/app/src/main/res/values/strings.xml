@@ -22,12 +22,14 @@
     <string name="nav_preferences_title">Preferencje wizualizacji</string>
     <string name="nav_settings_title">Ustawienia konta</string>
     <string name="nav_history_title">Historia wizualizacji</string>
+    <string name="nav_simulation_title">Symulacja</string>
     <string name="nav_about_author_title">O autorze</string>
     <string name="nav_about_app_title">O aplikacji</string>
 
     <string name="action_settings">Ustawienia</string>
 
-
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

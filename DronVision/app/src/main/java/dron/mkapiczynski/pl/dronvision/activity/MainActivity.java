@@ -13,7 +13,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import dron.mkapiczynski.pl.dronvision.fragment.AboutAuthorFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.PreferencesFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.SettingsFragment;
+import dron.mkapiczynski.pl.dronvision.fragment.SimulationFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.VisionFragment;
 import dron.mkapiczynski.pl.dronvision.websocket.MyWebSocketConnection;
 
@@ -36,15 +39,18 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     private NavigationView navigationView;
     private MenuItem currentMenuItem;
+    private MenuItem visionMenuItem;
 
     // Fragmenty
     private FragmentManager fragmentManager;
     private VisionFragment visionFragment;
     private PreferencesFragment preferencesFragment;
+    private SimulationFragment simulationFragment;
     private SettingsFragment settingsFragment;
     private HistoryFragment historyFragment;
     private AboutAppFragment aboutAppFragment;
     private AboutAuthorFragment aboutAuthorFragment;
+
 
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
@@ -65,6 +71,10 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        visionMenuItem = navigationView.getMenu().findItem(R.id.nav_vision);
+        visionMenuItem.setChecked(true);
+        currentMenuItem=visionMenuItem;
+
         client.connectToWebSocketServer();
 
         initiateFragmentManager();
@@ -77,6 +87,7 @@ public class MainActivity extends AppCompatActivity
         historyFragment = new HistoryFragment();
         aboutAppFragment = new AboutAppFragment();
         aboutAuthorFragment = new AboutAuthorFragment();
+        simulationFragment = new SimulationFragment();
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -86,11 +97,13 @@ public class MainActivity extends AppCompatActivity
                 .add(R.id.fragment_container, historyFragment)
                 .add(R.id.fragment_container, aboutAppFragment)
                 .add(R.id.fragment_container, aboutAuthorFragment)
+                .add(R.id.fragment_container, simulationFragment)
                 .hide(preferencesFragment)
                 .hide(settingsFragment)
                 .hide(historyFragment)
                 .hide(aboutAppFragment)
                 .hide(aboutAuthorFragment)
+                .hide(simulationFragment)
                 .commit();
     }
 
@@ -111,13 +124,15 @@ public class MainActivity extends AppCompatActivity
                 logoutDialog.show();
             } else if (visionFragment.isHidden()) {
                 showFragmentAndHideTheOthers(visionFragment);
+                currentMenuItem.setChecked(false);
+                visionMenuItem.setChecked(true);
             }
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        currentMenuItem = item;
+        handleMenuItemsChecks(item);
 
         Fragment fragmentToBeShown = getFragmentToBeShownById(item.getItemId());
         showFragmentAndHideTheOthers(fragmentToBeShown);
@@ -125,6 +140,17 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void handleMenuItemsChecks(MenuItem item){
+        if(currentMenuItem.getItemId() == R.id.nav_about_author || currentMenuItem.getItemId()==R.id.nav_about_app || item.getItemId()==R.id.nav_about_app || item.getItemId()== R.id.nav_about_author) {
+            currentMenuItem.setChecked(false);
+            item.setChecked(true);
+            if((item.getItemId()==R.id.nav_about_app || item.getItemId()== R.id.nav_about_author)&& visionMenuItem.isChecked()){
+                visionMenuItem.setChecked(false);
+            }
+        }
+        currentMenuItem = item;
     }
 
     private Fragment getFragmentToBeShownById(int id){
@@ -137,6 +163,8 @@ public class MainActivity extends AppCompatActivity
             fragmentToBeShown=settingsFragment;
         } else if (id == R.id.nav_history) {
             fragmentToBeShown=historyFragment;
+        } else if(id == R.id.nav_simulation){
+            fragmentToBeShown=simulationFragment;
         } else if (id == R.id.nav_about_app) {
             fragmentToBeShown=aboutAppFragment;
         } else if (id == R.id.nav_about_author) {

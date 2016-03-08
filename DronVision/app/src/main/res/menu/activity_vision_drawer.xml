@@ -6,11 +6,16 @@
         <item
             android:id="@+id/nav_vision"
             android:icon="@drawable/ic_action_eye_open"
-            android:title="@string/nav_vision_title" />
+            android:title="@string/nav_vision_title"
+            android:actionViewClass="android.widget.ImageButton"/>
         <item
             android:id="@+id/nav_preferences"
             android:icon="@drawable/ic_action_settings"
             android:title="@string/nav_preferences_title" />
+        <item
+            android:id="@+id/nav_simulation"
+            android:icon="@drawable/ic_action_rocket"
+            android:title="@string/nav_simulation_title" />
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_history"
