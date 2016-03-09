@@ -29,6 +29,7 @@ import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
+import dron.mkapiczynski.pl.dronvision.message.EndSimulationMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
@@ -89,6 +90,8 @@ public class MyWebSocketConnection extends WebSocketConnection {
                             handleGeoMessage(geoMessage);
                             lastMessageDate =messageSentTime;
                         }
+                    } else if("SimulationEndedMessage".equals(messageType)){
+                        handleSimulationEndedMessage();
                     }
                 }
 
@@ -143,6 +146,19 @@ public class MyWebSocketConnection extends WebSocketConnection {
         }
     }
 
+    public boolean sendEndSimulationMessageToServer(){
+        EndSimulationMessage endSimulationMessage = new EndSimulationMessage();
+        endSimulationMessage.setDeviceId(1l);
+        if (isConnected()) {
+            Gson gson = new Gson();
+            sendTextMessage(gson.toJson(endSimulationMessage));
+            return true;
+        } else{
+            Log.i(TAG, "Coudn't send a message. No connection with server");
+            return false;
+        }
+    }
+
     private boolean messageWasSentMax3SeconsAgo(Date messageSentTime){
         Date compare = new Date(System.currentTimeMillis() - 3 * 1000);
         if(messageSentTime.after(compare)){
@@ -170,6 +186,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
         drone.setLastSearchedArea(lastSearchedArea);
 
         activity.updateDronesOnMap(drone);
+    }
+
+    private void handleSimulationEndedMessage(){
+        activity.endSimulation();
     }
 
     private void setRefreshConnectionButtonState(String state){

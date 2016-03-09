@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -31,6 +34,7 @@ public class VisionFragment extends Fragment {
     // User Interface
     private MapView mapView;
     private Button refreshConnectionButton;
+    List<Overlay> overlaysStoredUntillSimulationIsOver = new ArrayList<>();
 
     // Drony, które mają być wizualizowane
     private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
@@ -80,9 +84,29 @@ public class VisionFragment extends Fragment {
         }
     }
 
-    public void updateMapView(Drone drone){
-            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity());
-            mapAsyncTask.execute();
+    public void updateMapView(Drone drone) {
+        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity());
+        mapAsyncTask.execute();
+    }
+
+    public void storeMapOverlaysFotTheTimeOfSimulation(){
+        if(mapView!=null && mapView.getOverlays()!=null) {
+            if (overlaysStoredUntillSimulationIsOver!=null){
+                overlaysStoredUntillSimulationIsOver.clear();
+            }
+            overlaysStoredUntillSimulationIsOver = mapView.getOverlays();
+            mapView.getOverlays().clear();
+            mapView.invalidate();
+        }
+    }
+
+    public void restorePreviousOverlays(){
+        if(mapView!=null && mapView.getOverlays()!=null) {
+            mapView.getOverlays().clear();
+            mapView.getOverlays().addAll(overlaysStoredUntillSimulationIsOver);
+            mapView.invalidate();
+            mapView.refreshDrawableState();
+        }
     }
 
     // interfejs, który będzie implementować aktywność

@@ -54,6 +54,10 @@ public class SimulationFragment extends Fragment {
         }
     }
 
+    public void endSimulation(){
+        simulationTurnOnOffButton.setChecked(false);
+    }
+
     // interfejs, który będzie implementować aktywność
     public interface SimulationFragmentActivityListener {
         public void onTurnOnSimulationButtonClicked();

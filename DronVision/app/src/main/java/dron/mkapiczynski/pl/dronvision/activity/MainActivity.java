@@ -192,6 +192,12 @@ public class MainActivity extends AppCompatActivity
         visionFragment.updateMapView(drone);
     }
 
+    public void endSimulation(){
+        simulationFragment.endSimulation();
+        visionFragment.restorePreviousOverlays();
+        Toast.makeText(getApplicationContext(), "Symulacja zakończona!", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onRefreshConnectionButtonClicked() {
         if (!client.isConnected()) {
@@ -232,6 +238,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTurnOnSimulationButtonClicked() {
         if(client.isConnected()){
+            visionFragment.storeMapOverlaysFotTheTimeOfSimulation();
             Toast.makeText(this.getApplicationContext(), "Włączono symulację!", Toast.LENGTH_SHORT).show();
             client.sendSimulationMessageToServer();
             currentMenuItem.setChecked(false);
@@ -242,6 +249,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTurnOffSimulationButtonClicked() {
-        Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
+        if(client.isConnected()) {
+            client.sendEndSimulationMessageToServer();
+            Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
+            visionFragment.restorePreviousOverlays();
+        }
     }
 }
