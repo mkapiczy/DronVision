@@ -34,7 +34,7 @@ public class VisionFragment extends Fragment {
     // User Interface
     private MapView mapView;
     private Button refreshConnectionButton;
-    List<Overlay> overlaysStoredUntillSimulationIsOver = new ArrayList<>();
+    private List<Overlay> overlaysStoredUntillSimulationIsOver = new ArrayList<>();
 
     // Drony, które mają być wizualizowane
     private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
@@ -42,6 +42,9 @@ public class VisionFragment extends Fragment {
     public VisionFragment() {
         // Required empty public constructor
     }
+
+    private boolean simulationMode = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,11 +88,12 @@ public class VisionFragment extends Fragment {
     }
 
     public void updateMapView(Drone drone) {
-        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity());
-        mapAsyncTask.execute();
+            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity(), simulationMode);
+            mapAsyncTask.execute();
     }
 
     public void storeMapOverlaysFotTheTimeOfSimulation(){
+        simulationMode = true;
         if(mapView!=null && mapView.getOverlays()!=null) {
             if (overlaysStoredUntillSimulationIsOver!=null){
                 overlaysStoredUntillSimulationIsOver.clear();
@@ -101,6 +105,7 @@ public class VisionFragment extends Fragment {
     }
 
     public void restorePreviousOverlays(){
+        simulationMode = false;
         if(mapView!=null && mapView.getOverlays()!=null) {
             mapView.getOverlays().clear();
             mapView.getOverlays().addAll(overlaysStoredUntillSimulationIsOver);

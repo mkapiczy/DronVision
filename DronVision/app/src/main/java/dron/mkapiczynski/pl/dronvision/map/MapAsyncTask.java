@@ -1,15 +1,14 @@
 package dron.mkapiczynski.pl.dronvision.map;
 
 import android.app.Activity;
-import android.content.pm.PackageInstaller;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,19 +30,38 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     private Drone drone;
     private Set<Drone> drones;
+    private Set<Drone> simulationDrones;
     private List<DBDrone> trackedDrones;
     private List<DBDrone> visualizedDrones;
+    private DBDrone followedDrone;
+    private boolean simulationMode;
 
     private SessionManager sessionManager;
 
-    public MapAsyncTask(MapView mapView, Drone drone, Set<Drone> drones, Activity activity) {
+    public MapAsyncTask(MapView mapView, Drone drone, Set<Drone> drones, Activity activity, boolean simulationMode) {
         this.drone = drone;
-        this.drones = drones;
         this.activity = activity;
         this.mapView = mapView;
-        sessionManager = new SessionManager(activity.getApplicationContext());
-        trackedDrones = sessionManager.getTrackedDrones();
-        visualizedDrones = sessionManager.getVisualizedDrones();
+        this.drones = drones;
+        this.simulationMode = simulationMode;
+        if(simulationMode){
+            trackedDrones = new ArrayList<>();
+            visualizedDrones = new ArrayList<>();
+            followedDrone = new DBDrone();
+            this.simulationDrones = new HashSet<>();
+            if(drone!=null) {
+                DBDrone dbDrone = new DBDrone();
+                dbDrone.setDroneId(drone.getDroneId());
+                trackedDrones.add(dbDrone);
+                visualizedDrones.add(dbDrone);
+                followedDrone = dbDrone;
+            }
+        } else{
+            sessionManager = new SessionManager(activity.getApplicationContext());
+            trackedDrones = sessionManager.getTrackedDrones();
+            visualizedDrones = sessionManager.getVisualizedDrones();
+            followedDrone = sessionManager.getFollowedDrone();
+        }
     }
 
     @Override
@@ -54,10 +72,17 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        if(drone!=null) {
-            DroneUtils.updateDronesSet(drones, drone);
+        if(simulationMode){
+            if (drone != null) {
+                DroneUtils.updateDronesSet(simulationDrones, drone);
+            }
+            mapOverlays = MapUtils.updateMapOverlays(simulationDrones, trackedDrones, visualizedDrones, mapView, activity);
+        }else {
+            if (drone != null) {
+                DroneUtils.updateDronesSet(drones, drone);
+            }
+            mapOverlays = MapUtils.updateMapOverlays(drones, trackedDrones, visualizedDrones, mapView, activity);
         }
-        mapOverlays = MapUtils.updateMapOverlays(drones,trackedDrones,visualizedDrones, mapView, activity);
 
         return true;
     }
@@ -68,7 +93,6 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
         mapView.getOverlays().addAll(mapOverlays);
         mapView.postInvalidateOnAnimation();
         MapController mapController = (MapController) mapView.getController();
-        DBDrone followedDrone = sessionManager.getFollowedDrone();
         if (drone != null) {
             if (followedDrone != null && followedDrone.getDroneId()!=null && followedDrone.getDroneId().compareTo(drone.getDroneId()) == 0) {
                 mapController.animateTo(drone.getCurrentPosition());
