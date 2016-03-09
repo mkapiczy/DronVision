@@ -1,10 +1,10 @@
 package pl.mkapiczynski.dron.message;
 
-public class TrackerSimulationMessage implements Message{
+public class SimulationMessage implements Message{
 	private String messageType;
 	private Long deviceId;
 
-	public TrackerSimulationMessage() {
+	public SimulationMessage() {
 	}
 
 	public String getMessageType() {

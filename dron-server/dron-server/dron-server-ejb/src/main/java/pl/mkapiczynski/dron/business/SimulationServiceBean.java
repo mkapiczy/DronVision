@@ -3,6 +3,7 @@ package pl.mkapiczynski.dron.business;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -21,7 +22,9 @@ import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.Simulation;
 import pl.mkapiczynski.dron.domain.GeoPoint;
+import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
+import pl.mkapiczynski.dron.message.SimulationEndedMessage;
 
 @Local
 @Stateless(name = "SimulationService")
@@ -40,8 +43,11 @@ public class SimulationServiceBean implements SimulationService {
 
 	private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
+	private static Set<Long> clientsToSimulate = new HashSet<>();
+
 	@Override
-	public void handleTrackerSimulationMessage(Message incomingMessage, final Session session, final Set<Session> clientSessions) {
+	public void handleSimulationMessage(Message incomingMessage, final Session session,
+			final Set<Session> clientSessions) {
 		log.info("Simulation message came");
 		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate();
 		final int numberOfLocationsToSimulate = locationsToSimulate.size();
@@ -49,6 +55,7 @@ public class SimulationServiceBean implements SimulationService {
 		sessions.add(session);
 
 		final Long droneId = 4l;
+		clientsToSimulate.add(1l);
 		if (droneService.createNewDroneSession(droneId)) {
 			timer.scheduleAtFixedRate(new Runnable() {
 				int i = 0;
@@ -56,20 +63,44 @@ public class SimulationServiceBean implements SimulationService {
 				@Override
 				public void run() {
 					if (numberOfLocationsToSimulate > 0) {
-						if (i < numberOfLocationsToSimulate) {
-							log.info("Simulates location with id : " + i+1);
-							GeoPoint locationToSimulate = locationsToSimulate.get(i);
-							gpsTrackerDeviceService.simulate(locationToSimulate, sessions);
-							i++;
+						if (clientIsToBeSimulated(clientsToSimulate, 1l)) {
+							if (i < numberOfLocationsToSimulate) {
+								log.info("Simulates location with id : " + i);
+								GeoPoint locationToSimulate = locationsToSimulate.get(i);
+								gpsTrackerDeviceService.simulate(locationToSimulate, sessions);
+								i++;
+							} else {
+								clientsToSimulate.remove(1l);
+								timer.shutdown();
+								sendSimulationEndedMessage(session);
+							}
 						} else {
+							clientsToSimulate.remove(1l);
 							timer.shutdown();
+							sendSimulationEndedMessage(session);
 						}
 					}
 				}
 
 			}, 1, 1, TimeUnit.SECONDS);
-			
+
 		}
+	}
+
+	private Boolean clientIsToBeSimulated(Set<Long> clientsToSimulate, Long client) {
+		Iterator<Long> iterator = clientsToSimulate.iterator();
+		while(iterator.hasNext()){
+			if (iterator.next().compareTo(1l) == 0) {
+				return true;
+			}
+		}
+		return false;
+
+	}
+
+	@Override
+	public void handleEndSimulationMessage(Message incomingMessage, Session session) {
+		clientsToSimulate.remove(1l);
 	}
 
 	private List<GeoPoint> getLocationsToSimulate() {
@@ -90,6 +121,17 @@ public class SimulationServiceBean implements SimulationService {
 			list.add(location);
 		}
 		return list;
+	}
+
+	private void sendSimulationEndedMessage(Session clientSession) {
+		SimulationEndedMessage simulationEndedMessage = new SimulationEndedMessage();
+		try {
+			clientSession.getAsyncRemote().sendObject(simulationEndedMessage);
+			log.info("Message send to client : " + clientSession.getUserProperties().get("clientId"));
+		} catch (IllegalArgumentException e) {
+			log.error("Illegal argument exception while sending a message to client: "
+					+ clientSession.getUserProperties().get("clientId") + " : " + e);
+		}
 	}
 
 }

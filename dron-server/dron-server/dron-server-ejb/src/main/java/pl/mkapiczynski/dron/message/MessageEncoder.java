@@ -33,6 +33,9 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		if (message instanceof ClientGeoDataMessage) {
 			ClientGeoDataMessage clientGeoDataMessage = (ClientGeoDataMessage) message;
 			encodedMessage = buildJsonClientGeoDataMessage(clientGeoDataMessage);
+		} else if (message instanceof SimulationEndedMessage){
+			SimulationEndedMessage simulationEndedMessage = (SimulationEndedMessage) message;
+			encodedMessage = buildJsonSimulatioNEndedMessage(simulationEndedMessage);
 		}
 		return encodedMessage;
 	}
@@ -43,6 +46,12 @@ public class MessageEncoder implements Encoder.Text<Message> {
 		Gson gson = gsonBuilder.create();
 
 		return gson.toJson(clientGeoDataMessage);
+	}
+	
+	private String buildJsonSimulatioNEndedMessage(SimulationEndedMessage simulationEndedMessage) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.create();
+		return gson.toJson(simulationEndedMessage);
 	}
 
 }

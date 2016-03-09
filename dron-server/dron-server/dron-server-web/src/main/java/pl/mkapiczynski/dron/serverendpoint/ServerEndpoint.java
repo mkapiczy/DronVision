@@ -20,12 +20,13 @@ import pl.mkapiczynski.dron.business.DroneService;
 import pl.mkapiczynski.dron.business.GPSTrackerDeviceService;
 import pl.mkapiczynski.dron.business.SimulationService;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
+import pl.mkapiczynski.dron.message.EndSimulationMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.MessageDecoder;
 import pl.mkapiczynski.dron.message.MessageEncoder;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
-import pl.mkapiczynski.dron.message.TrackerSimulationMessage;
+import pl.mkapiczynski.dron.message.SimulationMessage;
 
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
@@ -62,8 +63,10 @@ public class ServerEndpoint {
 		} else if (incomingMessage instanceof TrackerGeoDataMessage) {
 			gpsTrackerDeviceService.handleTrackerGeoDataMessage(incomingMessage, session, gpsTrackerDeviceSessions,
 					clientDeviceSessions);
-		} else if (incomingMessage instanceof TrackerSimulationMessage) {
-			simulationService.handleTrackerSimulationMessage(incomingMessage,session, clientDeviceSessions);
+		} else if (incomingMessage instanceof SimulationMessage) {
+			simulationService.handleSimulationMessage(incomingMessage,session, clientDeviceSessions);
+		} else if(incomingMessage instanceof EndSimulationMessage){
+			simulationService.handleEndSimulationMessage(incomingMessage, session);
 		}
 	}
 

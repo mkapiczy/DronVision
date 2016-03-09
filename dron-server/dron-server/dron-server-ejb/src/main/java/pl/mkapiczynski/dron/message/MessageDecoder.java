@@ -39,6 +39,8 @@ public class MessageDecoder implements Decoder.Text<Message> {
 			return decodeClientLoginMessage(jsonMessage);
 		} else if(Constants.SIMULATION_MESSAGE_TYPE.equals(messageType)){
 			return decodeSimulationMessage(jsonMessage);
+		} else if(Constants.END_SIMULATION_MESSAGE_TYPE.equals(messageType)){
+			return decodeEndSimulationMessage(jsonMessage);
 		}
 		return null;
 	}
@@ -66,9 +68,15 @@ public class MessageDecoder implements Decoder.Text<Message> {
 
 	}
 	
-	private TrackerSimulationMessage decodeSimulationMessage(String jsonMessage) {
+	private SimulationMessage decodeSimulationMessage(String jsonMessage) {
 		Gson gson = new Gson();
-		return gson.fromJson(jsonMessage, TrackerSimulationMessage.class);
+		return gson.fromJson(jsonMessage, SimulationMessage.class);
+
+	}
+	
+	private EndSimulationMessage decodeEndSimulationMessage(String jsonMessage) {
+		Gson gson = new Gson();
+		return gson.fromJson(jsonMessage, EndSimulationMessage.class);
 
 	}
 	
