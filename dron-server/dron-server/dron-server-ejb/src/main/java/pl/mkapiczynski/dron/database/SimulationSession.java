@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -19,6 +20,10 @@ public class SimulationSession {
 	private Long clientId;
 
 	private Long lastSimulationId;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "searchedArea")
+	private SearchedArea searchedArea;
 
 	public Long getId() {
 		return id;
@@ -42,6 +47,14 @@ public class SimulationSession {
 
 	public void setLastSimulationId(Long lastSimulationId) {
 		this.lastSimulationId = lastSimulationId;
+	}
+
+	public SearchedArea getSearchedArea() {
+		return searchedArea;
+	}
+
+	public void setSearchedArea(SearchedArea searchedArea) {
+		this.searchedArea = searchedArea;
 	}
 
 }

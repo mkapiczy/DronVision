@@ -9,6 +9,6 @@ public interface DroneService {
 	public boolean droneHasActiveSession(Long droneId);
 	public boolean createNewDroneSession(Long droneId);
 	public void updateDroneSearchedArea(Drone drone);
-	public void closeDroneSession(Long droneId);
+	public void closeDroneActiveSession(Long droneId);
 	public DroneSession getActiveDroneSession(Drone drone);
 }

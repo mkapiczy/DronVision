@@ -1,5 +1,6 @@
 package pl.mkapiczynski.dron.business;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.ejb.Local;
@@ -15,6 +16,8 @@ import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.Location;
+import pl.mkapiczynski.dron.database.SearchedArea;
+import pl.mkapiczynski.dron.database.SimulationSession;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
@@ -33,6 +36,9 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 
 	@Inject
 	private DroneService droneService;
+
+	@Inject
+	private SimulationSessionService simulationSessionService;
 
 	@Override
 	public void handleTrackerLoginMessage(Message incomingMessage, Session session,
@@ -79,6 +85,7 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			if (drone != null) {
 				drone.setLastLocation(new Location(lastPosition));
 				droneService.updateDroneSearchedArea(drone);
+				simulationSessionService.updateSimulationData(drone, clientSessions);
 				clientDeviceService.sendGeoDataToAllSessionRegisteredClients(drone, clientSessions);
 			} else {
 				log.error("No drone with id: " + droneId);
@@ -87,6 +94,8 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			log.error("Last position and droneId can not be NULL!");
 		}
 	}
+
+
 
 	private boolean gpsTrackerDeviceHasRegisteredSession(Session session, Set<Session> gpsTrackerDeviceSessions) {
 		if (gpsTrackerDeviceSessions.contains(session)) {

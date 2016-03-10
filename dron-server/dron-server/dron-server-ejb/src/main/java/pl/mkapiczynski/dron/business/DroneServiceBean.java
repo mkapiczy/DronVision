@@ -31,6 +31,7 @@ public class DroneServiceBean implements DroneService {
 	@Inject
 	private SearchedAreaService searchedAreaService;
 
+	
 	@Override
 	public Drone getDroneById(Long droneId) {
 		Drone drone = entityManager.find(Drone.class, droneId);
@@ -87,13 +88,15 @@ public class DroneServiceBean implements DroneService {
 				lastSearchedArea = new SearchedArea();
 				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
 			}
+			
+			
 		} else{
 			log.info("No active session for drone with id: " + drone.getDroneId());
 		}
 	}
 
 	@Override
-	public void closeDroneSession(Long droneId) {
+	public void closeDroneActiveSession(Long droneId) {
 		Drone drone = getDroneById(droneId);
 		if (drone != null) {
 			DroneSession activeSession = getActiveDroneSession(drone);

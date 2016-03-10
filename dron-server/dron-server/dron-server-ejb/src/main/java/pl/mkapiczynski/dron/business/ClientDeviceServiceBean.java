@@ -18,6 +18,8 @@ import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.Location;
+import pl.mkapiczynski.dron.database.SearchedArea;
+import pl.mkapiczynski.dron.database.SimulationSession;
 import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
@@ -36,6 +38,9 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	@Inject
 	private DroneService droneService;
 
+	@Inject
+	private SimulationSessionService simulationSessionService;
+
 	@Override
 	public void handleClientLoginMessage(Message incomingMessage, Session newsSession, Set<Session> clientSessions) {
 		ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
@@ -53,6 +58,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		Iterator<Session> iterator = clientSessions.iterator();
 		while (iterator.hasNext()) {
 			Session currentClient = iterator.next();
+			Long clientId = (Long) currentClient.getUserProperties().get("clientId");
 			if (clientIsAssignedToDrone(currentClient, drone)) {
 				try {
 					currentClient.getAsyncRemote().sendObject(geoMessage);
@@ -116,7 +122,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 		return null;
 	}
-	
+
 	private boolean clientIsAssignedToDrone(Session clientSession, Drone drone) {
 		for (int i = 0; i < drone.getAssignedUsers().size(); i++) {
 			ClientUser userClient = drone.getAssignedUsers().get(i);
@@ -141,7 +147,5 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 		return geoPointSearchedArea;
 	};
-
-	
 
 }

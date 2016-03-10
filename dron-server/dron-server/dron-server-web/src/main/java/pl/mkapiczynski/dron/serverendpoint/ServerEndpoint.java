@@ -99,7 +99,7 @@ public class ServerEndpoint {
 
 	private void handleCloseGPSTrackerDeviceSession(Session closingSession) {
 		Long droneId = (long) closingSession.getUserProperties().get("deviceId");
-		droneService.closeDroneSession(droneId);
+		droneService.closeDroneActiveSession(droneId);
 		gpsTrackerDeviceSessions.remove(closingSession);
 		log.info("Tracker device : " + closingSession.getUserProperties().get("deviceId") + " disconnected");
 	}

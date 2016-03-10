@@ -45,6 +45,9 @@ public class SimulationServiceBean implements SimulationService {
 
 	@Inject
 	private DroneService droneService;
+	
+	@Inject
+	private SimulationSessionService simulationSessionService;
 
 	private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
@@ -85,14 +88,17 @@ public class SimulationServiceBean implements SimulationService {
 			final Set<Session> clientSessions) {
 		log.info("Start Simulation message came");
 		final Long clientId = startSimulationMessage.getDeviceId();
-		SimulationSession simulationSession = getSimulationSessionForClient(clientId);
-		Long lastSimulationId = 0l;
-		if (simulationSession == null) {
-			createNewSimulationSession(clientId);
-		} else {
-			lastSimulationId = simulationSession.getLastSimulationId();
+		simulationSessionService.deleteAllSimulationSessionsForClient(clientId);
+		SimulationSession simulationSession = simulationSessionService.createNewSimulationSession(clientId);
+		if (simulationSession != null) {
+			Long lastSimulationId = 0l;
+			simulationSession.setLastSimulationId(lastSimulationId);
+			
+			runSimulation(clientId, lastSimulationId, session);
 		}
+	}
 
+	private void runSimulation(final Long clientId, final Long lastSimulationId, final Session session) {
 		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate(lastSimulationId);
 		final int numberOfLocationsToSimulate = locationsToSimulate.size();
 
@@ -102,38 +108,64 @@ public class SimulationServiceBean implements SimulationService {
 		final Long droneId = Constants.SIMULATION_DRONE_ID;
 		clientsToSimulate.add(clientId);
 
-		if (!droneService.droneHasActiveSession(droneId)) {
-			droneService.createNewDroneSession(droneId);
-		}
-		timer.scheduleAtFixedRate(new Runnable() {
-			int i = 0;
-
-			@Override
-			public void run() {
-				if (numberOfLocationsToSimulate > 0) {
-					if (clientIsToBeSimulated(clientsToSimulate, clientId)) {
-						if (i < numberOfLocationsToSimulate) {
-							log.info("Simulates location with id : " + i);
-							GeoPoint locationToSimulate = locationsToSimulate.get(i);
-							gpsTrackerDeviceService.simulate(locationToSimulate, clientSessionsForSimulation);
-							i++;
+		if (droneService.createNewDroneSession(droneId)) {
+			timer.scheduleAtFixedRate(new Runnable() {
+				int i = 0;
+				Long lastSimulationIdIncrement = lastSimulationId;
+				@Override
+				public void run() {
+					if (numberOfLocationsToSimulate > 0) {
+						if (clientIsToBeSimulated(clientsToSimulate, clientId)) {
+							if (i < numberOfLocationsToSimulate) {
+								log.info("Simulates location with id : " + lastSimulationIdIncrement);
+								GeoPoint locationToSimulate = locationsToSimulate.get(i);
+								gpsTrackerDeviceService.simulate(locationToSimulate, clientSessionsForSimulation);
+								simulationSessionService.setLastSimulationId(lastSimulationIdIncrement, clientId);
+								i++;
+								lastSimulationIdIncrement++;
+							} else {
+								clientsToSimulate.remove(clientId);
+								timer.shutdown();
+								sendSimulationEndedMessage(session);
+							}
 						} else {
-							clientsToSimulate.remove(1l);
+							clientsToSimulate.remove(clientId);
 							timer.shutdown();
-							sendSimulationEndedMessage(session);
 						}
-					} else {
-						clientsToSimulate.remove(1l);
+					}
+					if (clientsToSimulate.isEmpty()) {
 						timer.shutdown();
-						sendSimulationEndedMessage(session);
 					}
 				}
-				if (clientsToSimulate.isEmpty()) {
-					timer.shutdown();
-				}
-			}
 
-		}, 1, 1, TimeUnit.SECONDS);
+			}, 1, 1, TimeUnit.SECONDS);
+
+		}
+	}
+	
+
+	private void handleEndSimulationMessage(SimulationMessage endSimulationMessage, Session session) {
+		Long clientId = endSimulationMessage.getDeviceId();
+		clientsToSimulate.remove(clientId);
+		simulationSessionService.deleteSimulationSession(clientId);
+		droneService.closeDroneActiveSession(Constants.SIMULATION_DRONE_ID);
+		sendSimulationEndedMessage(session);
+	}
+
+	private void handleStopSimulationMessage(SimulationMessage stopSimulationMessage, Session session) {
+		Long clientId = stopSimulationMessage.getDeviceId();
+		clientsToSimulate.remove(clientId);
+	}
+
+	private void handleRerunSimulationMessage(SimulationMessage rerunSimulationMessage, Session session) {
+		Long clientId = rerunSimulationMessage.getDeviceId();
+		SimulationSession simulationSession = simulationSessionService.getSimulationSessionForClient(clientId);
+		if (simulationSession != null) {
+			Long lastSimulationId = simulationSession.getLastSimulationId();
+			if(lastSimulationId!=null){
+				runSimulation(clientId, lastSimulationId, session);
+			}
+		}
 	}
 
 	private Boolean clientIsToBeSimulated(Set<Long> clientsToSimulate, Long client) {
@@ -146,49 +178,7 @@ public class SimulationServiceBean implements SimulationService {
 		return false;
 
 	}
-
-	private void handleEndSimulationMessage(SimulationMessage endSimulationMessage, Session session) {
-		Long clientId = endSimulationMessage.getDeviceId();
-		clientsToSimulate.remove(clientId);
-		deleteSimulationSession(clientId);
-		droneService.closeDroneSession(Constants.SIMULATION_DRONE_ID);
-	}
-
-	private void handleStopSimulationMessage(SimulationMessage stopSimulationMessage, Session session) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void handleRerunSimulationMessage(SimulationMessage rerunSimulationMessage, Session session) {
-
-	}
-
-	private void createNewSimulationSession(Long clientId) {
-		if (clientId != null) {
-			SimulationSession simulationSession = new SimulationSession();
-			simulationSession.setClientId(clientId);
-			entityManager.persist(simulationSession);
-		}
-	}
-
-	private void deleteSimulationSession(Long clientId) {
-		SimulationSession simulationSession = getSimulationSessionForClient(clientId);
-		if (simulationSession != null) {
-			entityManager.remove(simulationSession);
-		}
-	}
-
-	private SimulationSession getSimulationSessionForClient(Long clientId) {
-		SimulationSession simulationSession = null;
-		String queryStr = "SELECT s from SimulationSession s WHERE s.clientId = :clientId";
-		TypedQuery<SimulationSession> query = entityManager.createQuery(queryStr, SimulationSession.class);
-		query.setParameter("clientId", clientId);
-		List<SimulationSession> simulationSessionsList = query.getResultList();
-		if (simulationSessionsList != null && !simulationSessionsList.isEmpty()) {
-			simulationSession = simulationSessionsList.get(0);
-		}
-		return simulationSession;
-	}
+	
 
 	private List<GeoPoint> getLocationsToSimulate(Long lastSimulatedLocation) {
 		List<GeoPoint> list = new ArrayList<>();
