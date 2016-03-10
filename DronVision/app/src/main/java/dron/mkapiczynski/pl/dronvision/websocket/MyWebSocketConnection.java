@@ -159,14 +159,6 @@ public class MyWebSocketConnection extends WebSocketConnection {
         }
     }
 
-    private boolean messageWasSentMax3SeconsAgo(Date messageSentTime){
-        Date compare = new Date(System.currentTimeMillis() - 3 * 1000);
-        if(messageSentTime.after(compare)){
-            return true;
-        }
-        return false;
-    }
-
     private void handleGeoMessage(GeoDataMessage geoMessage){
         MyGeoPoint point = geoMessage.getLastPosition();
         GeoPoint currentDronePosition = new GeoPoint(point.getLatitude(), point.getLongitude(), point.getAltitude());
@@ -189,7 +181,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
     }
 
     private void handleSimulationEndedMessage(){
-        activity.endSimulation();
+        activity.stopSimulation(true);
     }
 
     private void setRefreshConnectionButtonState(String state){

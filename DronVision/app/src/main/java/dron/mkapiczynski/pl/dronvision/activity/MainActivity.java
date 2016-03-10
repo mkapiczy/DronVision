@@ -13,9 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.List;
@@ -192,18 +190,63 @@ public class MainActivity extends AppCompatActivity
         visionFragment.updateMapView(drone);
     }
 
-    public void endSimulation(){
-        simulationFragment.endSimulation();
-        visionFragment.restorePreviousOverlays();
-        Toast.makeText(getApplicationContext(), "Symulacja zakończona!", Toast.LENGTH_SHORT).show();
+
+    @Override
+    public void onStopSimulationButtonCliecked() {
+        stopSimulation(false);
     }
 
     @Override
-    public void onRefreshConnectionButtonClicked() {
-        if (!client.isConnected()) {
-            client.connectToWebSocketServer();
+    public void onRerunSimulationButtonClicked() {
+        rerunSimulation();
+    }
+
+    @Override
+    public void onRestartSimulationButtonClicked() {
+        if(client.isConnected()) {
+            visionFragment.turnOnSimulationMode();
+            client.sendSimulationMessageToServer();
         }
     }
+
+    @Override
+    public void onTurnOffSimulationModeButtonClicked() {
+        turnOffSimulationMode();
+    }
+
+    @Override
+    public void onTurnOnSimulationButtonClickedInSimulationFragment() {
+        if(client.isConnected()){
+            visionFragment.turnOnSimulationMode();
+            client.sendSimulationMessageToServer();
+            currentMenuItem.setChecked(false);
+            visionMenuItem.setChecked(true);
+            showFragmentAndHideTheOthers(visionFragment);
+        }
+    }
+
+    public void stopSimulation(boolean ended){
+        visionFragment.stopSimulation();
+        if(ended){
+            Toast.makeText(getApplicationContext(), "Symulacja zakończona!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void rerunSimulation(){
+        visionFragment.rerunSimulation();
+        Toast.makeText(getApplicationContext(), "Symulacja wznowiona!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void turnOffSimulationMode(){
+        if(client.isConnected()) {
+            client.sendEndSimulationMessageToServer();
+            visionFragment.turnOffSimulationMode();
+            simulationFragment.turnOffSimulationInSimulationFragment();
+        }
+    }
+
 
     private AlertDialog createLogoutDialog(Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -235,24 +278,4 @@ public class MainActivity extends AppCompatActivity
         return logoutDialog;
     }
 
-    @Override
-    public void onTurnOnSimulationButtonClicked() {
-        if(client.isConnected()){
-            visionFragment.storeMapOverlaysFotTheTimeOfSimulation();
-            Toast.makeText(this.getApplicationContext(), "Włączono symulację!", Toast.LENGTH_SHORT).show();
-            client.sendSimulationMessageToServer();
-            currentMenuItem.setChecked(false);
-            visionMenuItem.setChecked(true);
-            showFragmentAndHideTheOthers(visionFragment);
-        }
-    }
-
-    @Override
-    public void onTurnOffSimulationButtonClicked() {
-        if(client.isConnected()) {
-            client.sendEndSimulationMessageToServer();
-            Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
-            visionFragment.restorePreviousOverlays();
-        }
-    }
 }

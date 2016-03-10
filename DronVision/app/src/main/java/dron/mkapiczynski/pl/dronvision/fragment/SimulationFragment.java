@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -33,11 +31,9 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (simulationTurnOnOffButton.isChecked()) {
-                    simulationFragmentActivityListener.onTurnOnSimulationButtonClicked();
-                } else {
-                    simulationFragmentActivityListener.onTurnOffSimulationButtonClicked();
+                    simulationTurnOnOffButton.setEnabled(false);
+                    simulationFragmentActivityListener.onTurnOnSimulationButtonClickedInSimulationFragment();
                 }
-
             }
         });
         return view;
@@ -54,14 +50,14 @@ public class SimulationFragment extends Fragment {
         }
     }
 
-    public void endSimulation(){
+    public void turnOffSimulationInSimulationFragment(){
+        simulationTurnOnOffButton.setEnabled(true);
         simulationTurnOnOffButton.setChecked(false);
     }
 
     // interfejs, który będzie implementować aktywność
     public interface SimulationFragmentActivityListener {
-        public void onTurnOnSimulationButtonClicked();
-        public void onTurnOffSimulationButtonClicked();
+        public void onTurnOnSimulationButtonClickedInSimulationFragment();
     }
 
 }

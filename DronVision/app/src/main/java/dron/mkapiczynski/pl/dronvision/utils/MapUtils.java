@@ -19,6 +19,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -26,6 +27,7 @@ import dron.mkapiczynski.pl.dronvision.domain.Drone;
 public class MapUtils {
 
     public static void setMapViewDefaultSettings(MapView mapView, Activity activity) {
+        SessionManager sessionManager = new SessionManager(activity.getApplicationContext());
         mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -33,7 +35,12 @@ public class MapUtils {
         mapView.setMaxZoomLevel(20);
         MapController mapController = (MapController) mapView.getController();
         mapController.setZoom(16);
-        mapController.setCenter(new GeoPoint(52.24695, 21.105083));
+        GeoPoint lastMapCenter = sessionManager.getLastMapCenter();
+        if(lastMapCenter!=null){
+            mapController.setCenter(lastMapCenter);
+        }else {
+            mapController.setCenter(new GeoPoint(52.24695, 21.105083));
+        }
         addScaleBarOverlayToMapView(mapView.getOverlays(), activity);
         /*CustomMapListener customMapListener = new CustomMapListener(VisualizeActivity.this, getApplicationContext(), 16);
         mapView.setMapListener(customMapListener);*/

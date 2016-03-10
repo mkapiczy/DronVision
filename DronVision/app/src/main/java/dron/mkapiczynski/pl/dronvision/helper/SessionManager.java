@@ -8,6 +8,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class SessionManager {
     private static final String PREF_NAME = "AndroidHiveLogin";
 
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
-
+    private static final String KEY_LAST_MAP_CENTER = "lastMapCenter";
     private static final String KEY_FOLLOWED_DRONE = "followedDrone";
     private static final String KEY_ASSIGNED_DRONES = "assignedDrones";
     private static final String KEY_TRACKED_DRONES = "trackedDrones";
@@ -43,12 +45,28 @@ public class SessionManager {
         editor = pref.edit();
     }
 
-    public void setFollowedDrone(DBDrone followedDrone){
-        if(followedDrone!=null) {
+    public void setLastMapCenter(GeoPoint lastMapCenter) {
+        if (lastMapCenter != null) {
+            Gson gson = new Gson();
+            String s = gson.toJson(lastMapCenter);
+            editor.putString(KEY_LAST_MAP_CENTER, s);
+            editor.commit();
+        }
+    }
+
+    public GeoPoint getLastMapCenter() {
+        Gson gson = new Gson();
+        String lastMapCenterJsonString = pref.getString(KEY_LAST_MAP_CENTER, "");
+        GeoPoint lastMapCenter = gson.fromJson(lastMapCenterJsonString, GeoPoint.class);
+        return lastMapCenter;
+    }
+
+    public void setFollowedDrone(DBDrone followedDrone) {
+        if (followedDrone != null) {
             Gson gson = new Gson();
             String s = gson.toJson(followedDrone);
             editor.putString(KEY_FOLLOWED_DRONE, s);
-        } else{
+        } else {
             editor.putString(KEY_FOLLOWED_DRONE, "");
         }
 
@@ -56,16 +74,17 @@ public class SessionManager {
 
     }
 
-    public DBDrone getFollowedDrone(){
+    public DBDrone getFollowedDrone() {
         Gson gson = new Gson();
         String followedDroneJsonString = pref.getString(KEY_FOLLOWED_DRONE, "");
         DBDrone stalkedDrone = gson.fromJson(followedDroneJsonString, DBDrone.class);
         return stalkedDrone;
     }
 
-    public void setAssignedDrones(List<DBDrone> assignedDrones){
+    public void setAssignedDrones(List<DBDrone> assignedDrones) {
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listType = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String s = gson.toJson(assignedDrones, listType);
         editor.putString(KEY_ASSIGNED_DRONES, s);
 
@@ -73,17 +92,19 @@ public class SessionManager {
 
     }
 
-    public List<DBDrone> getAssignedDrones(){
+    public List<DBDrone> getAssignedDrones() {
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listType = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String assignedDronesJsonString = pref.getString(KEY_ASSIGNED_DRONES, "");
         List<DBDrone> assignedDrones = gson.fromJson(assignedDronesJsonString, listType);
         return assignedDrones;
     }
 
-    public void setTrackedDrones(List<DBDrone> trackedDrones){
+    public void setTrackedDrones(List<DBDrone> trackedDrones) {
         Gson gson = new Gson();
-        Type listOfTestObject = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listOfTestObject = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String s = gson.toJson(trackedDrones, listOfTestObject);
         editor.putString(KEY_TRACKED_DRONES, s);
 
@@ -91,17 +112,19 @@ public class SessionManager {
 
     }
 
-    public List<DBDrone> getTrackedDrones(){
+    public List<DBDrone> getTrackedDrones() {
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listType = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String trackedDronesJsonString = pref.getString(KEY_TRACKED_DRONES, "");
         List<DBDrone> trackedDrones = gson.fromJson(trackedDronesJsonString, listType);
         return trackedDrones;
     }
 
-    public void setVisuazliedDrones(List<DBDrone> visuazliedDrones){
+    public void setVisuazliedDrones(List<DBDrone> visuazliedDrones) {
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listType = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String s = gson.toJson(visuazliedDrones, listType);
         editor.putString(KEY_VIZUALIZED_DRONES, s);
 
@@ -109,9 +132,10 @@ public class SessionManager {
 
     }
 
-    public List<DBDrone> getVisualizedDrones(){
+    public List<DBDrone> getVisualizedDrones() {
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<DBDrone>>(){}.getType();
+        Type listType = new TypeToken<List<DBDrone>>() {
+        }.getType();
         String visualizedDronesJsonString = pref.getString(KEY_VIZUALIZED_DRONES, "");
         List<DBDrone> visualizedDrones = gson.fromJson(visualizedDronesJsonString, listType);
         return visualizedDrones;
@@ -126,24 +150,24 @@ public class SessionManager {
         Log.d(TAG, "User login session modified!");
     }
 
-    public boolean isLoggedIn(){
+    public boolean isLoggedIn() {
         return pref.getBoolean(KEY_IS_LOGGEDIN, false);
     }
 
-    public void setLoggedUserLogin(String login){
+    public void setLoggedUserLogin(String login) {
         editor.putString("login", login);
 
         editor.commit();
         Log.d(TAG, "User with login: " + login + " session data saved");
     }
 
-    public String getLoggedUserLogin(){
-        String login = pref.getString("login","");
+    public String getLoggedUserLogin() {
+        String login = pref.getString("login", "");
 
         return login;
     }
 
-    public void clear(){
+    public void clear() {
         editor.clear();
         editor.commit();
     }

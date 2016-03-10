@@ -34,7 +34,7 @@
         android:id="@+id/simulationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOn="Zatrzymaj symulację!"
+        android:textOn="Symulacja w toku..."
         android:textOff="Rozpocznij symulację!"
         android:layout_gravity="center_horizontal"
         android:layout_centerVertical="true"

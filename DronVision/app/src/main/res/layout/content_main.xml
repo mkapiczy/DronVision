@@ -17,11 +17,44 @@
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text=" Status połączenia "
         android:id="@+id/websocketConnectionStateButton"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="10dp"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Zatrzymaj symulację"
+        android:id="@+id/stopSimulationButton"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textSize="10dp"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Wyjdź z trybu symulacji"
+        android:id="@+id/turnOffSimulationModeButton"
+        android:textSize="10dp"
+        android:layout_above="@+id/websocketConnectionStateButton"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Zrestartuj symulację!"
+        android:id="@+id/restartSimulationButton"
+        android:textSize="10dp"
+        android:layout_below="@+id/stopSimulationButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"/>
 
 </RelativeLayout>

@@ -20,6 +20,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 
@@ -34,16 +35,22 @@ public class VisionFragment extends Fragment {
     // User Interface
     private MapView mapView;
     private Button refreshConnectionButton;
+    private Button simulationButton;
+    private Button turnOffSimulationModeButton;
+    private Button restartSimulationButton;
     private List<Overlay> overlaysStoredUntillSimulationIsOver = new ArrayList<>();
 
     // Drony, które mają być wizualizowane
     private Set<Drone> drones = Collections.synchronizedSet(new HashSet<Drone>());
+    private Set<Drone> simulationDrones = Collections.synchronizedSet(new HashSet<Drone>());
+    private Drone lastRealDrone;
 
     public VisionFragment() {
         // Required empty public constructor
     }
 
     private boolean simulationMode = false;
+    private boolean simulationIsRunning = false;
 
 
     @Override
@@ -53,19 +60,50 @@ public class VisionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_vision, container, false);
 
         refreshConnectionButton = (Button) view.findViewById(R.id.websocketConnectionStateButton);
+        simulationButton = (Button) view.findViewById(R.id.stopSimulationButton);
+        turnOffSimulationModeButton = (Button) view.findViewById(R.id.turnOffSimulationModeButton);
+        restartSimulationButton = (Button) view.findViewById(R.id.restartSimulationButton);
+         simulationButton.setVisibility(Button.GONE);
+        turnOffSimulationModeButton.setVisibility(Button.GONE);
+        restartSimulationButton.setVisibility(Button.GONE);
 
         mapView = (MapView) view.findViewById(R.id.MapView);
 
         MapUtils.setMapViewDefaultSettings(mapView, getActivity());
 
-        refreshConnectionButton.setOnClickListener(new View.OnClickListener() {
+
+        setOnClickListnerForSimulationButton();
+
+        restartSimulationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onRefreshConnectionButtonClicked();
+                listener.onRestartSimulationButtonClicked();
+            }
+        });
+
+        turnOffSimulationModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onTurnOffSimulationModeButtonClicked();
             }
         });
 
         return view;
+    }
+
+    private void setOnClickListnerForSimulationButton(){
+        simulationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String buttonText = simulationButton.getText().toString();
+                if("Zatrzymaj symulację!".equals(buttonText)){
+                    listener.onStopSimulationButtonCliecked();
+                } else if("Wznów symulację!".equals(buttonText)){
+                    listener.onRerunSimulationButtonClicked();
+                }
+
+            }
+        });
     }
 
     @Override
@@ -88,35 +126,76 @@ public class VisionFragment extends Fragment {
     }
 
     public void updateMapView(Drone drone) {
-            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity(), simulationMode);
-            mapAsyncTask.execute();
-    }
-
-    public void storeMapOverlaysFotTheTimeOfSimulation(){
-        simulationMode = true;
-        if(mapView!=null && mapView.getOverlays()!=null) {
-            if (overlaysStoredUntillSimulationIsOver!=null){
-                overlaysStoredUntillSimulationIsOver.clear();
+        if(simulationMode){
+            if(simulationIsRunning) {
+                if (drone != null) {
+                    if (drone.getDroneId().compareTo(Parameters.SIMULATION_DRONE_ID) == 0) {
+                        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, simulationDrones, getActivity(), simulationIsRunning);
+                        mapAsyncTask.execute();
+                    }
+                }
             }
-            overlaysStoredUntillSimulationIsOver = mapView.getOverlays();
-            mapView.getOverlays().clear();
-            mapView.invalidate();
+        } else {
+            if(drone!=null && drone.getDroneId().compareTo(Parameters.SIMULATION_DRONE_ID)!=0) {
+                lastRealDrone = drone;
+                MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, drone, drones, getActivity(), simulationIsRunning);
+                mapAsyncTask.execute();
+            }
         }
     }
 
-    public void restorePreviousOverlays(){
-        simulationMode = false;
-        if(mapView!=null && mapView.getOverlays()!=null) {
-            mapView.getOverlays().clear();
-            mapView.getOverlays().addAll(overlaysStoredUntillSimulationIsOver);
-            mapView.invalidate();
-            mapView.refreshDrawableState();
-        }
+    public void turnOnSimulationMode(){
+        simulationButton.setText("Zatrzymaj symulację!");
+        simulationButton.setVisibility(Button.VISIBLE);
+        turnOffSimulationModeButton.setVisibility(Button.GONE);
+        restartSimulationButton.setVisibility(Button.GONE);
+        simulationMode = true;
+        simulationIsRunning=true;
+        simulationDrones.clear();
+        mapView.getController().setCenter(Parameters.SIMULATION_START_LOCATION);
+        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
+        mapAsyncTask.execute();
     }
+
+    public void turnOffSimulationMode(){
+        simulationMode=false;
+        simulationIsRunning=false;
+        simulationDrones.clear();
+        if(lastRealDrone!=null){
+            updateMapView(lastRealDrone);
+        } else{
+            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
+            mapAsyncTask.execute();
+        }
+        simulationButton.setVisibility(Button.GONE);
+        turnOffSimulationModeButton.setVisibility(Button.GONE);
+    }
+
+
+    public void stopSimulation(){
+        simulationIsRunning=false;
+        if(simulationMode) {
+            turnOffSimulationModeButton.setVisibility(Button.VISIBLE);
+            restartSimulationButton.setVisibility(Button.VISIBLE);
+        }
+        simulationButton.setText("Wznów symulację!");
+    }
+
+    public void rerunSimulation(){
+        simulationIsRunning=true;
+        turnOffSimulationModeButton.setVisibility(Button.GONE);
+        restartSimulationButton.setVisibility(Button.GONE);
+        simulationButton.setText("Zatrzymaj symulację!");
+    }
+
+
 
     // interfejs, który będzie implementować aktywność
     public interface VisionFragmentActivityListener {
-        public void onRefreshConnectionButtonClicked();
+        public void onStopSimulationButtonCliecked();
+        public void onRerunSimulationButtonClicked();
+        public void onRestartSimulationButtonClicked();
+        public void onTurnOffSimulationModeButtonClicked();
     }
 
 }
