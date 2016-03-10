@@ -7,6 +7,7 @@ public class Constants {
 	public static final String CLIENT_LOGIN_MESSAGE_TYPE = "ClientLoginMessage";
 	public static final String SIMULATION_MESSAGE_TYPE = "SimulationMessage";
 	public static final String END_SIMULATION_MESSAGE_TYPE = "EndSimulationMessage";
+	public static final Long SIMULATION_DRONE_ID = 4l;
 
 	/**
 	 * SearchedArea Constants

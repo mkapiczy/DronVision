@@ -6,6 +6,7 @@ import pl.mkapiczynski.dron.database.Location;
 
 public interface DroneService {
 	public Drone getDroneById(Long droneId);
+	public boolean droneHasActiveSession(Long droneId);
 	public boolean createNewDroneSession(Long droneId);
 	public void updateDroneSearchedArea(Drone drone);
 	public void closeDroneSession(Long droneId);

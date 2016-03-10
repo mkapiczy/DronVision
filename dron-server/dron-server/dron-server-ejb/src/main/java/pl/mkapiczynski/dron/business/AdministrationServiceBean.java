@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
+import javax.persistence.TypedQuery;
 
 import org.jboss.logging.Logger;
 
@@ -26,6 +27,20 @@ public class AdministrationServiceBean implements AdministrationService {
 
 	@PersistenceContext(name = "dron")
 	EntityManager entityManager;
+
+	@Override
+	public ClientUser getClientForId(Long clientId) {
+		ClientUser client = null;
+		String queryStr = "SELECT c FROM ClientUser c where c.userId = :clientId";
+		TypedQuery<ClientUser> query = entityManager.createQuery(queryStr, ClientUser.class);
+		query.setParameter("clientId", clientId);
+
+		List<ClientUser> clientsList = query.getResultList();
+		if (clientsList != null && !clientsList.isEmpty()) {
+			client = clientsList.get(0);
+		}
+		return client;
+	}
 
 	@Override
 	public boolean checkLoginData(String login, String password) {

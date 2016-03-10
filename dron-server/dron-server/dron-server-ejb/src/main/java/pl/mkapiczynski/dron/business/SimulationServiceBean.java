@@ -21,10 +21,12 @@ import javax.websocket.Session;
 import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.Simulation;
+import pl.mkapiczynski.dron.database.SimulationSession;
+import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.GeoPoint;
-import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.SimulationEndedMessage;
+import pl.mkapiczynski.dron.message.SimulationMessage;
 
 @Local
 @Stateless(name = "SimulationService")
@@ -34,6 +36,9 @@ public class SimulationServiceBean implements SimulationService {
 
 	@PersistenceContext(name = "dron")
 	private EntityManager entityManager;
+
+	@Inject
+	private AdministrationService administrationService;
 
 	@Inject
 	private GPSTrackerDeviceService gpsTrackerDeviceService;
@@ -46,50 +51,94 @@ public class SimulationServiceBean implements SimulationService {
 	private static Set<Long> clientsToSimulate = new HashSet<>();
 
 	@Override
-	public void handleSimulationMessage(Message incomingMessage, final Session session,
+	public void handleSimulationMessage(Message incomingMessage, Session session, Set<Session> clientSessions) {
+		SimulationMessage simulationMessage = (SimulationMessage) incomingMessage;
+		String task = simulationMessage.getTask();
+		if (task != null) {
+			switch (task) {
+			case "startSimulation":
+				handleStartSimulationMessage(simulationMessage, session, clientSessions);
+				break;
+
+			case "endSimulation":
+				handleEndSimulationMessage(simulationMessage, session);
+				break;
+
+			case "stopSimulation":
+				handleStopSimulationMessage(simulationMessage, session);
+				break;
+
+			case "rerunSimulation":
+				handleRerunSimulationMessage(simulationMessage, session);
+				break;
+
+			default:
+				log.info("Simulation message with unknown taks");
+			}
+		} else {
+			log.info("Property task in simulation message can not be NULL!");
+		}
+
+	}
+
+	private void handleStartSimulationMessage(SimulationMessage startSimulationMessage, final Session session,
 			final Set<Session> clientSessions) {
-		log.info("Simulation message came");
-		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate();
+		log.info("Start Simulation message came");
+		final Long clientId = startSimulationMessage.getDeviceId();
+		SimulationSession simulationSession = getSimulationSessionForClient(clientId);
+		Long lastSimulationId = 0l;
+		if (simulationSession == null) {
+			createNewSimulationSession(clientId);
+		} else {
+			lastSimulationId = simulationSession.getLastSimulationId();
+		}
+
+		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate(lastSimulationId);
 		final int numberOfLocationsToSimulate = locationsToSimulate.size();
-		final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
-		sessions.add(session);
 
-		final Long droneId = 4l;
-		clientsToSimulate.add(1l);
-		if (droneService.createNewDroneSession(droneId)) {
-			timer.scheduleAtFixedRate(new Runnable() {
-				int i = 0;
+		final Set<Session> clientSessionsForSimulation = Collections.synchronizedSet(new HashSet<Session>());
+		clientSessionsForSimulation.add(session);
 
-				@Override
-				public void run() {
-					if (numberOfLocationsToSimulate > 0) {
-						if (clientIsToBeSimulated(clientsToSimulate, 1l)) {
-							if (i < numberOfLocationsToSimulate) {
-								log.info("Simulates location with id : " + i);
-								GeoPoint locationToSimulate = locationsToSimulate.get(i);
-								gpsTrackerDeviceService.simulate(locationToSimulate, sessions);
-								i++;
-							} else {
-								clientsToSimulate.remove(1l);
-								timer.shutdown();
-								sendSimulationEndedMessage(session);
-							}
+		final Long droneId = Constants.SIMULATION_DRONE_ID;
+		clientsToSimulate.add(clientId);
+
+		if (!droneService.droneHasActiveSession(droneId)) {
+			droneService.createNewDroneSession(droneId);
+		}
+		timer.scheduleAtFixedRate(new Runnable() {
+			int i = 0;
+
+			@Override
+			public void run() {
+				if (numberOfLocationsToSimulate > 0) {
+					if (clientIsToBeSimulated(clientsToSimulate, clientId)) {
+						if (i < numberOfLocationsToSimulate) {
+							log.info("Simulates location with id : " + i);
+							GeoPoint locationToSimulate = locationsToSimulate.get(i);
+							gpsTrackerDeviceService.simulate(locationToSimulate, clientSessionsForSimulation);
+							i++;
 						} else {
 							clientsToSimulate.remove(1l);
 							timer.shutdown();
 							sendSimulationEndedMessage(session);
 						}
+					} else {
+						clientsToSimulate.remove(1l);
+						timer.shutdown();
+						sendSimulationEndedMessage(session);
 					}
 				}
+				if (clientsToSimulate.isEmpty()) {
+					timer.shutdown();
+				}
+			}
 
-			}, 1, 1, TimeUnit.SECONDS);
-
-		}
+		}, 1, 1, TimeUnit.SECONDS);
 	}
 
 	private Boolean clientIsToBeSimulated(Set<Long> clientsToSimulate, Long client) {
 		Iterator<Long> iterator = clientsToSimulate.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			if (iterator.next().compareTo(1l) == 0) {
 				return true;
 			}
@@ -98,18 +147,56 @@ public class SimulationServiceBean implements SimulationService {
 
 	}
 
-	@Override
-	public void handleEndSimulationMessage(Message incomingMessage, Session session) {
-		clientsToSimulate.remove(1l);
+	private void handleEndSimulationMessage(SimulationMessage endSimulationMessage, Session session) {
+		Long clientId = endSimulationMessage.getDeviceId();
+		clientsToSimulate.remove(clientId);
+		deleteSimulationSession(clientId);
+		droneService.closeDroneSession(Constants.SIMULATION_DRONE_ID);
 	}
 
-	private List<GeoPoint> getLocationsToSimulate() {
+	private void handleStopSimulationMessage(SimulationMessage stopSimulationMessage, Session session) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void handleRerunSimulationMessage(SimulationMessage rerunSimulationMessage, Session session) {
+
+	}
+
+	private void createNewSimulationSession(Long clientId) {
+		if (clientId != null) {
+			SimulationSession simulationSession = new SimulationSession();
+			simulationSession.setClientId(clientId);
+			entityManager.persist(simulationSession);
+		}
+	}
+
+	private void deleteSimulationSession(Long clientId) {
+		SimulationSession simulationSession = getSimulationSessionForClient(clientId);
+		if (simulationSession != null) {
+			entityManager.remove(simulationSession);
+		}
+	}
+
+	private SimulationSession getSimulationSessionForClient(Long clientId) {
+		SimulationSession simulationSession = null;
+		String queryStr = "SELECT s from SimulationSession s WHERE s.clientId = :clientId";
+		TypedQuery<SimulationSession> query = entityManager.createQuery(queryStr, SimulationSession.class);
+		query.setParameter("clientId", clientId);
+		List<SimulationSession> simulationSessionsList = query.getResultList();
+		if (simulationSessionsList != null && !simulationSessionsList.isEmpty()) {
+			simulationSession = simulationSessionsList.get(0);
+		}
+		return simulationSession;
+	}
+
+	private List<GeoPoint> getLocationsToSimulate(Long lastSimulatedLocation) {
 		List<GeoPoint> list = new ArrayList<>();
-		String queryStr = "SELECT s FROM Simulation s ORDER BY s.id ASC";
+		String queryStr = "SELECT s FROM Simulation s WHERE s.id > :lastSimulatedLocation ORDER BY s.id ASC";
 
 		TypedQuery<Simulation> query = entityManager.createQuery(queryStr, Simulation.class);
 
-		// query.setParameter("simulatedFlag", false);
+		query.setParameter("lastSimulatedLocation", lastSimulatedLocation);
 
 		List<Simulation> simulationList = query.getResultList();
 		for (int i = 0; i < simulationList.size(); i++) {

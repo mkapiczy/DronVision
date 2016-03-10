@@ -36,6 +36,18 @@ public class DroneServiceBean implements DroneService {
 		Drone drone = entityManager.find(Drone.class, droneId);
 		return drone;
 	}
+	
+	@Override
+	public boolean droneHasActiveSession(Long droneId){
+		Drone droneToCheck = getDroneById(droneId);
+		if(droneToCheck!=null){
+			DroneSession droneSession = getActiveDroneSession(droneToCheck);
+			if(droneSession!=null){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public boolean createNewDroneSession(Long droneId) {
@@ -89,6 +101,7 @@ public class DroneServiceBean implements DroneService {
 				activeSession.setStatus(DroneSessionStatusEnum.FINISHED);
 				activeSession.setSessionEnded(new Date());
 			}
+			drone.setActiveSession(null);
 			drone.setStatus(DroneStatusEnum.OFFLINE);
 		} else {
 			log.info("No drone with id: " + droneId + " was found");

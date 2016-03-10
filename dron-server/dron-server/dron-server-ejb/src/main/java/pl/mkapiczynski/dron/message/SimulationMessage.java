@@ -1,8 +1,9 @@
 package pl.mkapiczynski.dron.message;
 
-public class SimulationMessage implements Message{
+public class SimulationMessage implements Message {
 	private String messageType;
 	private Long deviceId;
+	private String task;
 
 	public SimulationMessage() {
 	}
@@ -22,4 +23,13 @@ public class SimulationMessage implements Message{
 	public void setDeviceId(Long deviceId) {
 		this.deviceId = deviceId;
 	}
+
+	public String getTask() {
+		return task;
+	}
+
+	public void setTask(String task) {
+		this.task = task;
+	}
+
 }
