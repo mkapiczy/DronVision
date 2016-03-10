@@ -169,6 +169,7 @@ public class VisionFragment extends Fragment {
         }
         simulationButton.setVisibility(Button.GONE);
         turnOffSimulationModeButton.setVisibility(Button.GONE);
+        restartSimulationButton.setVisibility(Button.GONE);
     }
 
 

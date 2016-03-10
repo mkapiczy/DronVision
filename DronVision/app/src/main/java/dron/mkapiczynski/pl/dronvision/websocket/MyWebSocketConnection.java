@@ -2,17 +2,14 @@ package dron.mkapiczynski.pl.dronvision.websocket;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.io.StringReader;
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +26,6 @@ import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
-import dron.mkapiczynski.pl.dronvision.message.EndSimulationMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
@@ -133,9 +129,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
         }
     }
 
-    public boolean sendSimulationMessageToServer(){
+    public boolean sendSimulationMessageToServer(String task){
         SimulationMessage simulationMessage = new SimulationMessage();
         simulationMessage.setDeviceId(1l);
+        simulationMessage.setTask(task);
         Gson gson = new Gson();
         if (isConnected()) {
             sendTextMessage(gson.toJson(simulationMessage));
@@ -146,18 +143,6 @@ public class MyWebSocketConnection extends WebSocketConnection {
         }
     }
 
-    public boolean sendEndSimulationMessageToServer(){
-        EndSimulationMessage endSimulationMessage = new EndSimulationMessage();
-        endSimulationMessage.setDeviceId(1l);
-        if (isConnected()) {
-            Gson gson = new Gson();
-            sendTextMessage(gson.toJson(endSimulationMessage));
-            return true;
-        } else{
-            Log.i(TAG, "Coudn't send a message. No connection with server");
-            return false;
-        }
-    }
 
     private void handleGeoMessage(GeoDataMessage geoMessage){
         MyGeoPoint point = geoMessage.getLastPosition();

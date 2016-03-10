@@ -16,4 +16,9 @@ public class Parameters {
     public static final Long SIMULATION_DRONE_ID = 4l;
     public static final GeoPoint SIMULATION_START_LOCATION = new GeoPoint(49.0744,22.7263888888889);
 
+    public static final String START_SIMULATION_MESSAGE_TASK = "startSimulation";
+    public static final String END_SIMULATION_MESSAGE_TASK = "endSimulation";
+    public static final String STOP_SIMULATION_MESSAGE_TASK = "stopSimulation";
+    public static final String RERUN_SIMULATION_MESSAGE_TASK = "rerunSimulation";
+
 }

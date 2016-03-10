@@ -8,6 +8,7 @@ public class SimulationMessage {
 
     private final String messageType = MESSAGE_TYPE;
     private Long deviceId;
+    private String task;
 
     public SimulationMessage(){
 
@@ -21,8 +22,16 @@ public class SimulationMessage {
         this.deviceId = deviceId;
     }
 
+    public String getTask() {
+        return task;
+    }
+
+    public void setTask(String task) {
+        this.task = task;
+    }
+
     @Override
     public String toString() {
-        return "SimulationMessage [messageType=" + messageType + ", deviceId=" + deviceId + "]";
+        return "SimulationMessage [messageType=" + messageType + ", deviceId=" + deviceId +", task=" +task + "]";
     }
 }

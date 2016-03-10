@@ -20,6 +20,7 @@ import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.fragment.AboutAppFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.AboutAuthorFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment;
@@ -193,19 +194,27 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onStopSimulationButtonCliecked() {
-        stopSimulation(false);
+        if(client.isConnected()){
+            client.sendSimulationMessageToServer(Parameters.STOP_SIMULATION_MESSAGE_TASK);
+            stopSimulation(false);
+        }
+
     }
 
     @Override
     public void onRerunSimulationButtonClicked() {
-        rerunSimulation();
+        if(client.isConnected()){
+            client.sendSimulationMessageToServer(Parameters.RERUN_SIMULATION_MESSAGE_TASK);
+            rerunSimulation();
+        }
+
     }
 
     @Override
     public void onRestartSimulationButtonClicked() {
         if(client.isConnected()) {
             visionFragment.turnOnSimulationMode();
-            client.sendSimulationMessageToServer();
+            client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
         }
     }
 
@@ -218,7 +227,7 @@ public class MainActivity extends AppCompatActivity
     public void onTurnOnSimulationButtonClickedInSimulationFragment() {
         if(client.isConnected()){
             visionFragment.turnOnSimulationMode();
-            client.sendSimulationMessageToServer();
+            client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
             currentMenuItem.setChecked(false);
             visionMenuItem.setChecked(true);
             showFragmentAndHideTheOthers(visionFragment);
@@ -241,7 +250,7 @@ public class MainActivity extends AppCompatActivity
 
     public void turnOffSimulationMode(){
         if(client.isConnected()) {
-            client.sendEndSimulationMessageToServer();
+            client.sendSimulationMessageToServer(Parameters.END_SIMULATION_MESSAGE_TASK);
             visionFragment.turnOffSimulationMode();
             simulationFragment.turnOffSimulationInSimulationFragment();
         }
