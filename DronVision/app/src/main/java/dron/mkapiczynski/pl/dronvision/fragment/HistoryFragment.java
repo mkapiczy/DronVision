@@ -330,7 +330,7 @@ public class HistoryFragment extends Fragment {
                 for (int i = 0; i < receivedSearchedArea.size(); i++) {
                     searchedArea.add(new GeoPoint(receivedSearchedArea.get(i).getLatitude(), receivedSearchedArea.get(i).getLongitude()));
                 }
-                ((MainActivity) historyFragment.getActivity()).displayHistoryOnMap(searchedArea);
+                ((MainActivity) historyFragment.getActivity()).turnOnHistoryMode(searchedArea);
             } else{
                 Toast.makeText(getContext(),"NULL", Toast.LENGTH_SHORT).show();
             }

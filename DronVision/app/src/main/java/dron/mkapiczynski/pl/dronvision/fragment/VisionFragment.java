@@ -53,6 +53,7 @@ public class VisionFragment extends Fragment {
     }
 
     private boolean simulationMode = false;
+    private boolean historyMode = false;
     private boolean simulationIsRunning = false;
 
 
@@ -99,9 +100,9 @@ public class VisionFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String buttonText = simulationButton.getText().toString();
-                if("Zatrzymaj symulację!".equals(buttonText)){
+                if ("Zatrzymaj symulację!".equals(buttonText)) {
                     listener.onStopSimulationButtonCliecked();
-                } else if("Wznów symulację!".equals(buttonText)){
+                } else if ("Wznów symulację!".equals(buttonText)) {
                     listener.onRerunSimulationButtonClicked();
                 }
 
@@ -128,22 +129,38 @@ public class VisionFragment extends Fragment {
         }
     }
 
-    public void displayHitorySearchedArea(List<GeoPoint> searcheadAreaPoints){
-        if (searcheadAreaPoints.size() > 1) {
-            Polygon searchedArea = new Polygon(getContext());
-            searchedArea.setPoints(searcheadAreaPoints);
-            searchedArea.setFillColor(0x32121212);
-            searchedArea.setStrokeColor(0x12121212);
-            searchedArea.setStrokeWidth(3);
-            mapView.getOverlays().clear();
-            mapView.getOverlays().add(searchedArea);
-            MapUtils.addScaleBarOverlayToMapView(mapView.getOverlays(), getActivity());
-            MapController mapController = (MapController) mapView.getController();
-            mapController.animateTo(searcheadAreaPoints.get(0));
-            mapView.invalidate();
+    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints){
+        if(!simulationMode) {
+            historyMode = true;
+            if (searcheadAreaPoints.size() > 1) {
+                Polygon searchedArea = new Polygon(getContext());
+                searchedArea.setPoints(searcheadAreaPoints);
+                searchedArea.setFillColor(0x32121212);
+                searchedArea.setStrokeColor(0x12121212);
+                searchedArea.setStrokeWidth(3);
+                mapView.getOverlays().clear();
+                mapView.getOverlays().add(searchedArea);
+                MapUtils.addScaleBarOverlayToMapView(mapView.getOverlays(), getActivity());
+                MapController mapController = (MapController) mapView.getController();
+                mapController.animateTo(searcheadAreaPoints.get(0));
+                mapView.invalidate();
+            }
+            turnOffSimulationModeButton.setText("Wyjdź z trybu historii");
+            turnOffSimulationModeButton.setVisibility(View.VISIBLE);
         }
     }
 
+    public void turnOffHistoryMode(){
+        historyMode=false;
+        simulationDrones.clear();
+        if(lastRealDrone!=null){
+            updateMapView(lastRealDrone);
+        } else{
+            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
+            mapAsyncTask.execute();
+        }
+        turnOffSimulationModeButton.setVisibility(Button.GONE);
+    }
     public void updateMapView(Drone drone) {
         if(simulationMode){
             if(simulationIsRunning) {
@@ -164,16 +181,19 @@ public class VisionFragment extends Fragment {
     }
 
     public void turnOnSimulationMode(){
-        simulationButton.setText("Zatrzymaj symulację!");
-        simulationButton.setVisibility(Button.VISIBLE);
-        turnOffSimulationModeButton.setVisibility(Button.GONE);
-        restartSimulationButton.setVisibility(Button.GONE);
-        simulationMode = true;
-        simulationIsRunning=true;
-        simulationDrones.clear();
-        mapView.getController().setCenter(Parameters.SIMULATION_START_LOCATION);
-        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
-        mapAsyncTask.execute();
+        if(!historyMode) {
+            simulationButton.setText("Zatrzymaj symulację!");
+            turnOffSimulationModeButton.setText("Wyjdź z trybu historii");
+            simulationButton.setVisibility(Button.VISIBLE);
+            turnOffSimulationModeButton.setVisibility(Button.GONE);
+            restartSimulationButton.setVisibility(Button.GONE);
+            simulationMode = true;
+            simulationIsRunning = true;
+            simulationDrones.clear();
+            mapView.getController().setCenter(Parameters.SIMULATION_START_LOCATION);
+            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
+            mapAsyncTask.execute();
+        }
     }
 
     public void turnOffSimulationMode(){

@@ -16,7 +16,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.List;
@@ -57,6 +56,7 @@ public class MainActivity extends AppCompatActivity
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
 
+    private boolean simulationMode = false;
     private boolean historyMode = false;
 
     @Override
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity
                 drawer.closeDrawer(GravityCompat.START);
             } else if (visionFragment.isVisible()) {
                 if(historyMode){
-                    historyMode=false;
+                    turnOffHistoryMode();
                 } else {
                     AlertDialog logoutDialog = createLogoutDialog(this);
                     logoutDialog.show();
@@ -206,12 +206,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void displayHistoryOnMap(List<GeoPoint> searcheadAreaPoints){
-        historyMode=true;
-        visionFragment.displayHitorySearchedArea(searcheadAreaPoints);
-        currentMenuItem.setChecked(false);
-        visionMenuItem.setChecked(true);
-        showFragmentAndHideTheOthers(visionFragment);
+    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints){
+        if(!simulationMode) {
+            historyMode = true;
+            visionFragment.turnOnHistoryMode(searcheadAreaPoints);
+            currentMenuItem.setChecked(false);
+            visionMenuItem.setChecked(true);
+            showFragmentAndHideTheOthers(visionFragment);
+        }
     }
 
 
@@ -243,17 +245,25 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTurnOffSimulationModeButtonClicked() {
-        turnOffSimulationMode();
+        if(historyMode){
+            turnOffHistoryMode();
+        }else {
+            turnOffSimulationMode();
+        }
     }
 
     @Override
     public void onTurnOnSimulationButtonClickedInSimulationFragment() {
-        if(client.isConnected()){
-            visionFragment.turnOnSimulationMode();
-            client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
-            currentMenuItem.setChecked(false);
-            visionMenuItem.setChecked(true);
-            showFragmentAndHideTheOthers(visionFragment);
+        if(!historyMode) {
+            if (client.isConnected()) {
+                simulationMode=true;
+                simulationFragment.turnOnSimulationInSimulationFragment();
+                visionFragment.turnOnSimulationMode();
+                client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
+                currentMenuItem.setChecked(false);
+                visionMenuItem.setChecked(true);
+                showFragmentAndHideTheOthers(visionFragment);
+            }
         }
     }
 
@@ -271,11 +281,16 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(getApplicationContext(), "Symulacja wznowiona!", Toast.LENGTH_SHORT).show();
     }
 
+    public void turnOffHistoryMode(){
+        historyMode=false;
+        visionFragment.turnOffHistoryMode();
+    }
     public void turnOffSimulationMode(){
         if(client.isConnected()) {
             client.sendSimulationMessageToServer(Parameters.END_SIMULATION_MESSAGE_TASK);
             visionFragment.turnOffSimulationMode();
             simulationFragment.turnOffSimulationInSimulationFragment();
+            simulationMode=false;
         }
     }
 

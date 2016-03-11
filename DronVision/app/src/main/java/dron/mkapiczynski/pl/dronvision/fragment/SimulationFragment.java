@@ -16,6 +16,7 @@ public class SimulationFragment extends Fragment {
 
     private SimulationFragmentActivityListener simulationFragmentActivityListener;
     private ToggleButton simulationTurnOnOffButton;
+    private boolean simulationMode = false;
 
     public SimulationFragment() {
 
@@ -31,8 +32,12 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (simulationTurnOnOffButton.isChecked()) {
-                    simulationTurnOnOffButton.setEnabled(false);
                     simulationFragmentActivityListener.onTurnOnSimulationButtonClickedInSimulationFragment();
+                    if(simulationMode){
+                        simulationTurnOnOffButton.setText("Symulacja w toku...");
+                    } else{
+                        simulationTurnOnOffButton.setText("Rozpocznij symulację");
+                    }
                 }
             }
         });
@@ -51,8 +56,15 @@ public class SimulationFragment extends Fragment {
     }
 
     public void turnOffSimulationInSimulationFragment(){
+        simulationMode=false;
         simulationTurnOnOffButton.setEnabled(true);
         simulationTurnOnOffButton.setChecked(false);
+    }
+
+    public void turnOnSimulationInSimulationFragment(){
+        simulationMode=true;
+        simulationTurnOnOffButton.setEnabled(false);
+        simulationTurnOnOffButton.setChecked(true);
     }
 
     // interfejs, który będzie implementować aktywność
