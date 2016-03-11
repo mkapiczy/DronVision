@@ -26,4 +26,18 @@ public class MessageDecoder  {
         Gson gson = gsonBuilder.create();
         return gson.fromJson(jsonMessage, GetPreferencesMessage.class);
     }
+
+    public static GetDroneSessionsMessage decodeGetDroneSessionsMessage(String jsonMessage){
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
+        Gson gson = gsonBuilder.create();
+        return gson.fromJson(jsonMessage, GetDroneSessionsMessage.class);
+    }
+
+    public static GetSearchedAreaMessage decodeGetSearchedAreaMessage(String jsonMessage){
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Date.class, new JsonDateDeserializer());
+        Gson gson = gsonBuilder.create();
+        return gson.fromJson(jsonMessage, GetSearchedAreaMessage.class);
+    }
 }

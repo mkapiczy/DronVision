@@ -16,6 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.osmdroid.bonuspack.overlays.Polygon;
+import org.osmdroid.util.GeoPoint;
+
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity
 
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
+
+    private boolean historyMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,12 +124,20 @@ public class MainActivity extends AppCompatActivity
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else if (visionFragment.isVisible()) {
-                AlertDialog logoutDialog = createLogoutDialog(this);
-                logoutDialog.show();
+                if(historyMode){
+                    historyMode=false;
+                } else {
+                    AlertDialog logoutDialog = createLogoutDialog(this);
+                    logoutDialog.show();
+                }
             } else if (visionFragment.isHidden()) {
-                showFragmentAndHideTheOthers(visionFragment);
-                currentMenuItem.setChecked(false);
-                visionMenuItem.setChecked(true);
+                if(historyFragment.isVisible() && !historyFragment.isDroneListShown()){
+                   historyFragment.showDroneListView();
+                } else {
+                    showFragmentAndHideTheOthers(visionFragment);
+                    currentMenuItem.setChecked(false);
+                    visionMenuItem.setChecked(true);
+                }
             }
         }
     }
@@ -188,7 +201,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateDronesOnMap(Drone drone) {
-        visionFragment.updateMapView(drone);
+        if(!historyMode) {
+            visionFragment.updateMapView(drone);
+        }
+    }
+
+    public void displayHistoryOnMap(List<GeoPoint> searcheadAreaPoints){
+        historyMode=true;
+        visionFragment.displayHitorySearchedArea(searcheadAreaPoints);
+        currentMenuItem.setChecked(false);
+        visionMenuItem.setChecked(true);
+        showFragmentAndHideTheOthers(visionFragment);
     }
 
 

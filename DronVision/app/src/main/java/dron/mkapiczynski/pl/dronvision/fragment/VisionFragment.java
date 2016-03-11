@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import org.osmdroid.bonuspack.overlays.Polygon;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
@@ -122,6 +125,22 @@ public class VisionFragment extends Fragment {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
             updateMapView(null);
+        }
+    }
+
+    public void displayHitorySearchedArea(List<GeoPoint> searcheadAreaPoints){
+        if (searcheadAreaPoints.size() > 1) {
+            Polygon searchedArea = new Polygon(getContext());
+            searchedArea.setPoints(searcheadAreaPoints);
+            searchedArea.setFillColor(0x32121212);
+            searchedArea.setStrokeColor(0x12121212);
+            searchedArea.setStrokeWidth(3);
+            mapView.getOverlays().clear();
+            mapView.getOverlays().add(searchedArea);
+            MapUtils.addScaleBarOverlayToMapView(mapView.getOverlays(), getActivity());
+            MapController mapController = (MapController) mapView.getController();
+            mapController.animateTo(searcheadAreaPoints.get(0));
+            mapView.invalidate();
         }
     }
 

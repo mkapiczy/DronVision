@@ -128,7 +128,7 @@ public class MapUtils {
         }
     }
 
-    private static void addScaleBarOverlayToMapView(List<Overlay> mapOverlays, Activity activity) {
+    public static void addScaleBarOverlayToMapView(List<Overlay> mapOverlays, Activity activity) {
         ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
         mapOverlays.add(myScaleBarOverlay);
     }
