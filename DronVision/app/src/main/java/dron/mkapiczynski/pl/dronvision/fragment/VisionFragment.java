@@ -150,6 +150,10 @@ public class VisionFragment extends Fragment {
         }
     }
 
+    public void disableRerunSimulationButton(){
+        simulationButton.setEnabled(false);
+    }
+
     public void turnOffHistoryMode(){
         historyMode=false;
         simulationDrones.clear();
@@ -182,6 +186,7 @@ public class VisionFragment extends Fragment {
 
     public void turnOnSimulationMode(){
         if(!historyMode) {
+            simulationButton.setEnabled(true);
             simulationButton.setText("Zatrzymaj symulację!");
             turnOffSimulationModeButton.setText("Wyjdź z trybu historii");
             simulationButton.setVisibility(Button.VISIBLE);

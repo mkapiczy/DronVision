@@ -271,6 +271,7 @@ public class MainActivity extends AppCompatActivity
         visionFragment.stopSimulation();
         if(ended){
             Toast.makeText(getApplicationContext(), "Symulacja zakończona!", Toast.LENGTH_SHORT).show();
+            visionFragment.disableRerunSimulationButton();
         } else {
             Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
         }
