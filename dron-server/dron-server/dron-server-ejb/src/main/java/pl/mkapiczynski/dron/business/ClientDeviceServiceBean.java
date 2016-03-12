@@ -75,6 +75,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
 		clientGeoDataMessage.setDeviceId(drone.getDroneId());
 		clientGeoDataMessage.setDeviceType(Constants.GPS_TRACKED_DEVICE_TYPE);
+		clientGeoDataMessage.setDeviceName(drone.getDroneName());
 		clientGeoDataMessage.setLastPosition(new GeoPoint(drone.getLastLocation().getLatitude(),
 				drone.getLastLocation().getLongitude(), drone.getLastLocation().getAltitude()));
 		clientGeoDataMessage.setTimestamp(new Date());

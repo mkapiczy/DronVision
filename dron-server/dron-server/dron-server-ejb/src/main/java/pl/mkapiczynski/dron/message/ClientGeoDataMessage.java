@@ -9,6 +9,7 @@ public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";
 	private Long deviceId;
 	private String deviceType;
+	private String deviceName;
 	private Date timestamp;
 	private GeoPoint lastPosition;
 	private List<GeoPoint> searchedArea;
@@ -32,6 +33,14 @@ public class ClientGeoDataMessage implements Message {
 
 	public void setDeviceType(String deviceType) {
 		this.deviceType = deviceType;
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 
 	public Date getTimestamp() {
