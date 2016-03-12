@@ -224,11 +224,10 @@ public class VisionFragment extends Fragment {
 
     private void showPreSimulationView() {
         showSimulationButtons();
-        simulationDrones.clear();
         mapView.getController().setCenter(Parameters.SIMULATION_START_LOCATION);
-        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
-        mapAsyncTask.execute();
+        clearMapView();
     }
+
 
     private void showSimulationButtons() {
         simulationRunningButton.setEnabled(true);
@@ -240,12 +239,10 @@ public class VisionFragment extends Fragment {
     }
 
     private void showPostSimulationHistoryModeView() {
-        simulationDrones.clear();
         if (lastNotSimulationDrone != null) {
             updateMapView(lastNotSimulationDrone);
         } else {
-            MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
-            mapAsyncTask.execute();
+           clearMapView();
         }
         removeSimulationModeButtonsFromScreen();
     }
@@ -254,6 +251,12 @@ public class VisionFragment extends Fragment {
         simulationRunningButton.setVisibility(Button.GONE);
         turnOffCurrentModeButton.setVisibility(Button.GONE);
         restartSimulationButton.setVisibility(Button.GONE);
+    }
+
+    private void clearMapView(){
+        simulationDrones.clear();
+        MapAsyncTask mapAsyncTask = new MapAsyncTask(mapView, null, simulationDrones, getActivity(), simulationMode);
+        mapAsyncTask.execute();
     }
 
 
