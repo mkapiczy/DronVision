@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Drone {
     private Long droneId;
-    private String deviceName;
+    private String droneName;
     private GeoPoint currentPosition;
     private List<GeoPoint> searchedArea;
     private List<GeoPoint> lastSearchedArea;
@@ -24,12 +24,12 @@ public class Drone {
         this.droneId = droneId;
     }
 
-    public String getDeviceName() {
-        return deviceName;
+    public String getDroneName() {
+        return droneName;
     }
 
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+    public void setDroneName(String droneName) {
+        this.droneName = droneName;
     }
 
     public GeoPoint getCurrentPosition() {

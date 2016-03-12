@@ -36,9 +36,9 @@ public class MapUtils {
         MapController mapController = (MapController) mapView.getController();
         mapController.setZoom(16);
         GeoPoint lastMapCenter = sessionManager.getLastMapCenter();
-        if(lastMapCenter!=null){
+        if (lastMapCenter != null) {
             mapController.setCenter(lastMapCenter);
-        }else {
+        } else {
             mapController.setCenter(new GeoPoint(52.24695, 21.105083));
         }
         addScaleBarOverlayToMapView(mapView.getOverlays(), activity);
@@ -48,17 +48,17 @@ public class MapUtils {
         double scale = 1 / (metrics.densityDpi * 39.37 * 1.1943);*/
     }
 
-    public static List<Overlay> updateMapOverlays(Set<Drone> drones,List<DBDrone> trackedDrones, List<DBDrone> visualizedDroned, MapView mapView, Activity activity){
+    public static List<Overlay> updateMapOverlays(Set<Drone> drones, List<DBDrone> trackedDrones, List<DBDrone> visualizedDroned, MapView mapView, Activity activity) {
         List<Overlay> mapOverlays = new ArrayList<>();
         addScaleBarOverlayToMapView(mapOverlays, activity);
 
         Iterator<Drone> dronesIterator = drones.iterator();
-        while(dronesIterator.hasNext()){
+        while (dronesIterator.hasNext()) {
             Drone currentIteratedDrone = dronesIterator.next();
-            if(droneIsVisualized(currentIteratedDrone, visualizedDroned)){
+            if (droneIsVisualized(currentIteratedDrone, visualizedDroned)) {
                 updateDroneVisualizedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
-            } else if(droneIsTracked(currentIteratedDrone, trackedDrones)){
-                updateDroneTrackedOverlays(currentIteratedDrone, mapOverlays, mapView,activity);
+            } else if (droneIsTracked(currentIteratedDrone, trackedDrones)) {
+                updateDroneTrackedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
             }
 
         }
@@ -66,38 +66,40 @@ public class MapUtils {
         return mapOverlays;
     }
 
-    private static boolean droneIsVisualized(Drone drone, List<DBDrone> visualizedDrones){
-        for(int i=0; i<visualizedDrones.size();i++){
-            if(visualizedDrones.get(i).getDroneId() == drone.getDroneId()){
+    private static boolean droneIsVisualized(Drone drone, List<DBDrone> visualizedDrones) {
+        for (int i = 0; i < visualizedDrones.size(); i++) {
+            if (visualizedDrones.get(i).getDroneId().compareTo(drone.getDroneId()) == 0) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones){
-        for(int i=0; i<trackedDrones.size();i++){
-            if(trackedDrones.get(i).getDroneId() == drone.getDroneId()){
+    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones) {
+        for (int i = 0; i < trackedDrones.size(); i++) {
+            if (trackedDrones.get(i).getDroneId().compareTo(drone.getDroneId()) == 0) {
                 return true;
             }
         }
         return false;
     }
 
-    private static void updateDroneVisualizedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
+    private static void updateDroneVisualizedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
         updateDroneLastSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
         updateDroneSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
     }
 
-    private static void updateDroneTrackedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity){
+    private static void updateDroneTrackedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
     }
 
     private static void updateDroneLastPositionMarkerOnMap(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         Marker marker = new Marker(mapView);
         marker.setPosition(new GeoPoint(droneToUpdate.getCurrentPosition()));
-        marker.setTitle(droneToUpdate.getDroneId().toString());
+        StringBuffer droneHintStringBuffer = new StringBuffer();
+        droneHintStringBuffer.append("Id: ").append(droneToUpdate.getDroneId().toString()).append(" Nazwa: ").append(droneToUpdate.getDroneName());
+        marker.setTitle(droneHintStringBuffer.toString());
         Drawable droneIcon = DroneUtils.getDroneMarkerIcon(droneToUpdate, activity);
         marker.setIcon(droneIcon);
         mapOverlays.add(marker);

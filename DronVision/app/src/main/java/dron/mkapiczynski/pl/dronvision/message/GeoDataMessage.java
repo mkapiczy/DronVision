@@ -13,6 +13,7 @@ public class GeoDataMessage {
     private String messageType;
     private Long deviceId;
     private String deviceType;
+    private String deviceName;
     private Date timestamp;
     private MyGeoPoint lastPosition;
     private List<MyGeoPoint> searchedArea;
@@ -40,6 +41,14 @@ public class GeoDataMessage {
 
     public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public Date getTimestamp() {

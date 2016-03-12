@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -43,19 +44,24 @@ public class CustomHistoryDroneSessionsListViewAdapter extends ArrayAdapter<Dron
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         convertView = inflater.inflate(R.layout.row_history, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.rowHistoryTextView);
-        String sessionStarted =  dateFormat.format(droneSessions.get(position).getSessionStarted());
-        String sessionEnded =  dateFormat.format(droneSessions.get(position).getSessionEnded());
+        String sessionStarted = dateFormat.format(droneSessions.get(position).getSessionStarted());
+        String sessionEnded = dateFormat.format(droneSessions.get(position).getSessionEnded());
         name.setText(sessionStarted + " - " + sessionEnded);
         convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setBackgroundColor(Color.LTGRAY);
-                historyFragment.showHistory(droneSessions.get(position).getSessionId());
-            }
-        });
+                                           @Override
+                                           public void onClick(View v) {
+                                               if (historyFragment.isHistoryModeEnabled()) {
+                                                   v.setBackgroundColor(Color.LTGRAY);
+                                                   historyFragment.showHistory(droneSessions.get(position).getSessionId());
+                                               } else {
+                                                   Toast.makeText(context, "Historia niedostępna w trybie symulacji", Toast.LENGTH_SHORT).show();
+                                               }
+                                           }
+                                       }
+
+        );
         return convertView;
     }
-
 
 
     @Override

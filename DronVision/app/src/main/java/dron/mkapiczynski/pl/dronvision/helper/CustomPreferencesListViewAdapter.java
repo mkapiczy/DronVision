@@ -21,7 +21,7 @@ import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 /**
  * Created by Miix on 2016-01-15.
  */
-public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
+public class CustomPreferencesListViewAdapter extends ArrayAdapter<DBDrone> {
 
     private List<DBDrone> assignedDrones;
     private List<DBDrone> checkedDrones;
@@ -32,7 +32,7 @@ public class CustomListViewAdapter extends ArrayAdapter<DBDrone> {
     private List<CheckBox> checkboxes;
 
 
-    public CustomListViewAdapter(Context context, List<DBDrone> assignedDrones, List<DBDrone> checkedDrones, boolean singleFollowedDroneAdapter) {
+    public CustomPreferencesListViewAdapter(Context context, List<DBDrone> assignedDrones, List<DBDrone> checkedDrones, boolean singleFollowedDroneAdapter) {
         super(context, R.layout.row, assignedDrones);
         this.context = context;
         this.assignedDrones = assignedDrones;

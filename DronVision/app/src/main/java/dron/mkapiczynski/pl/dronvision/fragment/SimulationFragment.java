@@ -15,29 +15,22 @@ import dron.mkapiczynski.pl.dronvision.R;
 public class SimulationFragment extends Fragment {
 
     private SimulationFragmentActivityListener simulationFragmentActivityListener;
-    private ToggleButton simulationTurnOnOffButton;
-    private boolean simulationMode = false;
+    private ToggleButton simulationTurnOnButton;
 
     public SimulationFragment() {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_simulation, container, false);
-        simulationTurnOnOffButton = (ToggleButton) view.findViewById(R.id.simulationButton);
-        simulationTurnOnOffButton.setOnClickListener(new View.OnClickListener() {
+        simulationTurnOnButton = (ToggleButton) view.findViewById(R.id.simulationButton);
+        simulationTurnOnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (simulationTurnOnOffButton.isChecked()) {
+                if (simulationTurnOnButton.isChecked()) {
                     simulationFragmentActivityListener.onTurnOnSimulationButtonClickedInSimulationFragment();
-                    if(simulationMode){
-                        simulationTurnOnOffButton.setText("Symulacja w toku...");
-                    } else{
-                        simulationTurnOnOffButton.setText("Rozpocznij symulację");
-                    }
                 }
             }
         });
@@ -55,16 +48,24 @@ public class SimulationFragment extends Fragment {
         }
     }
 
-    public void turnOffSimulationInSimulationFragment(){
-        simulationMode=false;
-        simulationTurnOnOffButton.setEnabled(true);
-        simulationTurnOnOffButton.setChecked(false);
+    public void turnOffSimulationModeInSimulationFragment(){
+        simulationTurnOnButton.setEnabled(true);
+        simulationTurnOnButton.setChecked(false);
     }
 
-    public void turnOnSimulationInSimulationFragment(){
-        simulationMode=true;
-        simulationTurnOnOffButton.setEnabled(false);
-        simulationTurnOnOffButton.setChecked(true);
+    public void turnOnSimulationModeInSimulationFragment(){
+        simulationTurnOnButton.setEnabled(false);
+        simulationTurnOnButton.setChecked(true);
+    }
+
+    public void disableSimulationTurnOnButtonDueToHistoryMode(){
+        simulationTurnOnButton.setEnabled(false);
+        simulationTurnOnButton.setText("Symulacja niedostępna w trybie historii");
+    }
+
+    public void enableSimulationTurnOnButton(){
+        simulationTurnOnButton.setEnabled(true);
+        simulationTurnOnButton.setText("Rozpocznij symulację");
     }
 
     // interfejs, który będzie implementować aktywność

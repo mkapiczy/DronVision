@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity
     // Websocket
     private final MyWebSocketConnection client = new MyWebSocketConnection(this);
 
-    private boolean simulationMode = false;
-    private boolean historyMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity
 
         visionMenuItem = navigationView.getMenu().findItem(R.id.nav_vision);
         visionMenuItem.setChecked(true);
-        currentMenuItem=visionMenuItem;
+        currentMenuItem = visionMenuItem;
 
         client.connectToWebSocketServer();
 
@@ -124,19 +122,19 @@ public class MainActivity extends AppCompatActivity
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else if (visionFragment.isVisible()) {
-                if(historyMode){
+                if (visionFragment.isHistoryMode()) {
                     turnOffHistoryMode();
+                    Toast.makeText(getApplicationContext(), "Wyłączono tryb historii", Toast.LENGTH_SHORT).show();
                 } else {
                     AlertDialog logoutDialog = createLogoutDialog(this);
                     logoutDialog.show();
                 }
             } else if (visionFragment.isHidden()) {
-                if(historyFragment.isVisible() && !historyFragment.isDroneListShown()){
-                   historyFragment.showDroneListView();
+                if (historyFragment.isVisible() && !historyFragment.isDroneListShown()) {
+                    historyFragment.showDroneListView();
                 } else {
                     showFragmentAndHideTheOthers(visionFragment);
-                    currentMenuItem.setChecked(false);
-                    visionMenuItem.setChecked(true);
+                    uncheckCurrentMenuItemAndCheckVisionMenuItem();
                 }
             }
         }
@@ -144,7 +142,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        handleMenuItemsChecks(item);
+        handleAditionalMenuItemsChecks(item);
 
         Fragment fragmentToBeShown = getFragmentToBeShownById(item.getItemId());
         showFragmentAndHideTheOthers(fragmentToBeShown);
@@ -154,44 +152,45 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void handleMenuItemsChecks(MenuItem item){
-        if(currentMenuItem.getItemId() == R.id.nav_about_author || currentMenuItem.getItemId()==R.id.nav_about_app || item.getItemId()==R.id.nav_about_app || item.getItemId()== R.id.nav_about_author) {
+    private void handleAditionalMenuItemsChecks(MenuItem item) {
+        if (currentMenuItem.getItemId() == R.id.nav_about_author || currentMenuItem.getItemId() == R.id.nav_about_app || item.getItemId() == R.id.nav_about_app || item.getItemId() == R.id.nav_about_author) {
+            visionMenuItem.setChecked(false);
             currentMenuItem.setChecked(false);
             item.setChecked(true);
-            if((item.getItemId()==R.id.nav_about_app || item.getItemId()== R.id.nav_about_author)&& visionMenuItem.isChecked()){
-                visionMenuItem.setChecked(false);
-            }
         }
         currentMenuItem = item;
     }
 
-    private Fragment getFragmentToBeShownById(int id){
+    private Fragment getFragmentToBeShownById(int id) {
         Fragment fragmentToBeShown = new Fragment();
         if (id == R.id.nav_vision) {
             fragmentToBeShown = visionFragment;
         } else if (id == R.id.nav_preferences) {
-            fragmentToBeShown=preferencesFragment;
+            fragmentToBeShown = preferencesFragment;
         } else if (id == R.id.nav_settings) {
-            fragmentToBeShown=settingsFragment;
+            fragmentToBeShown = settingsFragment;
         } else if (id == R.id.nav_history) {
-            fragmentToBeShown=historyFragment;
-        } else if(id == R.id.nav_simulation){
-            fragmentToBeShown=simulationFragment;
+            fragmentToBeShown = historyFragment;
+        } else if (id == R.id.nav_simulation) {
+            fragmentToBeShown = simulationFragment;
         } else if (id == R.id.nav_about_app) {
-            fragmentToBeShown=aboutAppFragment;
+            fragmentToBeShown = aboutAppFragment;
         } else if (id == R.id.nav_about_author) {
-            fragmentToBeShown=aboutAuthorFragment;
+            fragmentToBeShown = aboutAuthorFragment;
         }
         return fragmentToBeShown;
     }
 
     private void showFragmentAndHideTheOthers(Fragment fragmentToBeShown) {
-        if (fragmentToBeShown!=null && fragmentToBeShown.isHidden()) {
+        if (fragmentToBeShown != null && fragmentToBeShown.isHidden()) {
             List<Fragment> allFragments = fragmentManager.getFragments();
             for (int i = 0; i < allFragments.size(); i++) {
                 Fragment currentIteratedFragment = allFragments.get(i);
                 if (!currentIteratedFragment.equals(fragmentToBeShown)) {
                     if (currentIteratedFragment.isVisible()) {
+                        if(fragmentToBeShown instanceof VisionFragment){
+                            uncheckCurrentMenuItemAndCheckVisionMenuItem();
+                        }
                         fragmentManager.beginTransaction().hide(currentIteratedFragment).show(fragmentToBeShown).commit();
                         return;
                     }
@@ -200,99 +199,109 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void uncheckCurrentMenuItemAndCheckVisionMenuItem() {
+        currentMenuItem.setChecked(false);
+        visionMenuItem.setChecked(true);
+    }
+
     public void updateDronesOnMap(Drone drone) {
-        if(!historyMode) {
+        if (!visionFragment.isHistoryMode()) {
             visionFragment.updateMapView(drone);
-        }
-    }
-
-    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints){
-        if(!simulationMode) {
-            historyMode = true;
-            visionFragment.turnOnHistoryMode(searcheadAreaPoints);
-            currentMenuItem.setChecked(false);
-            visionMenuItem.setChecked(true);
-            showFragmentAndHideTheOthers(visionFragment);
-        }
-    }
-
-
-    @Override
-    public void onStopSimulationButtonCliecked() {
-        if(client.isConnected()){
-            client.sendSimulationMessageToServer(Parameters.STOP_SIMULATION_MESSAGE_TASK);
-            stopSimulation(false);
-        }
-
-    }
-
-    @Override
-    public void onRerunSimulationButtonClicked() {
-        if(client.isConnected()){
-            client.sendSimulationMessageToServer(Parameters.RERUN_SIMULATION_MESSAGE_TASK);
-            rerunSimulation();
-        }
-
-    }
-
-    @Override
-    public void onRestartSimulationButtonClicked() {
-        if(client.isConnected()) {
-            visionFragment.turnOnSimulationMode();
-            client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
-        }
-    }
-
-    @Override
-    public void onTurnOffSimulationModeButtonClicked() {
-        if(historyMode){
-            turnOffHistoryMode();
-        }else {
-            turnOffSimulationMode();
         }
     }
 
     @Override
     public void onTurnOnSimulationButtonClickedInSimulationFragment() {
-        if(!historyMode) {
+        turnOnSimulationMode();
+    }
+
+    @Override
+    public void turnOffCurrentModeButtonClicked() {
+        if (visionFragment.isHistoryMode()) {
+            turnOffHistoryMode();
+        } else if (visionFragment.isSimulationMode()) {
+            turnOffSimulationMode();
+        }
+    }
+
+    @Override
+    public void onStopSimulationButtonCliecked() {
+        stopSimulation(false);
+    }
+
+    @Override
+    public void onRerunSimulationButtonClicked() {
+       rerunSimulation();
+
+    }
+
+    @Override
+    public void onRestartSimulationButtonClicked() {
+        restartSimulation();
+    }
+
+
+    private void turnOnSimulationMode() {
+        if (!visionFragment.isHistoryMode()) {
             if (client.isConnected()) {
-                simulationMode=true;
-                simulationFragment.turnOnSimulationInSimulationFragment();
-                visionFragment.turnOnSimulationMode();
                 client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
-                currentMenuItem.setChecked(false);
-                visionMenuItem.setChecked(true);
+                simulationFragment.turnOnSimulationModeInSimulationFragment();
+                visionFragment.turnOnSimulationMode();
                 showFragmentAndHideTheOthers(visionFragment);
             }
         }
     }
 
-    public void stopSimulation(boolean ended){
-        visionFragment.stopSimulation();
-        if(ended){
-            Toast.makeText(getApplicationContext(), "Symulacja zakończona!", Toast.LENGTH_SHORT).show();
-            visionFragment.disableRerunSimulationButton();
-        } else {
-            Toast.makeText(this.getApplicationContext(), "Zatrzymano symulację!", Toast.LENGTH_SHORT).show();
+    private void turnOffSimulationMode() {
+        if(visionFragment.isSimulationMode()) {
+            if (client.isConnected()) {
+                client.sendSimulationMessageToServer(Parameters.END_SIMULATION_MESSAGE_TASK);
+                simulationFragment.turnOffSimulationModeInSimulationFragment();
+                visionFragment.turnOffSimulationMode();
+            }
         }
     }
 
-    public void rerunSimulation(){
-        visionFragment.rerunSimulation();
-        Toast.makeText(getApplicationContext(), "Symulacja wznowiona!", Toast.LENGTH_SHORT).show();
+    public void stopSimulation(boolean ended) {
+        if(visionFragment.isSimulationMode()) {
+            if (client.isConnected()) {
+                client.sendSimulationMessageToServer(Parameters.STOP_SIMULATION_MESSAGE_TASK);
+                visionFragment.stopSimulation(ended);
+            }
+        }
     }
 
-    public void turnOffHistoryMode(){
-        historyMode=false;
-        visionFragment.turnOffHistoryMode();
-    }
-    public void turnOffSimulationMode(){
-        if(client.isConnected()) {
-            client.sendSimulationMessageToServer(Parameters.END_SIMULATION_MESSAGE_TASK);
-            visionFragment.turnOffSimulationMode();
-            simulationFragment.turnOffSimulationInSimulationFragment();
-            simulationMode=false;
+    private void rerunSimulation() {
+        if (client.isConnected()) {
+            client.sendSimulationMessageToServer(Parameters.RERUN_SIMULATION_MESSAGE_TASK);
+            visionFragment.rerunSimulation();
         }
+    }
+
+    private void restartSimulation(){
+        if (client.isConnected()) {
+            client.sendSimulationMessageToServer(Parameters.START_SIMULATION_MESSAGE_TASK);
+            visionFragment.turnOnSimulationMode();
+        }
+    }
+
+    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints) {
+        if (!visionFragment.isSimulationMode()) {
+            visionFragment.turnOnHistoryMode(searcheadAreaPoints);
+            simulationFragment.disableSimulationTurnOnButtonDueToHistoryMode();
+            showFragmentAndHideTheOthers(visionFragment);
+        }
+    }
+
+    private void turnOffHistoryMode() {
+        if(visionFragment.isHistoryMode()) {
+            visionFragment.turnOffHistoryMode();
+            simulationFragment.enableSimulationTurnOnButton();
+        }
+    }
+
+    public boolean isSimulationModeTurned(){
+        return visionFragment.isSimulationMode();
     }
 
 

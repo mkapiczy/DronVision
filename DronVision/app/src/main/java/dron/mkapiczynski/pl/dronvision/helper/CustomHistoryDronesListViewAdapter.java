@@ -40,7 +40,7 @@ public class CustomHistoryDronesListViewAdapter extends ArrayAdapter<DBDrone> {
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         convertView = inflater.inflate(R.layout.row_history, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.rowHistoryTextView);
-        name.setText("Id: " + assignedDrones.get(position).getDroneName() + " Status: (" + assignedDrones.get(position).getStatus() + ")");
+        name.setText("Id: " + assignedDrones.get(position).getDroneName() + " Opis: (" + assignedDrones.get(position).getDroneDescription() + ")");
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

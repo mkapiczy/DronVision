@@ -158,6 +158,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
         Drone drone = new Drone();
         drone.setDroneId(geoMessage.getDeviceId());
+        drone.setDroneName(geoMessage.getDeviceName());
         drone.setCurrentPosition(currentDronePosition);
         drone.setSearchedArea(searchedArea);
         drone.setLastSearchedArea(lastSearchedArea);

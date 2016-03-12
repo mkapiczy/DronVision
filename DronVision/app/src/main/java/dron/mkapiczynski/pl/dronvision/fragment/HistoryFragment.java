@@ -55,6 +55,7 @@ public class HistoryFragment extends Fragment {
     private GetSearchedAreaTask getSearchedAreaTask;
 
     private boolean droneListShown = true;
+
     public HistoryFragment() {
         // Required empty public constructor
     }
@@ -77,21 +78,21 @@ public class HistoryFragment extends Fragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
-           showDroneListView();
-        } else if (hidden ==true){
-            if(viewCreated) {
+            showDroneListView();
+        } else if (hidden == true) {
+            if (viewCreated) {
 
             }
 
         }
     }
 
-    public void changeHistoryListTitle(String text){
+    public void changeHistoryListTitle(String text) {
         historyListTitleTextView.setText(text);
     }
 
-    public void showDroneListView(){
-        droneListShown=true;
+    public void showDroneListView() {
+        droneListShown = true;
         assignedDrones = sessionManager.getAssignedDrones();
         assignedDronesCustomAdapter = new CustomHistoryDronesListViewAdapter(this, getContext(), assignedDrones);
         historyListView.setAdapter(assignedDronesCustomAdapter);
@@ -99,18 +100,22 @@ public class HistoryFragment extends Fragment {
     }
 
 
-    public void showDroneSessionIdListView(Long droneId){
+    public void showDroneSessionIdListView(Long droneId) {
         droneListShown = false;
         getDroneSessionsTask = new GetDroneSessionsTask(droneId, this);
         getDroneSessionsTask.execute((Void) null);
     }
 
-    public void showHistory(Long sessionId){
-        getSearchedAreaTask = new GetSearchedAreaTask(sessionId, this);
-        getSearchedAreaTask.execute((Void)null);
+    public boolean isHistoryModeEnabled() {
+        return !((MainActivity) getActivity()).isSimulationModeTurned();
     }
 
-    public boolean isDroneListShown(){
+    public void showHistory(Long sessionId) {
+        getSearchedAreaTask = new GetSearchedAreaTask(sessionId, this);
+        getSearchedAreaTask.execute((Void) null);
+    }
+
+    public boolean isDroneListShown() {
         return droneListShown;
     }
 
@@ -178,7 +183,7 @@ public class HistoryFragment extends Fragment {
                     br.close();
                     GetDroneSessionsMessage getDroneSessionsMessage = MessageDecoder.decodeGetDroneSessionsMessage(sb.toString());
                     if (getDroneSessionsMessage != null) {
-                       droneSessions = getDroneSessionsMessage.getDroneSessions();
+                        droneSessions = getDroneSessionsMessage.getDroneSessions();
                     }
                     return true;
                 }
@@ -202,9 +207,9 @@ public class HistoryFragment extends Fragment {
                 updateSharedPreferencesWithReceivedData();
             } else {
                 clearListViews();
-              //  networkErrorTextView.setVisibility(View.VISIBLE);
+                //  networkErrorTextView.setVisibility(View.VISIBLE);
             }
-           // showProgress(false);
+            // showProgress(false);
         }
 
 
@@ -213,7 +218,7 @@ public class HistoryFragment extends Fragment {
             getDroneSessionsTask = null;
             clearListViews();
             //networkErrorTextView.setVisibility(View.VISIBLE);
-           // showProgress(false);
+            // showProgress(false);
         }
 
         private void updateListViewsWithReceivedData() {
@@ -227,11 +232,11 @@ public class HistoryFragment extends Fragment {
         }
 
         private void clearListViews() {
-           /* followedDroneCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
+           /* followedDroneCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
             followedDroneListView.setAdapter(followedDroneCustomAdapter);
-            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
+            trackedDronesCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
-            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
+            visualizedDronesCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(trackedDronesListView);
             setListViewHeightBasedOnChildren(visualizedDronesListView);
@@ -325,14 +330,14 @@ public class HistoryFragment extends Fragment {
         }
 
         private void updateListViewsWithReceivedData() {
-            if(receivedSearchedArea!=null) {
+            if (receivedSearchedArea != null) {
                 List<GeoPoint> searchedArea = new ArrayList<>();
                 for (int i = 0; i < receivedSearchedArea.size(); i++) {
                     searchedArea.add(new GeoPoint(receivedSearchedArea.get(i).getLatitude(), receivedSearchedArea.get(i).getLongitude()));
                 }
                 ((MainActivity) historyFragment.getActivity()).turnOnHistoryMode(searchedArea);
-            } else{
-                Toast.makeText(getContext(),"NULL", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "NULL", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -341,11 +346,11 @@ public class HistoryFragment extends Fragment {
         }
 
         private void clearListViews() {
-           /* followedDroneCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
+           /* followedDroneCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
             followedDroneListView.setAdapter(followedDroneCustomAdapter);
-            trackedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
+            trackedDronesCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             trackedDronesListView.setAdapter(trackedDronesCustomAdapter);
-            visualizedDronesCustomAdapter = new CustomListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
+            visualizedDronesCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), false);
             visualizedDronesListView.setAdapter(visualizedDronesCustomAdapter);
             setListViewHeightBasedOnChildren(trackedDronesListView);
             setListViewHeightBasedOnChildren(visualizedDronesListView);
