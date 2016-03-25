@@ -5,29 +5,20 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +26,8 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -42,7 +35,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
@@ -51,8 +43,7 @@ import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
-
-import static android.Manifest.permission.READ_CONTACTS;
+import dron.mkapiczynski.pl.dronvision.utils.InitializationUtils;
 
 /**
  * A login screen that offers login via login/password.
@@ -110,6 +101,9 @@ public class LoginActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
 
         sessionManager = new SessionManager(this);
+
+        String ngrokPort = InitializationUtils.getInitializationNgrokPort();
+        Parameters.setInitializationParameters(ngrokPort);
     }
 
     private void attemptLogin() {
@@ -223,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = Parameters.LOGIN_REQUEST_URL;
+            String requestUrl = Parameters.getLoginRequestUrl();
 
             URL url = null;
             try {

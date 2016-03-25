@@ -35,7 +35,7 @@ import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = Parameters.SERVER;
+    private static final String SERVER = Parameters.getSERVER();
     private MainActivity activity;
     private ReestablishConnectionTask reestablishConnectionTask = null;
     private Button refreshConnectionButton;
