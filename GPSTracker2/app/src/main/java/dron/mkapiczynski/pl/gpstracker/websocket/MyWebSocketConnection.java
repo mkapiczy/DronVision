@@ -26,7 +26,6 @@ import dron.mkapiczynski.pl.gpstracker.message.TrackerSimulationMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = Parameters.SERVER;
     private final Long DRONE_ID = 1l;
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
@@ -38,7 +37,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
     public void connectToWebSocketServer(){
         try {
-            connect(SERVER, new WebSocketHandler() {
+            connect(Parameters.getSERVER(), new WebSocketHandler() {
                 @Override
                 public void onOpen() {
                     Log.d("WEBSOCKETS", "Connected to server");

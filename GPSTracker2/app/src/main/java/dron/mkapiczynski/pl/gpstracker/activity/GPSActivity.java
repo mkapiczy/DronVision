@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import dron.mkapiczynski.pl.gpstracker.R;
+import dron.mkapiczynski.pl.gpstracker.domain.Parameters;
+import dron.mkapiczynski.pl.gpstracker.utils.InitializationUtils;
 import dron.mkapiczynski.pl.gpstracker.websocket.MyWebSocketConnection;
 
 
@@ -62,6 +64,9 @@ public class GPSActivity extends Activity implements LocationListener {
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         gpsSignalProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+
+        String ngrokPortFromFile = InitializationUtils.getInitializationNgrokPort();
+        Parameters.setInitialParametersValues(ngrokPortFromFile);
 
         togglePeriodicLocationUpdates();
 
