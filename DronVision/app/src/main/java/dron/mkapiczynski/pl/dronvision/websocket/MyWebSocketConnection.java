@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.json.Json;
 
@@ -25,6 +26,7 @@ import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
+import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
 import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
@@ -35,11 +37,10 @@ import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private static final String SERVER = Parameters.getSERVER();
+    private String SERVER;
     private MainActivity activity;
     private ReestablishConnectionTask reestablishConnectionTask = null;
     private Button refreshConnectionButton;
-    private String buttonState;
     private boolean shouldBeReconnecting = true;
     private boolean recentlyConnected = true;
     private WebSocketOptions webSocketOptions;
@@ -52,6 +53,8 @@ public class MyWebSocketConnection extends WebSocketConnection {
         webSocketOptions = new WebSocketOptions();
         webSocketOptions.setMaxFramePayloadSize(2000000);
         webSocketOptions.setMaxMessagePayloadSize(2000000);
+        SessionManager sessionManager = new SessionManager(this.activity);
+        SERVER = Parameters.getServerAddress(sessionManager);
     }
 
     public void connectToWebSocketServer() {

@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
 
         String ngrokPort = InitializationUtils.getInitializationNgrokPort();
-        Parameters.setInitializationParameters(ngrokPort);
+        sessionManager.setServerHost(ngrokPort);
     }
 
     private void attemptLogin() {
@@ -217,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = Parameters.getLoginRequestUrl();
+            String requestUrl = Parameters.getLoginRequestUrl(sessionManager);
 
             URL url = null;
             try {

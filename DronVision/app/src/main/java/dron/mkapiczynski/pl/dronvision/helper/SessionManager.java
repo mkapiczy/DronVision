@@ -31,7 +31,7 @@ public class SessionManager {
 
     // Shared preferences file name
     private static final String PREF_NAME = "AndroidHiveLogin";
-
+    private static final String KEY_SERVER_HOST = "ServerAddress";
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
     private static final String KEY_LAST_MAP_CENTER = "lastMapCenter";
     private static final String KEY_FOLLOWED_DRONE = "followedDrone";
@@ -43,6 +43,16 @@ public class SessionManager {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
+    }
+
+    public void setServerHost(String serverPort){
+        String serverHost = "0.tcp.ngrok.io:" + serverPort;
+        editor.putString(KEY_SERVER_HOST, serverHost);
+        editor.commit();
+    }
+
+    public String getServerHost(){
+        return pref.getString(KEY_SERVER_HOST,"");
     }
 
     public void setLastMapCenter(GeoPoint lastMapCenter) {

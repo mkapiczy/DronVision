@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity
 
 
     // Websocket
-    private final MyWebSocketConnection client = new MyWebSocketConnection(this);
+    private MyWebSocketConnection client;
 
 
     @Override
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         visionMenuItem = navigationView.getMenu().findItem(R.id.nav_vision);
         visionMenuItem.setChecked(true);
         currentMenuItem = visionMenuItem;
-
+        client = new MyWebSocketConnection(this);
         client.connectToWebSocketServer();
 
         initiateFragmentManager();

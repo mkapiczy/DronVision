@@ -153,7 +153,7 @@ public class HistoryFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String requestUrl = Parameters.getHistoryGetSessionsRequestUrl();
+            String requestUrl = Parameters.getHistoryGetSessionsRequestUrl(sessionManager);
             try {
                 requestUrl += "?droneId=" + URLEncoder.encode(droneId.toString(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -261,7 +261,7 @@ public class HistoryFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String requestUrl = Parameters.getHistoryGetSearchedAreaRequestUrl();
+            String requestUrl = Parameters.getHistoryGetSearchedAreaRequestUrl(sessionManager);
             try {
                 requestUrl += "?sessionId=" + URLEncoder.encode(sessionId.toString(), "UTF-8");
             } catch (UnsupportedEncodingException e) {

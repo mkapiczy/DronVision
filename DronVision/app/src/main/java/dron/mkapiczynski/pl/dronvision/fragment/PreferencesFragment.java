@@ -220,7 +220,7 @@ public class PreferencesFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String requestUrl = Parameters.getPreferencesRequestUrl();
+            String requestUrl = Parameters.getPreferencesRequestUrl(sessionManager);
             try {
                 requestUrl += "?login=" + URLEncoder.encode(login, "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -365,7 +365,7 @@ public class PreferencesFragment extends Fragment {
             byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
 
-            String requestUrl = Parameters.getPreferencesRequestUrl();
+            String requestUrl = Parameters.getPreferencesRequestUrl(sessionManager);
 
             URL url = null;
             try {
