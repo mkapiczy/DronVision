@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import dron.mkapiczynski.pl.gpstracker.R;
-import dron.mkapiczynski.pl.gpstracker.domain.Parameters;
 import dron.mkapiczynski.pl.gpstracker.utils.InitializationUtils;
 import dron.mkapiczynski.pl.gpstracker.websocket.MyWebSocketConnection;
 
@@ -46,7 +45,7 @@ public class GPSActivity extends Activity implements LocationListener {
     private EditText editTextLongitude;
 
     // Websocket
-    private final MyWebSocketConnection client = new MyWebSocketConnection(this);
+    private  MyWebSocketConnection client;
 
 
     @Override
@@ -66,10 +65,10 @@ public class GPSActivity extends Activity implements LocationListener {
         gpsSignalProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
 
         String ngrokPortFromFile = InitializationUtils.getInitializationNgrokPort();
-        Parameters.setInitialParametersValues(ngrokPortFromFile);
+        String serverAddress = "ws://0.tcp.ngrok.io:" + ngrokPortFromFile + "/dron-server-web/server";
 
         togglePeriodicLocationUpdates();
-
+        client = new MyWebSocketConnection(this, serverAddress);
         client.connectToWebSocketServer();
 
         // Show location button click listener

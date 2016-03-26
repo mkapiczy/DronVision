@@ -15,7 +15,6 @@ import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketHandler;
 import dron.mkapiczynski.pl.gpstracker.R;
 import dron.mkapiczynski.pl.gpstracker.domain.GeoPoint;
-import dron.mkapiczynski.pl.gpstracker.domain.Parameters;
 import dron.mkapiczynski.pl.gpstracker.jsonHelper.JsonDateSerializer;
 import dron.mkapiczynski.pl.gpstracker.message.GeoDataMessage;
 import dron.mkapiczynski.pl.gpstracker.message.TrackerLoginMessage;
@@ -29,15 +28,17 @@ public class MyWebSocketConnection extends WebSocketConnection {
     private final Long DRONE_ID = 1l;
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
+    private String serverAddress;
 
-    public MyWebSocketConnection(Activity activity){
+    public MyWebSocketConnection(Activity activity, String serverAddress){
         super();
         this.activity = activity;
+        this.serverAddress = serverAddress;
     }
 
     public void connectToWebSocketServer(){
         try {
-            connect(Parameters.getSERVER(), new WebSocketHandler() {
+            connect(serverAddress, new WebSocketHandler() {
                 @Override
                 public void onOpen() {
                     Log.d("WEBSOCKETS", "Connected to server");
