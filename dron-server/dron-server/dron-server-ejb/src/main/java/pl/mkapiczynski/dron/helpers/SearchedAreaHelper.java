@@ -147,7 +147,7 @@ public class SearchedAreaHelper {
 		return locationList;
 	}
 
-	private static Location findMidpoint(Location loc1, Location loc2) {
+	/*private static Location findMidpoint(Location loc1, Location loc2) {
 		double lat1 = Math.toRadians(loc1.getLatitude());
 		double lon1 = Math.toRadians(loc1.getLongitude());
 		double lat2 = Math.toRadians(loc2.getLatitude());
@@ -161,7 +161,7 @@ public class SearchedAreaHelper {
 		double lon3 = lon1 + Math.atan2(by, Math.cos(lat1) * bx);
 
 		return new Location(lat3, lon3);
-	}
+	}*/
 
 	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
 		if (!degrees.isEmpty()) {
