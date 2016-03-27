@@ -1,5 +1,6 @@
 package pl.mkapiczynski.dron.business;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,9 @@ import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
+import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.domain.NDBDrone;
+import pl.mkapiczynski.dron.domain.NDBDroneSession;
 import pl.mkapiczynski.dron.domain.NDBUser;
 import pl.mkapiczynski.dron.helpers.NDBHelper;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
@@ -80,6 +83,18 @@ public class AdministrationServiceBean implements AdministrationService {
 			return ndbUser;
 		}
 		return null;
+	}
+	
+	@Override
+	public List<NDBDroneSession> getNDBDroneSessionsForDroneId(Long droneId){
+		List<DroneSession> droneSessions = new ArrayList<>();
+		String queryStr = "SELECT d FROM DroneSession d WHERE d.drone.id like :droneId AND d.sessionStarted!=NULL AND d.sessionEnded!=null ORDER BY d.sessionStarted DESC";
+		TypedQuery<DroneSession> query = entityManager.createQuery(queryStr, DroneSession.class);
+		query.setParameter("droneId", droneId);
+		query.setMaxResults(10);
+		droneSessions = query.getResultList();
+		List<NDBDroneSession> ndbDroneSessions = NDBHelper.convertDroneSessionsToNDBDroneSessions(droneSessions);	
+		return ndbDroneSessions;
 	}
 
 	@Override

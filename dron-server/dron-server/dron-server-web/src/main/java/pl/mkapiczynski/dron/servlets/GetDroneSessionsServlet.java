@@ -1,13 +1,7 @@
 package pl.mkapiczynski.dron.servlets;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,20 +12,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.jboss.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import pl.mkapiczynski.dron.business.DroneService;
+import pl.mkapiczynski.dron.business.AdministrationService;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.domain.NDBDroneSession;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.JsonDateDeserializer;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
-import pl.mkapiczynski.dron.message.SetPreferencesMessage;
 import pl.mkapiczynski.dron.response.GetDroneSessionsResponse;
 
 /**
@@ -43,7 +34,7 @@ public class GetDroneSessionsServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(GetDroneSessionsServlet.class);
 
 	@EJB
-	private DroneService droneService;
+	private AdministrationService administrationService;
 
 	public GetDroneSessionsServlet() {
 		super();
@@ -61,21 +52,7 @@ public class GetDroneSessionsServlet extends HttpServlet {
 		if (droneId != null) {
 			log.info("Request for login " + droneId);
 			Long droneIdLong = Long.parseLong(droneId);
-			List<DroneSession> droneSessions = droneService.getDroneSessions(droneIdLong);
-			List<NDBDroneSession> ndbDroneSessions = new ArrayList<>();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			for (int i = 0; i < droneSessions.size(); i++) {
-				DroneSession currentIteratedDroneSession = droneSessions.get(i);
-				NDBDroneSession ndbDroneSession = new NDBDroneSession();
-				ndbDroneSession.setSessionId(currentIteratedDroneSession.getSessionId());
-				ndbDroneSession.setDroneId(currentIteratedDroneSession.getDrone().getDroneId());
-				ndbDroneSession.setDroneName(currentIteratedDroneSession.getDrone().getDroneName());
-				String startDate = dateFormat.format(currentIteratedDroneSession.getSessionStarted());
-				String endDate = dateFormat.format(currentIteratedDroneSession.getSessionEnded());
-				ndbDroneSession.setSessionStarted(startDate);
-				ndbDroneSession.setSessionEnded(endDate);
-				ndbDroneSessions.add(ndbDroneSession);
-			}
+			List<NDBDroneSession> ndbDroneSessions = administrationService.getNDBDroneSessionsForDroneId(droneIdLong);
 			GetDroneSessionsResponse getDroneSessionsResponse = new GetDroneSessionsResponse();
 			getDroneSessionsResponse.setDroneSessions(ndbDroneSessions);
 			GsonBuilder gsonBuilder = new GsonBuilder();
