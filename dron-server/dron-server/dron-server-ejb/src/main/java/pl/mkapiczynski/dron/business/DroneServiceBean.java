@@ -125,7 +125,7 @@ public class DroneServiceBean implements DroneService {
 		}
 	}
 
-	private List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
+	/*private List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
 		List<Location> locationSearchedArea = new ArrayList();
 		for (int i = 0; i < geoPointSearchedArea.size(); i++) {
 			GeoPoint tempPoint = geoPointSearchedArea.get(i);
@@ -136,7 +136,7 @@ public class DroneServiceBean implements DroneService {
 			locationSearchedArea.add(loc);
 		}
 		return locationSearchedArea;
-	}
+	}*/
 
 	@Override
 	public List<DroneSession> getDroneSessions(Long droneId) {

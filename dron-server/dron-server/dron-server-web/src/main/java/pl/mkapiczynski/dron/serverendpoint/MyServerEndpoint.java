@@ -29,8 +29,8 @@ import pl.mkapiczynski.dron.message.TrackerLoginMessage;
 
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
-public class ServerEndpoint {
-	private static final Logger log = Logger.getLogger(ServerEndpoint.class);
+public class MyServerEndpoint {
+	private static final Logger log = Logger.getLogger(MyServerEndpoint.class);
 
 	@Inject
 	private GPSTrackerDeviceService gpsTrackerDeviceService;
@@ -44,9 +44,9 @@ public class ServerEndpoint {
 	@Inject
 	private SimulationService simulationService;
 
-	public static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
-	public static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
-	public static Set<Session> clientDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
+	private static Set<Session> allSessions = Collections.synchronizedSet(new HashSet<Session>());
+	private static Set<Session> gpsTrackerDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
+	private static Set<Session> clientDeviceSessions = Collections.synchronizedSet(new HashSet<Session>());
 
 	@OnOpen
 	public void handleOpen(Session session) throws IOException, EncodeException {

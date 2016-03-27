@@ -3,10 +3,18 @@ package pl.mkapiczynski.dron.helpers;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.log4j.Logger;
 
 public class HttpHelper {
@@ -41,50 +49,19 @@ public class HttpHelper {
 	   
         
     }
-
-    public static void sendXML(HttpServletResponse response, String xml) {   
-	    try {
-	    	response.setHeader("Content-Type", "application/xml; charset=UTF-8");
-	    	response.getOutputStream().write(xml.getBytes("UTF-8"));
-			setStatusOrError(response, ServerResponse.OK);
-			log.info("XML send");
-		} catch (IOException e) {
-			log.error("Error sending xml", e);
-			setStatusOrError(response, ServerResponse.INTERNAL_SERVER_ERROR);
+    
+    public static Map<String, String> readRequestParameters(String url) {
+		List<NameValuePair> params = new ArrayList<>();
+		try {
+			params = URLEncodedUtils.parse(new URI(url), "UTF-8");
+		} catch (URISyntaxException e1) {
+			log.info("Exception during parsing address url", e1);
 		}
-	   
-        
-    }
-    
-    public static void sendXMLLikeInWebservice(HttpServletResponse response,String nameOfTheMethod,  String xml) {   
-	   String begin = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-	   		+ "<soap:Body>"
-	   		+ "<ns2:"+
-	   		nameOfTheMethod +
-	   		" xmlns:ns2=\"urn:smartcity:integration-channel:1.0\">";
-	   
-	   String end = "</ns2:"+
-			   nameOfTheMethod 
-	   			+ "></soap:Body>"
-	   			+ "</soap:Envelope>";
-       xml = removeListAnnotationsFromXml(xml);
-	   sendXML(response, begin + xml + end);
-    }
-    
-    private static String removeListAnnotationsFromXml(String xml) {
-		return xml.replaceAll("<list>", "").replaceAll("</list>", "");
+		Map<String, String> parameters = new HashMap<String, String>();
+		for (NameValuePair param : params) {
+			parameters.put(param.getName(), param.getValue());
+		}
+		return parameters;
 	}
-
-	public static void sendMessage(HttpServletResponse response, int sc,  String message){
-    	try {
-    		response.setStatus(sc);
-    		response.getWriter().write(message);
-    		response.getWriter().flush();
-    		response.getWriter().close();
-    	} catch (IOException e) {
-			log.error("Error sending xml", e);
-			setStatusOrError(response, ServerResponse.INTERNAL_SERVER_ERROR);
-		}
-    }
     
 }

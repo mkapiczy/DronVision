@@ -43,7 +43,7 @@ public class GetDroneSessionsServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(GetDroneSessionsServlet.class);
 
 	@EJB
-	DroneService droneService;
+	private DroneService droneService;
 
 	public GetDroneSessionsServlet() {
 		super();
@@ -53,7 +53,7 @@ public class GetDroneSessionsServlet extends HttpServlet {
 			throws ServletException, IOException {
 		log.info("GetDroneSessionsRequest received");
 		String url = request.getRequestURL() + ("?") + request.getQueryString();
-		Map<String, String> parameters = readRequestParameters(url);
+		Map<String, String> parameters = HttpHelper.readRequestParameters(url);
 		String droneId = parameters.get("droneId");
 
 		log.info("GetDroneSessionsRequest request for droneId " + droneId);
@@ -92,20 +92,6 @@ public class GetDroneSessionsServlet extends HttpServlet {
 			throws ServletException, IOException {
 		log.info("Unexpected POST request for GetDroneSessionsServlet");
 		HttpHelper.setStatusOrError(response, ServerResponse.METHOD_NOT_ALLOWED);
-	}
-
-	private Map<String, String> readRequestParameters(String url) {
-		List<NameValuePair> params = new ArrayList<>();
-		try {
-			params = URLEncodedUtils.parse(new URI(url), "UTF-8");
-		} catch (URISyntaxException e1) {
-			log.info("Exception during parsing address url", e1);
-		}
-		Map<String, String> parameters = new HashMap<String, String>();
-		for (NameValuePair param : params) {
-			parameters.put(param.getName(), param.getValue());
-		}
-		return parameters;
 	}
 
 }

@@ -47,7 +47,7 @@ public class PreferencesServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("GetPreferencesRequest received");
 		String url = request.getRequestURL()+("?")+request.getQueryString();
-		Map<String, String> parameters = readRequestParameters(url);
+		Map<String, String> parameters = HttpHelper.readRequestParameters(url);
 		String login = parameters.get("login");
 		
 		log.info("getPreferences request for login " + login);
@@ -90,24 +90,9 @@ public class PreferencesServlet extends HttpServlet {
 		
 	}
 	
-	private Map<String, String> readRequestParameters(String url) {
-		List<NameValuePair> params = new ArrayList<>();
-		try {
-			params = URLEncodedUtils.parse(new URI(url), "UTF-8");
-		} catch (URISyntaxException e1) {
-			log.info("Exception during parsing address url", e1);
-		}
-		Map<String, String> parameters = new HashMap<String, String>();
-		for (NameValuePair param : params) {
-			parameters.put(param.getName(), param.getValue());
-		}
-		return parameters;
-	}
-	
 	private SetPreferencesMessage decodeSetPreferencesMessage(String jsonMessage) {
 		Gson gson = new Gson();
 		return gson.fromJson(jsonMessage, SetPreferencesMessage.class);
-
 	}
 
 }

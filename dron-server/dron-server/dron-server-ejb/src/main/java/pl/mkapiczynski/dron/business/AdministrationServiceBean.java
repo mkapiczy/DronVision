@@ -60,14 +60,7 @@ public class AdministrationServiceBean implements AdministrationService {
 		return false;
 	}
 
-	private boolean userPasswordIsCorrect(ClientUser user, String password) {
-		if (user.getUserAccount() != null) {
-			if (password.equals(user.getUserAccount().getPassword())) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 
 	@Override
 	public PreferencesResponse getPreferencesForClient(String login) {
@@ -87,24 +80,6 @@ public class AdministrationServiceBean implements AdministrationService {
 			preferencesResponse.setVisualizedDrones(convertDronesToNDTDrones(user.getVisualizedDrones()));
 		}
 		return preferencesResponse;
-	}
-
-	private List<NDBDrone> convertDronesToNDTDrones(List<Drone> drones) {
-		List<NDBDrone> ndtDronesList = new ArrayList<>();
-		for (int i = 0; i < drones.size(); i++) {
-			NDBDrone ndtDrone = new NDBDrone();
-			Drone drone = drones.get(i);
-			ndtDrone.setDroneId(drone.getDroneId());
-			ndtDrone.setDroneName(drone.getDroneName());
-			ndtDrone.setDroneDescription(drone.getDroneDescription());
-			ndtDrone.setStatus(drone.getStatus());
-			if (drone.getLastLocation() != null) {
-				ndtDrone.setLastLocation(
-						new GeoPoint(drone.getLastLocation().getLatitude(), drone.getLastLocation().getLongitude()));
-			}
-			ndtDronesList.add(ndtDrone);
-		}
-		return ndtDronesList;
 	}
 
 	@Override
@@ -142,7 +117,35 @@ public class AdministrationServiceBean implements AdministrationService {
 		return false;
 
 	}
+	
+	private boolean userPasswordIsCorrect(ClientUser user, String password) {
+		if (user.getUserAccount() != null) {
+			if (password.equals(user.getUserAccount().getPassword())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
+	
+	private List<NDBDrone> convertDronesToNDTDrones(List<Drone> drones) {
+		List<NDBDrone> ndtDronesList = new ArrayList<>();
+		for (int i = 0; i < drones.size(); i++) {
+			NDBDrone ndtDrone = new NDBDrone();
+			Drone drone = drones.get(i);
+			ndtDrone.setDroneId(drone.getDroneId());
+			ndtDrone.setDroneName(drone.getDroneName());
+			ndtDrone.setDroneDescription(drone.getDroneDescription());
+			ndtDrone.setStatus(drone.getStatus());
+			if (drone.getLastLocation() != null) {
+				ndtDrone.setLastLocation(
+						new GeoPoint(drone.getLastLocation().getLatitude(), drone.getLastLocation().getLongitude()));
+			}
+			ndtDronesList.add(ndtDrone);
+		}
+		return ndtDronesList;
+	}
+	
 	private List<Drone> getDBDronesFromNDTDrones(List<NDBDrone> ndtDrones, List<Drone> assignedDrones) {
 		List<Drone> drones = new ArrayList<>();
 		for (int i = 0; i < assignedDrones.size(); i++) {
@@ -155,7 +158,7 @@ public class AdministrationServiceBean implements AdministrationService {
 		return drones;
 	}
 
-	public ClientUser getUserForLogin(String login) {
+	private ClientUser getUserForLogin(String login) {
 		ClientUser foundUser = null;
 		String queryStr = "Select c FROM ClientUser c where c.userAccount.login = :login";
 		Query query = entityManager.createQuery(queryStr);
