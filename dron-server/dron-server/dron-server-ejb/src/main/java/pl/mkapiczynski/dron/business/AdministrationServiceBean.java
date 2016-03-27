@@ -8,16 +8,15 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
 
 import org.jboss.logging.Logger;
 
 import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
-import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBDrone;
-import pl.mkapiczynski.dron.message.PreferencesResponse;
+import pl.mkapiczynski.dron.domain.NDBUser;
+import pl.mkapiczynski.dron.helpers.NDBHelper;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
 
 @Local
@@ -63,8 +62,7 @@ public class AdministrationServiceBean implements AdministrationService {
 
 
 	@Override
-	public PreferencesResponse getPreferencesForClient(String login) {
-		PreferencesResponse preferencesResponse = new PreferencesResponse();
+	public NDBUser getNDBUserForLogin(String login) {
 		String queryStr = "SELECT u FROM ClientUser u WHERE u.userAccount.login = :login";
 		Query query = entityManager.createQuery(queryStr);
 		query.setParameter("login", login);
@@ -74,12 +72,14 @@ public class AdministrationServiceBean implements AdministrationService {
 			user = userList.get(0);
 		}
 		if (user != null) {
-			preferencesResponse.setLogin(user.getUserAccount().getLogin());
-			preferencesResponse.setAssignedDrones(convertDronesToNDTDrones(user.getAssignedDrones()));
-			preferencesResponse.setTrackedDrones(convertDronesToNDTDrones(user.getTrackedDrones()));
-			preferencesResponse.setVisualizedDrones(convertDronesToNDTDrones(user.getVisualizedDrones()));
+			NDBUser ndbUser = new NDBUser();
+			ndbUser.setLogin(user.getUserAccount().getLogin());
+			ndbUser.setAssignedDrones(NDBHelper.convertDronesToNDBDrones(user.getAssignedDrones()));
+			ndbUser.setTrackedDrones(NDBHelper.convertDronesToNDBDrones(user.getTrackedDrones()));
+			ndbUser.setVisualizedDrones(NDBHelper.convertDronesToNDBDrones(user.getVisualizedDrones()));
+			return ndbUser;
 		}
-		return preferencesResponse;
+		return null;
 	}
 
 	@Override
@@ -89,33 +89,34 @@ public class AdministrationServiceBean implements AdministrationService {
 		if (userToUpdate != null) {
 			List<Drone> userAssignedDrones = userToUpdate.getAssignedDrones();
 			if (userAssignedDrones != null) {
+				
 				boolean trackedDronesChanged = setPreferencesMessage.isTrackedDronesChanged();
 				if (trackedDronesChanged) {
 					List<NDBDrone> trackedDrones = setPreferencesMessage.getTrackedDrones();
-					List<Drone> dbTrackedDrones = getDBDronesFromNDTDrones(trackedDrones, userAssignedDrones);
+					List<Drone> dbTrackedDrones = NDBHelper.getDBDronesFromNDTDrones(trackedDrones, userAssignedDrones);
 					if (dbTrackedDrones != null && !dbTrackedDrones.isEmpty()) {
 						userToUpdate.setTrackedDrones(dbTrackedDrones);
 					} else {
 						userToUpdate.getTrackedDrones().clear();
 					}
 				}
-			}
 
-			boolean visualizedDronesChanged = setPreferencesMessage.isVisualizedDronesChanged();
-			if (visualizedDronesChanged) {
-				List<NDBDrone> visualizedDrones = setPreferencesMessage.getVisualizedDrones();
-				List<Drone> dbVisualizedDrones = getDBDronesFromNDTDrones(visualizedDrones, userAssignedDrones);
-				if (dbVisualizedDrones != null && !dbVisualizedDrones.isEmpty()) {
-					userToUpdate.setVisualizedDrones(dbVisualizedDrones);
-				} else {
-					userToUpdate.getVisualizedDrones().clear();
+				boolean visualizedDronesChanged = setPreferencesMessage.isVisualizedDronesChanged();
+				if (visualizedDronesChanged) {
+					List<NDBDrone> visualizedDrones = setPreferencesMessage.getVisualizedDrones();
+					List<Drone> dbVisualizedDrones = NDBHelper.getDBDronesFromNDTDrones(visualizedDrones,
+							userAssignedDrones);
+					if (dbVisualizedDrones != null && !dbVisualizedDrones.isEmpty()) {
+						userToUpdate.setVisualizedDrones(dbVisualizedDrones);
+					} else {
+						userToUpdate.getVisualizedDrones().clear();
+					}
 				}
-			}
 
-			return true;
+				return true;
+			}
 		}
 		return false;
-
 	}
 	
 	private boolean userPasswordIsCorrect(ClientUser user, String password) {
@@ -128,35 +129,7 @@ public class AdministrationServiceBean implements AdministrationService {
 	}
 
 	
-	private List<NDBDrone> convertDronesToNDTDrones(List<Drone> drones) {
-		List<NDBDrone> ndtDronesList = new ArrayList<>();
-		for (int i = 0; i < drones.size(); i++) {
-			NDBDrone ndtDrone = new NDBDrone();
-			Drone drone = drones.get(i);
-			ndtDrone.setDroneId(drone.getDroneId());
-			ndtDrone.setDroneName(drone.getDroneName());
-			ndtDrone.setDroneDescription(drone.getDroneDescription());
-			ndtDrone.setStatus(drone.getStatus());
-			if (drone.getLastLocation() != null) {
-				ndtDrone.setLastLocation(
-						new GeoPoint(drone.getLastLocation().getLatitude(), drone.getLastLocation().getLongitude()));
-			}
-			ndtDronesList.add(ndtDrone);
-		}
-		return ndtDronesList;
-	}
-	
-	private List<Drone> getDBDronesFromNDTDrones(List<NDBDrone> ndtDrones, List<Drone> assignedDrones) {
-		List<Drone> drones = new ArrayList<>();
-		for (int i = 0; i < assignedDrones.size(); i++) {
-			for (int j = 0; j < ndtDrones.size(); j++) {
-				if (assignedDrones.get(i).getDroneId() == ndtDrones.get(j).getDroneId()) {
-					drones.add(assignedDrones.get(i));
-				}
-			}
-		}
-		return drones;
-	}
+
 
 	private ClientUser getUserForLogin(String login) {
 		ClientUser foundUser = null;

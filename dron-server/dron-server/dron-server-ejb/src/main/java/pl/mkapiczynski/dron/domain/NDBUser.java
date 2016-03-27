@@ -1,10 +1,8 @@
-package pl.mkapiczynski.dron.message;
+package pl.mkapiczynski.dron.domain;
 
 import java.util.List;
 
-import pl.mkapiczynski.dron.domain.NDBDrone;
-
-public class PreferencesResponse {
+public class NDBUser {
 	private String login;
 	private List<NDBDrone> assignedDrones;
 	private List<NDBDrone> trackedDrones;

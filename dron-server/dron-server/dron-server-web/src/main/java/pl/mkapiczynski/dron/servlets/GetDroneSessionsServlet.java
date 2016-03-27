@@ -31,8 +31,8 @@ import pl.mkapiczynski.dron.domain.NDBDroneSession;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.JsonDateDeserializer;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
-import pl.mkapiczynski.dron.message.GetDroneSessionsResponse;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
+import pl.mkapiczynski.dron.response.GetDroneSessionsResponse;
 
 /**
  * Servlet implementation class PreferencesServlet

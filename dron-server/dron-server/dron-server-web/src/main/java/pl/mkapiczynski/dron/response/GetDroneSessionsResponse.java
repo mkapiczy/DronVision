@@ -1,4 +1,4 @@
-package pl.mkapiczynski.dron.message;
+package pl.mkapiczynski.dron.response;
 
 import java.util.List;
 
