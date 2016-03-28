@@ -20,7 +20,7 @@ import pl.mkapiczynski.dron.domain.NDBUser;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
-import pl.mkapiczynski.dron.response.PreferencesResponse;
+import pl.mkapiczynski.dron.response.GetPreferencesResponse;
 
 /**
  * Servlet implementation class PreferencesServlet
@@ -50,7 +50,7 @@ public class PreferencesServlet extends HttpServlet {
 			log.info("Request for login " + login);
 			NDBUser user = administrationService.getNDBUserForLogin(login);
 			if (user != null) {
-				PreferencesResponse preferencesResponse = new PreferencesResponse();
+				GetPreferencesResponse preferencesResponse = new GetPreferencesResponse();
 				preferencesResponse.setLogin(user.getLogin());
 				preferencesResponse.setAssignedDrones(user.getAssignedDrones());
 				preferencesResponse.setTrackedDrones(user.getTrackedDrones());

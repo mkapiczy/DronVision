@@ -18,7 +18,7 @@ import pl.mkapiczynski.dron.business.AdministrationService;
 import pl.mkapiczynski.dron.domain.NDBUser;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
-import pl.mkapiczynski.dron.response.PreferencesResponse;
+import pl.mkapiczynski.dron.response.GetPreferencesResponse;
 
 /**
  * Servlet implementation class LoginServlet
@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
 			if (administrationService.checkLoginData(login, password)) {
 				NDBUser user = administrationService.getNDBUserForLogin(login);
 				if (user != null) {
-					PreferencesResponse preferencesResponse = new PreferencesResponse();
+					GetPreferencesResponse preferencesResponse = new GetPreferencesResponse();
 					preferencesResponse.setLogin(user.getLogin());
 					preferencesResponse.setAssignedDrones(user.getAssignedDrones());
 					preferencesResponse.setTrackedDrones(user.getTrackedDrones());
