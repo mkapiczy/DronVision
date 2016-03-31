@@ -13,7 +13,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.json.Json;
 
@@ -26,10 +25,10 @@ import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
-import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
 
 /**
@@ -37,7 +36,7 @@ import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
  */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
-    private String SERVER;
+    private String serverAddress;
     private MainActivity activity;
     private ReestablishConnectionTask reestablishConnectionTask = null;
     private Button refreshConnectionButton;
@@ -54,12 +53,12 @@ public class MyWebSocketConnection extends WebSocketConnection {
         webSocketOptions.setMaxFramePayloadSize(2000000);
         webSocketOptions.setMaxMessagePayloadSize(2000000);
         SessionManager sessionManager = new SessionManager(this.activity);
-        SERVER = Parameters.getServerAddress(sessionManager);
+        serverAddress = Parameters.getServerAddress(sessionManager);
     }
 
     public void connectToWebSocketServer() {
         try {
-            connect(SERVER, new WebSocketHandler() {
+            connect(serverAddress, new WebSocketHandler() {
                 @Override
                 public void onOpen() {
                     shouldBeReconnecting = true;

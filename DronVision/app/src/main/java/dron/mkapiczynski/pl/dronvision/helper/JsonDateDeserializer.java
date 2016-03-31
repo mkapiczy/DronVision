@@ -11,7 +11,11 @@ import java.util.Date;
 
 public class JsonDateDeserializer implements JsonDeserializer<Date>{
 	 private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	 public Date deserialize(JsonElement dateStr, Type typeOfSrc, JsonDeserializationContext context)
+
+	public JsonDateDeserializer() {
+	}
+
+	public Date deserialize(JsonElement dateStr, Type typeOfSrc, JsonDeserializationContext context)
 	   {
 	      try
 	      {

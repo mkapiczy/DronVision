@@ -1,9 +1,6 @@
 package dron.mkapiczynski.pl.dronvision.domain;
 
 import java.util.Date;
-import java.util.List;
-
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 
 /**
  * Created by Miix on 2016-03-11.

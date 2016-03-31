@@ -32,11 +32,11 @@ import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 public class VisionFragment extends Fragment {
     private static final String TAG = VisionFragment.class.getSimpleName();
 
-    private VisionFragmentActivityListener listener;
+    private VisionFragmentActivityListener visionFragmentActivityListener;
 
     // User Interface
     private MapView mapView;
-    private Button refreshConnectionButton;
+    //private Button refreshConnectionButton;
     private Button simulationRunningButton;
     private Button turnOffCurrentModeButton;
     private Button restartSimulationButton;
@@ -61,7 +61,7 @@ public class VisionFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_vision, container, false);
 
-        refreshConnectionButton = (Button) view.findViewById(R.id.websocketConnectionStateButton);
+        //refreshConnectionButton = (Button) view.findViewById(R.id.websocketConnectionStateButton);
         simulationRunningButton = (Button) view.findViewById(R.id.stopSimulationButton);
         turnOffCurrentModeButton = (Button) view.findViewById(R.id.turnOffSimulationModeButton);
         restartSimulationButton = (Button) view.findViewById(R.id.restartSimulationButton);
@@ -78,40 +78,25 @@ public class VisionFragment extends Fragment {
         restartSimulationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onRestartSimulationButtonClicked();
+                visionFragmentActivityListener.onRestartSimulationButtonClicked();
             }
         });
 
         turnOffCurrentModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.turnOffCurrentModeButtonClicked();
+                visionFragmentActivityListener.turnOffCurrentModeButtonClicked();
             }
         });
 
         return view;
     }
 
-    private void setOnClickListnerForSimulationButton() {
-        simulationRunningButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String buttonText = simulationRunningButton.getText().toString();
-                if ("Zatrzymaj symulację!".equals(buttonText)) {
-                    listener.onStopSimulationButtonCliecked();
-                } else if ("Wznów symulację!".equals(buttonText)) {
-                    listener.onRerunSimulationButtonClicked();
-                }
-
-            }
-        });
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof VisionFragmentActivityListener) {
-            listener = (VisionFragmentActivityListener) context;
+            visionFragmentActivityListener = (VisionFragmentActivityListener) context;
         } else {
             throw new ClassCastException(context.toString() + " musi implementować interfejs: " +
                     "VisionFragment.VisionFragmentActivityListener");
@@ -126,6 +111,20 @@ public class VisionFragment extends Fragment {
         }
     }
 
+    private void setOnClickListnerForSimulationButton() {
+        simulationRunningButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String buttonText = simulationRunningButton.getText().toString();
+                if ("Zatrzymaj symulację!".equals(buttonText)) {
+                    visionFragmentActivityListener.onStopSimulationButtonCliecked();
+                } else if ("Wznów symulację!".equals(buttonText)) {
+                    visionFragmentActivityListener.onRerunSimulationButtonClicked();
+                }
+
+            }
+        });
+    }
     public boolean isSimulationMode() {
         return simulationMode;
     }

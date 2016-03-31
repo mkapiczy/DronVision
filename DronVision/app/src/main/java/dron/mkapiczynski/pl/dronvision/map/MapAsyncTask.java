@@ -8,13 +8,12 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 import dron.mkapiczynski.pl.dronvision.utils.DroneUtils;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 

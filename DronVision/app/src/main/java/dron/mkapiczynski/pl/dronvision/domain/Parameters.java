@@ -2,7 +2,7 @@ package dron.mkapiczynski.pl.dronvision.domain;
 
 import org.osmdroid.util.GeoPoint;
 
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 
 /**
  * Created by Miix on 2016-02-14.
@@ -19,15 +19,6 @@ public class Parameters {
     public static final String STOP_SIMULATION_MESSAGE_TASK = "stopSimulation";
     public static final String RERUN_SIMULATION_MESSAGE_TASK = "rerunSimulation";
 
-   /* public static void setInitializationParameters(String hostPortFromFile) {
-        SERVER_HOST += hostPortFromFile;
-        SERVER = "ws://" + SERVER_HOST + "/dron-server-web/server";
-        LOGIN_REQUEST_URL = "http://" + SERVER_HOST + "/dron-server-web/login";
-        PREFERENCES_REQUEST_URL = "http://" + SERVER_HOST + "/dron-server-web/preferences";
-        HISTORY_GET_SESSIONS_REQUEST_URL = "http://" + SERVER_HOST + "/dron-server-web/getDroneSessions";
-        HISTORY_GET_SEARCHED_AREA_REQUEST_URL = "http://" + SERVER_HOST + "/dron-server-web/getSearchedArea";
-        ;
-    }*/
 
     public static String getServerAddress(SessionManager sessionManager) {
         String serverHost = sessionManager.getServerHost();

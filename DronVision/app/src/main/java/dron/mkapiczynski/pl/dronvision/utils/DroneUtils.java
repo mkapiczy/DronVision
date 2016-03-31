@@ -30,6 +30,13 @@ public class DroneUtils {
         }
     }
 
+    public static Drawable getDroneMarkerIcon(Drone dronToUpdate, Activity activity) {
+        Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
+        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 1);
+        droneIcon.setColorFilter(filter);
+        return droneIcon;
+    }
+
     private static boolean dronesSetContainsThisDrone(Drone droneToUpdate, Set<Drone> drones) {
         Iterator<Drone> iterator = drones.iterator();
         while (iterator.hasNext()) {
@@ -64,12 +71,6 @@ public class DroneUtils {
         dronesSet.add(droneToAdd);
     }
 
-    public static Drawable getDroneMarkerIcon(Drone dronToUpdate, Activity activity) {
-        Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
-        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 1);
-        droneIcon.setColorFilter(filter);
-        return droneIcon;
-    }
 
     private static int getRandomColor() {
         Random rnd = new Random();

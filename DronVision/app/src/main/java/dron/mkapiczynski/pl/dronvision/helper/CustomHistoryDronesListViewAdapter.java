@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.fragment.HistoryFragment;
 
 /**
@@ -23,15 +23,14 @@ public class CustomHistoryDronesListViewAdapter extends ArrayAdapter<DBDrone> {
     private HistoryFragment historyFragment;
     private List<DBDrone> assignedDrones;
     private Context context;
-    private boolean changed = false;
-    private SessionManager sessionManager;
+
 
     public CustomHistoryDronesListViewAdapter(HistoryFragment historyFragment, Context context, List<DBDrone> assignedDrones) {
         super(context, R.layout.row, assignedDrones);
         this.context = context;
         this.assignedDrones = assignedDrones;
         this.historyFragment = historyFragment;
-        sessionManager = new SessionManager(context);
+
         historyFragment.changeHistoryListTitle("Dostępne drony:");
     }
 

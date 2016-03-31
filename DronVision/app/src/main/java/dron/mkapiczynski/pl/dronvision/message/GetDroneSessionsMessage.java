@@ -1,9 +1,7 @@
 package dron.mkapiczynski.pl.dronvision.message;
 
-import java.util.Date;
 import java.util.List;
 
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.DroneSession;
 
 /**

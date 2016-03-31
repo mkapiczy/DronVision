@@ -14,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,8 +25,6 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -38,11 +35,11 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
-import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.utils.InitializationUtils;
 
 /**
@@ -198,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String login;
         private final String password;

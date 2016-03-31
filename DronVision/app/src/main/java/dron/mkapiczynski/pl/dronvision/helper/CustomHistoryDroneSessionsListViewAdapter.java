@@ -25,7 +25,6 @@ public class CustomHistoryDroneSessionsListViewAdapter extends ArrayAdapter<Dron
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private HistoryFragment historyFragment;
     private Context context;
-    private SessionManager sessionManager;
     private List<DroneSession> droneSessions;
 
 
@@ -34,7 +33,6 @@ public class CustomHistoryDroneSessionsListViewAdapter extends ArrayAdapter<Dron
         this.context = context;
         this.droneSessions = droneSessions;
         this.historyFragment = historyFragment;
-        sessionManager = new SessionManager(context);
         historyFragment.changeHistoryListTitle("Dostępne sesje:");
 
     }

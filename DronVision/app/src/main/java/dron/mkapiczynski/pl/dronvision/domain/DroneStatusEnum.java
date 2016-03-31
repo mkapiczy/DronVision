@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.dronvision.database;
+package dron.mkapiczynski.pl.dronvision.domain;
 
 /**
  * Created by Miix on 2016-01-13.

@@ -28,16 +28,16 @@ import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.DroneSession;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomHistoryDroneSessionsListViewAdapter;
 import dron.mkapiczynski.pl.dronvision.helper.CustomHistoryDronesListViewAdapter;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.GetDroneSessionsMessage;
 import dron.mkapiczynski.pl.dronvision.message.GetSearchedAreaMessage;
-import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 
 
 public class HistoryFragment extends Fragment {
@@ -87,8 +87,8 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    public void changeHistoryListTitle(String text) {
-        historyListTitleTextView.setText(text);
+    public void changeHistoryListTitle(String newTitle) {
+        historyListTitleTextView.setText(newTitle);
     }
 
     public void showDroneListView() {
@@ -204,7 +204,6 @@ public class HistoryFragment extends Fragment {
             getDroneSessionsTask = null;
             if (success) {
                 updateListViewsWithReceivedData();
-                updateSharedPreferencesWithReceivedData();
             } else {
                 clearListViews();
                 //  networkErrorTextView.setVisibility(View.VISIBLE);
@@ -227,9 +226,6 @@ public class HistoryFragment extends Fragment {
             setListViewHeightBasedOnChildren(historyListView);
         }
 
-        private void updateSharedPreferencesWithReceivedData() {
-
-        }
 
         private void clearListViews() {
            /* followedDroneCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);
@@ -312,7 +308,6 @@ public class HistoryFragment extends Fragment {
             getDroneSessionsTask = null;
             if (success) {
                 updateListViewsWithReceivedData();
-                updateSharedPreferencesWithReceivedData();
             } else {
                 clearListViews();
                 //  networkErrorTextView.setVisibility(View.VISIBLE);
@@ -341,9 +336,7 @@ public class HistoryFragment extends Fragment {
             }
         }
 
-        private void updateSharedPreferencesWithReceivedData() {
 
-        }
 
         private void clearListViews() {
            /* followedDroneCustomAdapter = new CustomPreferencesListViewAdapter(getContext(), new ArrayList<DBDrone>(), new ArrayList<DBDrone>(), true);

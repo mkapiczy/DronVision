@@ -1,7 +1,6 @@
-package dron.mkapiczynski.pl.dronvision.database;
+package dron.mkapiczynski.pl.dronvision.domain;
 
-import org.osmdroid.util.GeoPoint;
-
+import dron.mkapiczynski.pl.dronvision.domain.DroneStatusEnum;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 
 /**

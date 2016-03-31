@@ -36,11 +36,11 @@ import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomPreferencesListViewAdapter;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
-import dron.mkapiczynski.pl.dronvision.message.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
+import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
 import dron.mkapiczynski.pl.dronvision.message.SetPreferencesMessage;
 

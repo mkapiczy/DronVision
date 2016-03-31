@@ -17,9 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.helper.SessionManager;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -64,6 +63,11 @@ public class MapUtils {
         }
 
         return mapOverlays;
+    }
+
+    public static void addScaleBarOverlayToMapView(List<Overlay> mapOverlays, Activity activity) {
+        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
+        mapOverlays.add(myScaleBarOverlay);
     }
 
     private static boolean droneIsVisualized(Drone drone, List<DBDrone> visualizedDrones) {
@@ -128,10 +132,5 @@ public class MapUtils {
             searchedArea.setHoles(holes);*/
             mapOverlays.add(searchedArea);
         }
-    }
-
-    public static void addScaleBarOverlayToMapView(List<Overlay> mapOverlays, Activity activity) {
-        ScaleBarOverlay myScaleBarOverlay = new ScaleBarOverlay(activity.getApplicationContext());
-        mapOverlays.add(myScaleBarOverlay);
     }
 }

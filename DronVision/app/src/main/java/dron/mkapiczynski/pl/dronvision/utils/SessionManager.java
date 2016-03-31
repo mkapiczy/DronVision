@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.dronvision.helper;
+package dron.mkapiczynski.pl.dronvision.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,7 +13,7 @@ import org.osmdroid.util.GeoPoint;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 
 
 public class SessionManager {
@@ -30,7 +30,7 @@ public class SessionManager {
     int PRIVATE_MODE = 0;
 
     // Shared preferences file name
-    private static final String PREF_NAME = "AndroidHiveLogin";
+    private static final String PREF_NAME = "DronVisionPreferences";
     private static final String KEY_SERVER_HOST = "ServerAddress";
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
     private static final String KEY_LAST_MAP_CENTER = "lastMapCenter";

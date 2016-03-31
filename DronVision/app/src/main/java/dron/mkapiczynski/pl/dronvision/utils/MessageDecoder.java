@@ -1,4 +1,4 @@
-package dron.mkapiczynski.pl.dronvision.message;
+package dron.mkapiczynski.pl.dronvision.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,6 +6,10 @@ import com.google.gson.GsonBuilder;
 import java.util.Date;
 
 import dron.mkapiczynski.pl.dronvision.helper.JsonDateDeserializer;
+import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
+import dron.mkapiczynski.pl.dronvision.message.GetDroneSessionsMessage;
+import dron.mkapiczynski.pl.dronvision.message.GetPreferencesMessage;
+import dron.mkapiczynski.pl.dronvision.message.GetSearchedAreaMessage;
 
 
 /**

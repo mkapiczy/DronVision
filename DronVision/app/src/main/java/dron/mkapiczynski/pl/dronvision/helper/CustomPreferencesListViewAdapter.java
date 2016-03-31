@@ -2,21 +2,18 @@ package dron.mkapiczynski.pl.dronvision.helper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageInstaller;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
-import dron.mkapiczynski.pl.dronvision.database.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 
 /**
  * Created by Miix on 2016-01-15.
@@ -28,7 +25,6 @@ public class CustomPreferencesListViewAdapter extends ArrayAdapter<DBDrone> {
     private boolean singleFollowedDroneAdapter = false;
     private Context context;
     private boolean changed = false;
-    private SessionManager sessionManager;
     private List<CheckBox> checkboxes;
 
 
@@ -39,8 +35,6 @@ public class CustomPreferencesListViewAdapter extends ArrayAdapter<DBDrone> {
         this.checkedDrones = checkedDrones;
         this.singleFollowedDroneAdapter = singleFollowedDroneAdapter;
         checkboxes = new ArrayList<>();
-        sessionManager = new SessionManager(context);
-
     }
 
     @Override
