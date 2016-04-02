@@ -107,7 +107,7 @@ public class VisionFragment extends Fragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden == false) {
-            showPostSimulationHistoryModeView();
+            updateMapView(null);
         }
     }
 
@@ -163,7 +163,7 @@ public class VisionFragment extends Fragment {
             if (simulationIsRunning) {
                 updateMapViewInSimulationMode(drone);
             }
-        } else {
+        } else if(!simulationMode && !historyMode){
             if (drone != null) {
                 updateMapViewInNormalMode(drone);
             } else {
