@@ -36,7 +36,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
         this.serverAddress = serverAddress;
     }
 
-    public void connectToWebSocketServer(){
+    public boolean connectToWebSocketServer(){
         try {
             connect(serverAddress, new WebSocketHandler() {
                 @Override
@@ -64,6 +64,12 @@ public class MyWebSocketConnection extends WebSocketConnection {
             });
         } catch (WebSocketException e) {
             Log.e(TAG, e.getMessage());
+        }
+
+        if(deviceIsLoggedIn){
+            return true;
+        } else{
+            return false;
         }
     }
 

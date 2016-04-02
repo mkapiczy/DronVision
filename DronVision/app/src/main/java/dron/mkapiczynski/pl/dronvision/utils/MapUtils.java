@@ -56,8 +56,8 @@ public class MapUtils {
             Drone currentIteratedDrone = dronesIterator.next();
             if (droneIsVisualized(currentIteratedDrone, visualizedDroned)) {
                 updateDroneVisualizedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
-            } else if (droneIsTracked(currentIteratedDrone, trackedDrones)) {
-                updateDroneTrackedOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
+            } else if (droneIsShownOnMap(currentIteratedDrone, trackedDrones)) {
+                updateDroneShownOverlays(currentIteratedDrone, mapOverlays, mapView, activity);
             }
 
         }
@@ -79,7 +79,7 @@ public class MapUtils {
         return false;
     }
 
-    private static boolean droneIsTracked(Drone drone, List<DBDrone> trackedDrones) {
+    private static boolean droneIsShownOnMap(Drone drone, List<DBDrone> trackedDrones) {
         for (int i = 0; i < trackedDrones.size(); i++) {
             if (trackedDrones.get(i).getDroneId().compareTo(drone.getDroneId()) == 0) {
                 return true;
@@ -94,7 +94,7 @@ public class MapUtils {
         updateDroneSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
     }
 
-    private static void updateDroneTrackedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
+    private static void updateDroneShownOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
         updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
     }
 

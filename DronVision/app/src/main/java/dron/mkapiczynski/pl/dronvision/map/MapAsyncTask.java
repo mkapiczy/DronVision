@@ -79,20 +79,36 @@ public class MapAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        mapView.getOverlays().clear();
-        mapView.getOverlays().addAll(mapOverlays);
-        mapView.postInvalidateOnAnimation();
-        MapController mapController = (MapController) mapView.getController();
-        if (drone != null) {
-            if (followedDrone != null && followedDrone.getDroneId() != null && followedDrone.getDroneId().compareTo(drone.getDroneId()) == 0) {
-                mapController.animateTo(drone.getCurrentPosition());
-                sessionManager.setLastMapCenter(drone.getCurrentPosition());
-            }
-        }
+      updateMapOverlays();
     }
 
     @Override
     protected void onCancelled() {
+    }
+
+    private void updateMapOverlays(){
+        mapView.getOverlays().clear();
+        mapView.getOverlays().addAll(mapOverlays);
+        mapView.postInvalidateOnAnimation();
+        if (drone != null) {
+            if (droneIsTrackedDrone(drone)) {
+               animateMapToDronePosition(drone);
+            }
+        }
+    }
+
+    private boolean droneIsTrackedDrone(Drone drone){
+        if (followedDrone != null && followedDrone.getDroneId() != null && followedDrone.getDroneId().compareTo(drone.getDroneId()) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void animateMapToDronePosition(Drone drone){
+        MapController mapController = (MapController) mapView.getController();
+        mapController.animateTo(drone.getCurrentPosition());
+        sessionManager.setLastMapCenter(drone.getCurrentPosition());
     }
 
 

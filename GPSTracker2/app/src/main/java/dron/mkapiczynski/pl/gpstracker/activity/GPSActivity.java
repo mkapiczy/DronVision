@@ -141,10 +141,6 @@ public class GPSActivity extends Activity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if (!client.isConnected() || client == null) {
-            client.connectToWebSocketServer();
-        }
-
         // Assign the new location
         mLastLocation = location;
 
@@ -154,7 +150,17 @@ public class GPSActivity extends Activity implements LocationListener {
         // Displaying the new location on UI
         displayLocationOnUI();
 
-        client.sendGeoDataMessageToServer(mLastLocation);
+        if (!client.isConnected() || client == null) {
+            if(client.connectToWebSocketServer()){
+                client.sendGeoDataMessageToServer(mLastLocation);
+            } else{
+                // store data to send later
+            }
+        } else{
+            client.sendGeoDataMessageToServer(mLastLocation);
+        }
+
+
     }
 
     private Location getLastLocation() {
