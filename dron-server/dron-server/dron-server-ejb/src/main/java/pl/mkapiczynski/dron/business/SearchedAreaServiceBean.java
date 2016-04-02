@@ -1,5 +1,9 @@
 package pl.mkapiczynski.dron.business;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,9 +15,7 @@ import org.openstreetmap.josm.data.coor.LatLon;
 
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
-import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
-import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.helpers.HgtReader;
 import pl.mkapiczynski.dron.helpers.SearchedAreaHelper;
 
@@ -37,7 +39,13 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				.getElevationFromHgt(new LatLon(droneLocation.getLatitude(), droneLocation.getLongitude()));
 
 		log.info("GPS altitude: " + droneLocation.getAltitude() + " | Model altitude: " + dronesPositionModelAltitude);
-
+		
+		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("altitudes.txt", true)))) {
+		    out.println("GPS altitude: " + droneLocation.getAltitude() + " | Model altitude: " + dronesPositionModelAltitude);
+		}catch (IOException e) {
+		   log.error("Exception while operating with file : " + e);
+		}
+		
 		if (dronesPositionModelAltitude != 0) {
 			droneLocation.setAltitude(dronesPositionModelAltitude + oboveTheGroundDronesAltitude);
 			int maxCameraAngle = 60;
