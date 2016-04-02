@@ -18,6 +18,9 @@ public class SearchedArea {
 
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Location> searchedLocations;
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<HoleInSearchedArea> holesInSearchedArea;
 
 	public Long getId() {
 		return id;
@@ -34,5 +37,15 @@ public class SearchedArea {
 	public void setSearchedLocations(List<Location> searchedLocations) {
 		this.searchedLocations = searchedLocations;
 	}
+
+	public List<HoleInSearchedArea> getHolesInSearchedArea() {
+		return holesInSearchedArea;
+	}
+
+	public void setHolesInSearchedArea(List<HoleInSearchedArea> holesInSearchedArea) {
+		this.holesInSearchedArea = holesInSearchedArea;
+	}
+	
+	
 
 }

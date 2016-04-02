@@ -2,10 +2,12 @@ package pl.mkapiczynski.dron.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.jboss.logging.Logger;
 import org.openstreetmap.josm.data.coor.LatLon;
 
+import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
@@ -86,47 +88,67 @@ public class SearchedAreaHelper {
 		return distance;
 	}
 
-	public static List<List<Location>> findHoles(List<DegreeLocation> previousCircle,
+	public static List<HoleInSearchedArea> findHoles(List<DegreeLocation> previousCircle,
 			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
-		List<List<Location>> holesInSearchedAre = new ArrayList<>();
+		HoleInSearchedArea singleHoleInSearchedArea = new HoleInSearchedArea();
+		List<HoleInSearchedArea> holesInSearchedAre = new ArrayList<>();
 		for (int i = 0; i < currentCircle.size(); i++) {
 			for (int j = 0; j < previousCircle.size(); j++) {
 				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
-					Location currentLocation = currentCircle.get(i).getLocation();
-					Location previousLocation = previousCircle.get(j).getLocation();
-					if (previousLocation.getAltitude().compareTo(currentLocation.getAltitude()) < 0) {
+					int degree = currentCircle.get(i).getDegree();
+					Location currentCircleLocation = currentCircle.get(i).getLocation();
+					Location previousCircleLocation = previousCircle.get(j).getLocation();
+					if (currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(currentCircleLocation, previousCircleLocation)) {
 						List<DegreeLocation> locationsOnCircle = new ArrayList<>();
 						List<Integer> degrees = new ArrayList<>();
-						for (int k = 0; k < 360; k += 10) {
-							degrees.add(k);
-						}
-						dh = (int) (droneLocation.getAltitude() - currentLocation.getAltitude());
+						degrees.add(degree);
+						dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
+						List<Location> singleHole = new ArrayList<>();
 						do {
 							dh += 1;
 
 							double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
 
 							locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
-
-							Location loc = getLocationFromCircleForDegree(currentCircle.get(i).getDegree(),
-									locationsOnCircle);
+							Location loc = new Location();
+							if(locationsOnCircle!=null && !locationsOnCircle.isEmpty()){
+								loc = locationsOnCircle.get(0).getLocation();
+							}
 							HgtReader reader = new HgtReader();
 							double modelAltitude = reader
 									.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
-							List<Location> singleHole = new ArrayList<>();
-							if (modelAltitude < loc.getAltitude()) {
+							if (loc.getAltitude()>modelAltitude) {
 								singleHole.add(loc);
 							}
-							if (!singleHole.isEmpty()) {
-								holesInSearchedAre.add(singleHole);
-							}
+							
 
-						} while (((droneLocation.getAltitude() - dh) > previousLocation.getAltitude()));
+						} while (((droneLocation.getAltitude() - dh) > previousCircleLocation.getAltitude()));
+						if (!singleHole.isEmpty()) {
+							List<Location> filteredSingleHole = new ArrayList<>();
+							ListIterator<Location> iterator =  singleHole.listIterator();
+							while(iterator.hasNext()){
+								if(!iterator.hasPrevious()){
+									filteredSingleHole.add(singleHole.get(0));
+								}else if(!iterator.hasNext()){
+									filteredSingleHole.add(singleHole.get(iterator.nextIndex()-1));
+								}
+							}
+							singleHoleInSearchedArea.setHole(filteredSingleHole);
+							holesInSearchedAre.add(singleHoleInSearchedArea);
+						}
 					}
 				}
 			}
 		}
 		return holesInSearchedAre;
+	}
+	
+	private static boolean currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(Location currentCircleLocation, Location previousCircleLocation){
+		if (currentCircleLocation.getAltitude().compareTo(previousCircleLocation.getAltitude()) > 0) {
+			return true;
+		} else{
+			return false;
+		}
 	}
 
 	private static Location getLocationFromCircleForDegree(int degree, List<DegreeLocation> locationsOnCircle) {
