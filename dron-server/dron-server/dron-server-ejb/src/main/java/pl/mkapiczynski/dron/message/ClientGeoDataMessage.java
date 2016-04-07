@@ -14,6 +14,8 @@ public class ClientGeoDataMessage implements Message {
 	private GeoPoint lastPosition;
 	private List<GeoPoint> searchedArea;
 	private List<GeoPoint> lastSearchedArea;
+	private List<GeoPoint> searchedAreaHoles;
+	private List<GeoPoint> lastSearchedAreaHoles;
 
 	public String getMessageType() {
 		return messageType;
@@ -73,6 +75,22 @@ public class ClientGeoDataMessage implements Message {
 
 	public void setLastSearchedArea(List<GeoPoint> lastSearchedArea) {
 		this.lastSearchedArea = lastSearchedArea;
+	}
+
+	public List<GeoPoint> getSearchedAreaHoles() {
+		return searchedAreaHoles;
+	}
+
+	public void setSearchedAreaHoles(List<GeoPoint> searchedAreaHoles) {
+		this.searchedAreaHoles = searchedAreaHoles;
+	}
+
+	public List<GeoPoint> getLastSearchedAreaHoles() {
+		return lastSearchedAreaHoles;
+	}
+
+	public void setLastSearchedAreaHoles(List<GeoPoint> lastSearchedAreaHoles) {
+		this.lastSearchedAreaHoles = lastSearchedAreaHoles;
 	}
 
 	@Override

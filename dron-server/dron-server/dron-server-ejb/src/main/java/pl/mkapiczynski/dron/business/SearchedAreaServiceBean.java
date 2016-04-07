@@ -5,7 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -24,17 +26,24 @@ import pl.mkapiczynski.dron.helpers.SearchedAreaHelper;
 public class SearchedAreaServiceBean implements SearchedAreaService {
 
 	private static final Logger log = Logger.getLogger(SearchedAreaServiceBean.class);
+	private static HgtReader reader = new  HgtReader();
 
 	@Override
-	public SearchedArea calculateSearchedArea(Location droneLocation) {
+	public SearchedArea calculateSearchedArea(Location droneLocation, Integer maxCameraAngle) { 
 		SearchedArea newSearchedArea = new SearchedArea();
 		List<Location> newSearchedAreaLocations = new ArrayList<>();
-		int oboveTheGroundDronesAltitude = 30;
+		List<Location> holes = new ArrayList<>();
+		double oboveTheGroundDronesAltitude = droneLocation.getAltitude();
+		if (oboveTheGroundDronesAltitude == 0.0) {
+			oboveTheGroundDronesAltitude = 30;
+		}
 
 		// dobre dane 49.074444444444445,22.726388888888888
 		// 49.07527777777778, 22.725
 		// 49.099917, 22.746356
-		HgtReader reader = new HgtReader();
+		
+		// do dziury 49.07666666666667, 22.724722222222223
+		// 11x 6, 10x2
 		double dronesPositionModelAltitude = reader
 				.getElevationFromHgt(new LatLon(droneLocation.getLatitude(), droneLocation.getLongitude()));
 
@@ -48,11 +57,13 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		
 		if (dronesPositionModelAltitude != 0) {
 			droneLocation.setAltitude(dronesPositionModelAltitude + oboveTheGroundDronesAltitude);
-			int maxCameraAngle = 60;
+			if(maxCameraAngle==null){
+				maxCameraAngle = 60;
+			}
 			List<DegreeLocation> previousCircle = new ArrayList<>();
 			List<DegreeLocation> currentCircle = new ArrayList<>();
 
-			for (int currentCameraAngle = maxCameraAngle; currentCameraAngle > 0; currentCameraAngle -= 10) {
+			for (int currentCameraAngle = maxCameraAngle; currentCameraAngle > 0; currentCameraAngle -= 1) {
 				currentCircle.clear();
 				List<DegreeLocation> locationsOnCircle = new ArrayList<>();
 				List<Integer> degrees = new ArrayList<>();
@@ -85,7 +96,8 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				if (previousCircle.isEmpty()) {
 					previousCircle.addAll(currentCircle);
 				} else {
-					//SearchedAreaHelper.findHoles(previousCircle, currentCircle, dh, currentCameraAngle, droneLocation);
+					List<Location> holesFromIteration = SearchedAreaHelper.findHoles(previousCircle, currentCircle, dh, currentCameraAngle, droneLocation);
+					holes.addAll(holesFromIteration);
 					previousCircle.clear();
 					previousCircle.addAll(currentCircle);
 				}
@@ -100,6 +112,8 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 			}
 		}
+		log.info("Holes final amount " + holes.size());
+		newSearchedArea.setHolesInSearchedArea(holes);
 
 		return newSearchedArea;
 	}
@@ -110,24 +124,78 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		if (currentSearchedArea != null && lastSearchedArea != null) {
 			List<Location> currentSearchedAreaLocations = currentSearchedArea.getSearchedLocations();
 			List<Location> lastSearchedAreaLocations = lastSearchedArea.getSearchedLocations();
-			if (currentSearchedAreaLocations != null && !currentSearchedAreaLocations.isEmpty()
-					&& lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty()) {
-				List<Location> updatedCurrentSearchedAreaLocations = SearchedAreaHelper
-						.addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(currentSearchedAreaLocations,
-								lastSearchedAreaLocations);
-				currentSearchedAreaLocations.clear();
-				currentSearchedAreaLocations.addAll(updatedCurrentSearchedAreaLocations);
-			} else if ((currentSearchedAreaLocations == null || currentSearchedAreaLocations.isEmpty())
-					&& (lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty())) {
-				if (currentSearchedAreaLocations == null) {
-					currentSearchedAreaLocations = new ArrayList<>();
-				}
-				currentSearchedAreaLocations.addAll(lastSearchedAreaLocations);
-			}
-			List<Location> sortedSearchedAreaLocations = SearchedAreaHelper
-					.sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedAreaLocations);
-			currentSearchedArea.setSearchedLocations(sortedSearchedAreaLocations);
+			List<Location> updatedSearchedAreaLocations = updateSearchedAreaLocationWithLastSearchedAreaLocation(currentSearchedAreaLocations, lastSearchedAreaLocations);
+			currentSearchedArea.setSearchedLocations(updatedSearchedAreaLocations);
 		}
 	}
-
+	
+	private List<Location> updateSearchedAreaLocationWithLastSearchedAreaLocation(List<Location> currentSearchedAreaLocations, List<Location> lastSearchedAreaLocations){
+		if (currentSearchedAreaLocations != null && !currentSearchedAreaLocations.isEmpty()
+				&& lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty()) {
+			List<Location> updatedCurrentSearchedAreaLocations = SearchedAreaHelper
+					.addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(currentSearchedAreaLocations,
+							lastSearchedAreaLocations);
+			currentSearchedAreaLocations.clear();
+			currentSearchedAreaLocations.addAll(updatedCurrentSearchedAreaLocations);
+		} else if ((currentSearchedAreaLocations == null || currentSearchedAreaLocations.isEmpty())
+				&& (lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty())) {
+			if (currentSearchedAreaLocations == null) {
+				currentSearchedAreaLocations = new ArrayList<>();
+			}
+			currentSearchedAreaLocations.addAll(lastSearchedAreaLocations);
+		}
+		List<Location> sortedSearchedAreaLocations = SearchedAreaHelper
+				.sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedAreaLocations);
+		return sortedSearchedAreaLocations;
+	}
+	
+	@Override
+	public void updateSearchedAreaHoles(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea,
+			SearchedArea recentSearchedArea) {
+		List<Location> currentSearchedAreaHoles = currentSearchedArea.getHolesInSearchedArea();
+		List<Location> lastSearchedAreaHoles = lastSearchedArea.getHolesInSearchedArea();
+		List<Location> recentSearchedAreaLocations = recentSearchedArea.getSearchedLocations();
+		currentSearchedAreaHoles.addAll(lastSearchedAreaHoles);
+		CopyOnWriteArrayList<Location> threadSafeCurrentSearchedAreaHoles = new CopyOnWriteArrayList<>();
+		threadSafeCurrentSearchedAreaHoles.addAll(currentSearchedAreaHoles);
+		Iterator<Location> iterator = threadSafeCurrentSearchedAreaHoles.listIterator();
+		int i = 0;
+		Location previous = null;
+		while (iterator.hasNext()) {
+			Location currentIteratedLocation = iterator.next();
+			if (i % 2 != 0) {
+				if (previous != null) {
+					Location holeLocation1 = previous;
+					Location holeLocation2 = currentIteratedLocation;
+					boolean holeLocation1InLastSearchedArea = SearchedAreaHelper.pointInPolygon(holeLocation1,
+							recentSearchedAreaLocations);
+					boolean holeLocation2InLastSearchedArea = SearchedAreaHelper.pointInPolygon(holeLocation2,
+							recentSearchedAreaLocations);
+					if (holeLocation1InLastSearchedArea || holeLocation2InLastSearchedArea) {
+						threadSafeCurrentSearchedAreaHoles.remove(holeLocation1);
+						threadSafeCurrentSearchedAreaHoles.remove(holeLocation2);
+					}
+				}
+				/**
+				 * Dodaj najbliższy punkt z nowej searchedArea leżący na prostej
+				 * tych dwóch punktów
+				 */
+				/*
+				 * List<Location> tempLocations = new ArrayList<>();
+				 * tempLocations.addAll(recentSearchedAreaLocations); Location
+				 * locationToAdd =
+				 * SearchedAreaHelper.findNearesPointToRemovedHolePoint(
+				 * holeLocation1, holeLocation2, tempLocations);
+				 * currentSearchedAreaHoles.add(holeLocation2);
+				 * currentSearchedAreaHoles.add(locationToAdd);
+				 * currentSearchedAreaHoles.add(holeLocation1);
+				 */
+			}
+			previous = currentIteratedLocation;
+			i++;
+		}
+		currentSearchedAreaHoles.clear();
+		currentSearchedAreaHoles.addAll(threadSafeCurrentSearchedAreaHoles);
+	}
+	
 }

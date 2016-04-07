@@ -31,6 +31,9 @@ public class Drone {
 	@Column(name = "description")
 	private String droneDescription;
 
+	@Column(name = "cameraAngle")
+	private Integer cameraAngle;
+
 	@Enumerated(EnumType.STRING)
 	private DroneStatusEnum status;
 
@@ -70,6 +73,14 @@ public class Drone {
 
 	public void setDroneDescription(String droneDescription) {
 		this.droneDescription = droneDescription;
+	}
+
+	public Integer getCameraAngle() {
+		return cameraAngle;
+	}
+
+	public void setCameraAngle(Integer cameraAngle) {
+		this.cameraAngle = cameraAngle;
 	}
 
 	public DroneStatusEnum getStatus() {

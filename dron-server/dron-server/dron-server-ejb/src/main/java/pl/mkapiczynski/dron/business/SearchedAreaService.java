@@ -7,6 +7,7 @@ import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public interface SearchedAreaService {
-	public SearchedArea calculateSearchedArea(Location geoPoint);
+	public SearchedArea calculateSearchedArea(Location geoPoint, Integer maxCameraAngle);
 	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea newSearchedArea);
+	public void updateSearchedAreaHoles(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea, SearchedArea recentSearchedArea);
 }

@@ -92,6 +92,22 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 				List<GeoPoint> lastSearchedArea = convertLocationSearchedAreaToGeoPointSearchedArea(
 						activeSession.getLastSearchedArea().getSearchedLocations());
 				clientGeoDataMessage.setLastSearchedArea(lastSearchedArea);
+				List<GeoPoint> lastHoles = new ArrayList<>();
+				if (activeSession.getLastSearchedArea().getHolesInSearchedArea() != null) {
+
+					lastHoles.addAll(convertLocationSearchedAreaToGeoPointSearchedArea(
+							activeSession.getLastSearchedArea().getHolesInSearchedArea()));
+
+				}
+				clientGeoDataMessage.setLastSearchedAreaHoles(lastHoles);
+				List<GeoPoint> holes = new ArrayList<>();
+				if (activeSession.getSearchedArea().getHolesInSearchedArea() != null) {
+
+					holes.addAll(convertLocationSearchedAreaToGeoPointSearchedArea(
+							activeSession.getSearchedArea().getHolesInSearchedArea()));
+
+				}
+				clientGeoDataMessage.setSearchedAreaHoles(holes);
 			}
 		}
 		return clientGeoDataMessage;

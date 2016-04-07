@@ -17,6 +17,7 @@ import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.DroneSessionStatusEnum;
 import pl.mkapiczynski.dron.database.DroneStatusEnum;
+import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
@@ -77,18 +78,21 @@ public class DroneServiceBean implements DroneService {
 	public void updateDroneSearchedArea(Drone drone) {
 		DroneSession activeSession = getActiveDroneSession(drone);
 		if (activeSession != null) {
-			SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(drone.getLastLocation());
+			SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(drone.getLastLocation(), drone.getCameraAngle());
 			SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
 			SearchedArea currentSearchedArea = activeSession.getSearchedArea();
+			
 
 			if (lastSearchedArea != null) {
 				searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
+				searchedAreaService.updateSearchedAreaHoles(currentSearchedArea, lastSearchedArea, recentSearchedArea);
 				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
+				lastSearchedArea.setHolesInSearchedArea(recentSearchedArea.getHolesInSearchedArea());
 			} else if (lastSearchedArea == null && recentSearchedArea != null) {
 				lastSearchedArea = new SearchedArea();
 				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
+				lastSearchedArea.setHolesInSearchedArea(recentSearchedArea.getHolesInSearchedArea());
 			}
-
 		} else {
 			log.info("No active session for drone with id: " + drone.getDroneId());
 		}

@@ -2,12 +2,10 @@ package pl.mkapiczynski.dron.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.jboss.logging.Logger;
 import org.openstreetmap.josm.data.coor.LatLon;
 
-import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
@@ -88,10 +86,12 @@ public class SearchedAreaHelper {
 		return distance;
 	}
 
-	public static List<HoleInSearchedArea> findHoles(List<DegreeLocation> previousCircle,
+	public static List<Location> findHoles(List<DegreeLocation> previousCircle,
 			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
-		HoleInSearchedArea singleHoleInSearchedArea = new HoleInSearchedArea();
-		List<HoleInSearchedArea> holesInSearchedAre = new ArrayList<>();
+		log.info("started searching for holes...");
+		HgtReader reader = new HgtReader();
+		List<Location> holesInSearchedAre = new ArrayList<>();
+		try{
 		for (int i = 0; i < currentCircle.size(); i++) {
 			for (int j = 0; j < previousCircle.size(); j++) {
 				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
@@ -103,7 +103,7 @@ public class SearchedAreaHelper {
 						List<Integer> degrees = new ArrayList<>();
 						degrees.add(degree);
 						dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
-						List<Location> singleHole = new ArrayList<>();
+						List<Location> singleHoleLocations = new ArrayList<>();
 						do {
 							dh += 1;
 
@@ -114,32 +114,37 @@ public class SearchedAreaHelper {
 							if(locationsOnCircle!=null && !locationsOnCircle.isEmpty()){
 								loc = locationsOnCircle.get(0).getLocation();
 							}
-							HgtReader reader = new HgtReader();
+							
 							double modelAltitude = reader
 									.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
 							if (loc.getAltitude()>modelAltitude) {
-								singleHole.add(loc);
+								singleHoleLocations.add(loc);
 							}
 							
-
-						} while (((droneLocation.getAltitude() - dh) > previousCircleLocation.getAltitude()));
-						if (!singleHole.isEmpty()) {
-							List<Location> filteredSingleHole = new ArrayList<>();
-							ListIterator<Location> iterator =  singleHole.listIterator();
-							while(iterator.hasNext()){
-								if(!iterator.hasPrevious()){
-									filteredSingleHole.add(singleHole.get(0));
-								}else if(!iterator.hasNext()){
-									filteredSingleHole.add(singleHole.get(iterator.nextIndex()-1));
+							log.info(droneLocation.getAltitude() - dh + " | " + previousCircleLocation.getAltitude());
+						} while (new Double(Double.sum(droneLocation.getAltitude(), - dh)).compareTo(previousCircleLocation.getAltitude()) > 0);
+						log.info("Escaped while loop...");
+						if (!singleHoleLocations.isEmpty()) { 
+							List<Location> filteredSingleHoleLocations = new ArrayList<>();
+							for(int k=0; k<singleHoleLocations.size();k++){
+								if(k==0){
+									filteredSingleHoleLocations.add(singleHoleLocations.get(k));
+								}
+								if(k==singleHoleLocations.size()-1){
+									filteredSingleHoleLocations.add(singleHoleLocations.get(k));
 								}
 							}
-							singleHoleInSearchedArea.setHole(filteredSingleHole);
-							holesInSearchedAre.add(singleHoleInSearchedArea);
+						
+							holesInSearchedAre.addAll(filteredSingleHoleLocations);
 						}
 					}
 				}
 			}
 		}
+		} catch(OutOfMemoryError e){
+			log.error("OUT OF MEMOTY " + e.getMessage());
+		}
+		log.info("Amount of holes: " + holesInSearchedAre.size());
 		return holesInSearchedAre;
 	}
 	
@@ -151,15 +156,6 @@ public class SearchedAreaHelper {
 		}
 	}
 
-	private static Location getLocationFromCircleForDegree(int degree, List<DegreeLocation> locationsOnCircle) {
-		Location result = new Location();
-		for (int i = 0; i < locationsOnCircle.size(); i++) {
-			if (locationsOnCircle.get(i).getDegree() == degree) {
-				result = locationsOnCircle.get(i).getLocation();
-			}
-		}
-		return result;
-	}
 
 	public static List<Location> convertDegreeLocationListToLocationList(List<DegreeLocation> degreeLocationList) {
 		List<Location> locationList = new ArrayList<>();
@@ -192,14 +188,15 @@ public class SearchedAreaHelper {
 				degrees.add(locationsOnCircle.get(i).getDegree());
 			}
 		} else {
-			for (int i = 0; i < 360; i += 10) {
+			for (int i = 0; i < 360; i += 1) {
 				degrees.add(i);
 			}
 		}
 	}
 
 	public static double calculateRadius(int dh, int cameraAngle) {
-		return dh * Math.tan(cameraAngle) * 2;
+		double cameraAngleInRadians = (((cameraAngle/2) * 3.14)/180);
+		return dh * Math.abs(Math.tan(cameraAngleInRadians));
 	}
 
 	/**
@@ -250,7 +247,7 @@ public class SearchedAreaHelper {
 
 		newSearchedArea.addAll(mutualPoints);
 
-		return newSearchedArea;
+		return sortGeoPointsListByDistanceAndRemoveRepetitions(newSearchedArea);
 	}
 
 	public static List<Location> sortGeoPointsListByDistanceAndRemoveRepetitions(List<Location> searchedArea) {
@@ -289,6 +286,46 @@ public class SearchedAreaHelper {
 
 		}
 		return orderedSearchedArea;
+	}
+	
+	public static Location findNearesPointToRemovedHolePoint(Location location1, Location locationToBeReplaced, List<Location> lastSearchedAreaLocations){
+		double y1 = location1.getLatitude();
+		double x1 = location1.getLongitude();
+		double y2 = locationToBeReplaced.getLatitude();
+		double x2 = locationToBeReplaced.getLongitude();
+		/**
+		 * Współczynniki prostej przechodzącej przez dwa punkty
+		 */
+		double a =0;
+		if(x1!=x2){
+			 a = (y1-y2) / (x1-x2);
+		}
+		double b=y1-a*x1;
+		
+		int k = findNearestPointIndex(locationToBeReplaced, lastSearchedAreaLocations);
+		Location nearestLocation = lastSearchedAreaLocations.get(k);
+		if(!laysOnLine(a,b, nearestLocation)){
+			lastSearchedAreaLocations.remove(nearestLocation);
+			while(!laysOnLine(a,b, nearestLocation) && !lastSearchedAreaLocations.isEmpty()){
+				k = findNearestPointIndex(locationToBeReplaced, lastSearchedAreaLocations);
+				if(!lastSearchedAreaLocations.isEmpty()){
+					nearestLocation = lastSearchedAreaLocations.get(k);
+				}
+				lastSearchedAreaLocations.remove(nearestLocation);
+			}
+		}
+		return nearestLocation;
+	}
+	
+	private static boolean laysOnLine(double a, double b, Location point){
+		double x = point.getLatitude();
+		double y = point.getLongitude();
+		double calculatedY = a*x+b;
+		if(calculatedY == y){
+			return true;
+		} else{
+			return false;
+		}
 	}
 
 	private static Location destinationPoint(Location center, final double aDistanceInMeters,
@@ -393,7 +430,7 @@ public class SearchedAreaHelper {
 		}
 	}
 
-	private static boolean pointInPolygon(Location point, List<Location> path) {
+	public static boolean pointInPolygon(Location point, List<Location> path) {
 		// ray casting alogrithm
 		// http://rosettacode.org/wiki/Ray-casting_algorithm
 		int crossings = 0;
