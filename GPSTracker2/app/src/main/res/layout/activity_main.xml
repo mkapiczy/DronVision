@@ -31,7 +31,7 @@
         android:layout_marginTop="15dp"
         android:text="@string/lbl_you_are_at"
         android:textColor="@color/white"
-        android:textSize="25dp"
+        android:textSize="15dp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal" />
 
@@ -39,7 +39,7 @@
         android:id="@+id/lblLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
         android:padding="15dp"
         android:textColor="@color/white"
@@ -54,25 +54,20 @@
         android:layout_marginTop="10dp"/>
 
     <EditText
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="numberDecimal"
+    android:ems="10"
+    android:id="@+id/editTextLongitude"
+    android:layout_marginTop="10dp"/>
+
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
-        android:id="@+id/editTextLongitude"
+        android:id="@+id/editTextAltitude"
         android:layout_marginTop="10dp"/>
-
-    <Button
-        android:id="@+id/btnSimulate"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/btn_bg"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:text="@string/btn_simulate"
-        android:textColor="@color/white"
-        android:layout_gravity="center_horizontal"
-        android:textSize="15dp"/>
 
     <Button
         android:id="@+id/btnShowLocation"

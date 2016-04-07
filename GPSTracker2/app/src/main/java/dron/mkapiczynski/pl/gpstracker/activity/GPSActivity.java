@@ -40,9 +40,10 @@ public class GPSActivity extends Activity implements LocationListener {
     // UI
     private TextView locationTextView;
     private TextView serverTextView;
-    private Button btnShowLocation, btnStartLocationUpdates, btnStartSimulation;
+    private Button btnShowLocation, btnStartLocationUpdates;
     private EditText editTextLatitude;
     private EditText editTextLongitude;
+    private EditText editTextAltitude;
 
     // Websocket
     private  MyWebSocketConnection client;
@@ -57,9 +58,9 @@ public class GPSActivity extends Activity implements LocationListener {
         serverTextView = (TextView) findViewById(R.id.serverTextView);
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
         btnStartLocationUpdates = (Button) findViewById(R.id.btnLocationUpdates);
-        btnStartSimulation = (Button) findViewById(R.id.btnSimulate);
         editTextLatitude = (EditText) findViewById(R.id.editTextLatitude);
         editTextLongitude = (EditText) findViewById(R.id.editTextLongitude);
+        editTextAltitude = (EditText) findViewById(R.id.editTextAltitude);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         gpsSignalProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
@@ -77,6 +78,7 @@ public class GPSActivity extends Activity implements LocationListener {
             @Override
             public void onClick(View v) {
                 mLastLocation = getLastLocation();
+                mLastLocation.setAltitude(0);
                 displayLocationOnUI();
 
                 if (!client.isConnected() || client == null) {
@@ -84,10 +86,11 @@ public class GPSActivity extends Activity implements LocationListener {
                 }
 
                 if (mLastLocation != null) {
-                    if(editTextLatitude.getText()!=null && editTextLongitude.getText()!=null) {
+                    if(editTextLatitude.getText()!=null && editTextLongitude.getText()!=null && editTextAltitude.getText()!=null) {
                         if (!editTextLatitude.getText().toString().isEmpty() && !editTextLongitude.getText().toString().isEmpty()) {
                             mLastLocation.setLatitude(Double.parseDouble(editTextLatitude.getText().toString()));
                             mLastLocation.setLongitude(Double.parseDouble(editTextLongitude.getText().toString()));
+                            mLastLocation.setAltitude(Double.parseDouble(editTextAltitude.getText().toString()));
                         }
                     }
                     client.sendGeoDataMessageToServer(mLastLocation);
@@ -101,20 +104,6 @@ public class GPSActivity extends Activity implements LocationListener {
                 togglePeriodicLocationUpdates();
             }
         });
-
-        btnStartSimulation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!client.isConnected() || client == null) {
-                    client.connectToWebSocketServer();
-                }
-
-                if(client.isConnected()){
-                    client.sendTrackerSimulationMessageToServer();
-                }
-            }
-        });
-
     }
 
     @Override
