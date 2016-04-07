@@ -10,7 +10,6 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -56,6 +55,8 @@ public class DroneUtils {
                 currentDroneOnList.setCurrentPosition(droneToUpdate.getCurrentPosition());
                 currentDroneOnList.setLastSearchedArea(droneToUpdate.getLastSearchedArea());
                 currentDroneOnList.setSearchedArea(droneToUpdate.getSearchedArea());
+                currentDroneOnList.setHoles(droneToUpdate.getHoles());
+                currentDroneOnList.setLastHoles(droneToUpdate.getLastHoles());
             }
         }
     }
@@ -67,6 +68,9 @@ public class DroneUtils {
         }
         if(droneToAdd.getLastSearchedArea()==null) {
             droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
+        }
+        if(droneToAdd.getLastHoles()==null){
+            droneToAdd.setLastHoles(new ArrayList<GeoPoint>());
         }
         dronesSet.add(droneToAdd);
     }

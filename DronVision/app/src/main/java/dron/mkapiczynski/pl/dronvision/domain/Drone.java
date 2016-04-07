@@ -14,6 +14,8 @@ public class Drone {
     private GeoPoint currentPosition;
     private List<GeoPoint> searchedArea;
     private List<GeoPoint> lastSearchedArea;
+    private List<GeoPoint> holes;
+    private List<GeoPoint> lastHoles;
     private int color;
 
     public Long getDroneId() {
@@ -54,6 +56,22 @@ public class Drone {
 
     public void setLastSearchedArea(List<GeoPoint> lastSearchedArea) {
         this.lastSearchedArea = lastSearchedArea;
+    }
+
+    public List<GeoPoint> getHoles() {
+        return holes;
+    }
+
+    public void setHoles(List<GeoPoint> holes) {
+        this.holes = holes;
+    }
+
+    public List<GeoPoint> getLastHoles() {
+        return lastHoles;
+    }
+
+    public void setLastHoles(List<GeoPoint> lastHoles) {
+        this.lastHoles = lastHoles;
     }
 
     public int getColor() {

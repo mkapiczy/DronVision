@@ -157,6 +157,14 @@ public class MyWebSocketConnection extends WebSocketConnection {
         for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
             lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
         }
+        List<GeoPoint> lastHoles = new ArrayList<>();
+        for (int i = 0; i < geoMessage.getLastSearchedAreaHoles().size(); i++) {
+            lastHoles.add(new GeoPoint(geoMessage.getLastSearchedAreaHoles().get(i).getLatitude(), geoMessage.getLastSearchedAreaHoles().get(i).getLongitude()));
+        }
+        List<GeoPoint> holes = new ArrayList<>();
+        for (int i = 0; i < geoMessage.getSearchedAreaHoles().size(); i++) {
+           holes.add(new GeoPoint(geoMessage.getSearchedAreaHoles().get(i).getLatitude(), geoMessage.getSearchedAreaHoles().get(i).getLongitude()));
+        }
 
         Drone drone = new Drone();
         drone.setDroneId(geoMessage.getDeviceId());
@@ -164,6 +172,9 @@ public class MyWebSocketConnection extends WebSocketConnection {
         drone.setCurrentPosition(currentDronePosition);
         drone.setSearchedArea(searchedArea);
         drone.setLastSearchedArea(lastSearchedArea);
+        drone.setHoles(holes);
+        drone.setLastHoles(lastHoles);
+
 
         activity.updateDronesOnMap(drone);
     }
