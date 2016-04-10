@@ -17,7 +17,8 @@ public class SearchedArea {
 	@GeneratedValue
 	private Long id;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name="SearchedArea_Location")
 	private List<Location> searchedLocations;
 
 	/*
@@ -29,7 +30,7 @@ public class SearchedArea {
 	 */
 	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
 	@JoinTable(name="SearchedArea_Holes")
-	private List<Location> holesInSearchedArea;
+	private List<HoleInSearchedArea> holesInSearchedArea;
 
 	public Long getId() {
 		return id;
@@ -47,11 +48,11 @@ public class SearchedArea {
 		this.searchedLocations = searchedLocations;
 	}
 
-	public List<Location> getHolesInSearchedArea() {
+	public List<HoleInSearchedArea> getHolesInSearchedArea() {
 		return holesInSearchedArea;
 	}
 
-	public void setHolesInSearchedArea(List<Location> holesInSearchedArea) {
+	public void setHolesInSearchedArea(List<HoleInSearchedArea> holesInSearchedArea) {
 		this.holesInSearchedArea = holesInSearchedArea;
 	}
 

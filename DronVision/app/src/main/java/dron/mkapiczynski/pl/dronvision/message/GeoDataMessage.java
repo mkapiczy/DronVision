@@ -3,6 +3,7 @@ package dron.mkapiczynski.pl.dronvision.message;
 import java.util.Date;
 import java.util.List;
 
+import dron.mkapiczynski.pl.dronvision.domain.HoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 
 
@@ -18,8 +19,8 @@ public class GeoDataMessage {
     private MyGeoPoint lastPosition;
     private List<MyGeoPoint> searchedArea;
     private List<MyGeoPoint> lastSearchedArea;
-    private List<MyGeoPoint> searchedAreaHoles;
-    private List<MyGeoPoint> lastSearchedAreaHoles;
+    private List<HoleInSearchedArea> searchedAreaHoles;
+    private List<HoleInSearchedArea> lastSearchedAreaHoles;
 
 
     public String getMessageType() {
@@ -86,19 +87,19 @@ public class GeoDataMessage {
         this.lastSearchedArea = lastSearchedArea;
     }
 
-    public List<MyGeoPoint> getSearchedAreaHoles() {
+    public List<HoleInSearchedArea> getSearchedAreaHoles() {
         return searchedAreaHoles;
     }
 
-    public void setSearchedAreaHoles(List<MyGeoPoint> searchedAreaHoles) {
+    public void setSearchedAreaHoles(List<HoleInSearchedArea> searchedAreaHoles) {
         this.searchedAreaHoles = searchedAreaHoles;
     }
 
-    public List<MyGeoPoint> getLastSearchedAreaHoles() {
+    public List<HoleInSearchedArea> getLastSearchedAreaHoles() {
         return lastSearchedAreaHoles;
     }
 
-    public void setLastSearchedAreaHoles(List<MyGeoPoint> lastSearchedAreaHoles) {
+    public void setLastSearchedAreaHoles(List<HoleInSearchedArea> lastSearchedAreaHoles) {
         this.lastSearchedAreaHoles = lastSearchedAreaHoles;
     }
 

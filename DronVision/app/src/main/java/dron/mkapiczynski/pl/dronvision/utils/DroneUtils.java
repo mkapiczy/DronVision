@@ -15,6 +15,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -70,7 +71,7 @@ public class DroneUtils {
             droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
         }
         if(droneToAdd.getLastHoles()==null){
-            droneToAdd.setLastHoles(new ArrayList<GeoPoint>());
+            droneToAdd.setLastHoles(new ArrayList<DroneHoleInSearchedArea>());
         }
         dronesSet.add(droneToAdd);
     }

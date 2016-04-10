@@ -22,6 +22,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -118,7 +119,7 @@ public class MapUtils {
         lastSearchedArea.setFillColor(0X3C5EAAF6);
         lastSearchedArea.setStrokeColor(0X3C5EAAF6);
         lastSearchedArea.setStrokeWidth(3);
-        List<GeoPoint> lastholesPoints = droneToUpdate.getLastHoles();
+        List<DroneHoleInSearchedArea> lastholesPoints = droneToUpdate.getLastHoles();
         addHolesToMapOverlays(lastholesPoints, mapOverlays, activity, true);
         mapOverlays.add(lastSearchedArea);
     }
@@ -146,23 +147,23 @@ public class MapUtils {
             singleHole.addAll(droneToUpdate.getLastSearchedArea());
             holes.add(singleHole);
             searchedArea.setLastSearchedAreaHoles(holes);*/
-            List<GeoPoint> holesPoints = droneToUpdate.getHoles();
+            List<DroneHoleInSearchedArea> holesPoints = droneToUpdate.getHoles();
             addHolesToMapOverlays(holesPoints, mapOverlays, activity, false);
             mapOverlays.add(searchedArea);
         }
     }
 
-    private static void addHolesToMapOverlays(List<GeoPoint> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
+    private static void addHolesToMapOverlays(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
         for(int i=0; i<holesPoints.size();i++){
             if(i%2!=0) {
                 org.osmdroid.bonuspack.overlays.Polyline line = new Polyline(activity);
-                line.setPoints(Arrays.asList(holesPoints.get(i), holesPoints.get(i - 1)));
+                line.setPoints(holesPoints.get(i).getHoleLocations());
                 if(last) {
                     line.setColor(Color.DKGRAY);
                 } else{
                     line.setColor(Color.BLACK);
                 }
-                line.setWidth(2);
+                line.setWidth(12);
                 mapOverlays.add(line);
             }
         }

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import pl.mkapiczynski.dron.domain.GeoPoint;
+import pl.mkapiczynski.dron.domain.NDBHoleInSearchedArea;
 
 public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";
@@ -14,8 +15,8 @@ public class ClientGeoDataMessage implements Message {
 	private GeoPoint lastPosition;
 	private List<GeoPoint> searchedArea;
 	private List<GeoPoint> lastSearchedArea;
-	private List<GeoPoint> searchedAreaHoles;
-	private List<GeoPoint> lastSearchedAreaHoles;
+	private List<NDBHoleInSearchedArea> searchedAreaHoles;
+	private List<NDBHoleInSearchedArea> lastSearchedAreaHoles;
 
 	public String getMessageType() {
 		return messageType;
@@ -77,19 +78,19 @@ public class ClientGeoDataMessage implements Message {
 		this.lastSearchedArea = lastSearchedArea;
 	}
 
-	public List<GeoPoint> getSearchedAreaHoles() {
+	public List<NDBHoleInSearchedArea> getSearchedAreaHoles() {
 		return searchedAreaHoles;
 	}
 
-	public void setSearchedAreaHoles(List<GeoPoint> searchedAreaHoles) {
+	public void setSearchedAreaHoles(List<NDBHoleInSearchedArea> searchedAreaHoles) {
 		this.searchedAreaHoles = searchedAreaHoles;
 	}
 
-	public List<GeoPoint> getLastSearchedAreaHoles() {
+	public List<NDBHoleInSearchedArea> getLastSearchedAreaHoles() {
 		return lastSearchedAreaHoles;
 	}
 
-	public void setLastSearchedAreaHoles(List<GeoPoint> lastSearchedAreaHoles) {
+	public void setLastSearchedAreaHoles(List<NDBHoleInSearchedArea> lastSearchedAreaHoles) {
 		this.lastSearchedAreaHoles = lastSearchedAreaHoles;
 	}
 

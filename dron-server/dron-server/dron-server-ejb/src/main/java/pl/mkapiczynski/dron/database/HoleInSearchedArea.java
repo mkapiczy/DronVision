@@ -6,15 +6,17 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 
-/*@Entity*/
-public class HoleInSearchedArea {/*
+@Entity
+public class HoleInSearchedArea {
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name="HoleInSearchedAres_Location")
 	private List<Location> holeLocations;
 	
 	public Long getId() {
@@ -31,6 +33,6 @@ public class HoleInSearchedArea {/*
 
 	public void setHoleLocations(List<Location> holeLocations) {
 		this.holeLocations = holeLocations;
-	}*/
+	}
 
 }

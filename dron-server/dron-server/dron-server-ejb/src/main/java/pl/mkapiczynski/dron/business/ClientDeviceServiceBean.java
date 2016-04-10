@@ -18,10 +18,9 @@ import pl.mkapiczynski.dron.database.ClientUser;
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.database.Location;
-import pl.mkapiczynski.dron.database.SearchedArea;
-import pl.mkapiczynski.dron.database.SimulationSession;
 import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.GeoPoint;
+import pl.mkapiczynski.dron.domain.NDBHoleInSearchedArea;
 import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
@@ -92,19 +91,26 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 				List<GeoPoint> lastSearchedArea = convertLocationSearchedAreaToGeoPointSearchedArea(
 						activeSession.getLastSearchedArea().getSearchedLocations());
 				clientGeoDataMessage.setLastSearchedArea(lastSearchedArea);
-				List<GeoPoint> lastHoles = new ArrayList<>();
+				List<NDBHoleInSearchedArea> lastHoles = new ArrayList<>();
 				if (activeSession.getLastSearchedArea().getHolesInSearchedArea() != null) {
-
-					lastHoles.addAll(convertLocationSearchedAreaToGeoPointSearchedArea(
-							activeSession.getLastSearchedArea().getHolesInSearchedArea()));
+					for(int i=0; i<activeSession.getLastSearchedArea().getHolesInSearchedArea().size();i++){
+						NDBHoleInSearchedArea ndbHole = new NDBHoleInSearchedArea();
+						ndbHole.setHoleLocations(convertLocationSearchedAreaToGeoPointSearchedArea(
+							activeSession.getLastSearchedArea().getHolesInSearchedArea().get(i).getHoleLocations()));
+						lastHoles.add(ndbHole);
+					}
 
 				}
 				clientGeoDataMessage.setLastSearchedAreaHoles(lastHoles);
-				List<GeoPoint> holes = new ArrayList<>();
+				
+				List<NDBHoleInSearchedArea> holes = new ArrayList<>();
 				if (activeSession.getSearchedArea().getHolesInSearchedArea() != null) {
-
-					holes.addAll(convertLocationSearchedAreaToGeoPointSearchedArea(
-							activeSession.getSearchedArea().getHolesInSearchedArea()));
+					for(int i=0; i<activeSession.getSearchedArea().getHolesInSearchedArea().size();i++){
+						NDBHoleInSearchedArea ndbHole = new NDBHoleInSearchedArea();
+						ndbHole.setHoleLocations(convertLocationSearchedAreaToGeoPointSearchedArea(
+							activeSession.getSearchedArea().getHolesInSearchedArea().get(i).getHoleLocations()));
+						holes.add(ndbHole);
+					}
 
 				}
 				clientGeoDataMessage.setSearchedAreaHoles(holes);

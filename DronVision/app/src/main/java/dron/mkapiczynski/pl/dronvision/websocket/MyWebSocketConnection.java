@@ -23,13 +23,15 @@ import de.tavendo.autobahn.WebSocketOptions;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.HoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
-import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
 import dron.mkapiczynski.pl.dronvision.message.GeoDataMessage;
-import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.message.SimulationMessage;
+import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
+import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 
 /**
  * Created by Miix on 2016-01-08.
@@ -157,23 +159,48 @@ public class MyWebSocketConnection extends WebSocketConnection {
         for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
             lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
         }
-        List<GeoPoint> lastHoles = new ArrayList<>();
+        List<HoleInSearchedArea> lastHoles = new ArrayList<>();
         for (int i = 0; i < geoMessage.getLastSearchedAreaHoles().size(); i++) {
-            lastHoles.add(new GeoPoint(geoMessage.getLastSearchedAreaHoles().get(i).getLatitude(), geoMessage.getLastSearchedAreaHoles().get(i).getLongitude()));
+            lastHoles.add(geoMessage.getLastSearchedAreaHoles().get(i));
         }
-        List<GeoPoint> holes = new ArrayList<>();
+        List<HoleInSearchedArea> holes = new ArrayList<>();
         for (int i = 0; i < geoMessage.getSearchedAreaHoles().size(); i++) {
-           holes.add(new GeoPoint(geoMessage.getSearchedAreaHoles().get(i).getLatitude(), geoMessage.getSearchedAreaHoles().get(i).getLongitude()));
+           holes.add(geoMessage.getSearchedAreaHoles().get(i));
         }
 
+        List<DroneHoleInSearchedArea> droneLastHoles = new ArrayList<>();
+        for(int i=0; i<lastHoles.size();i++){
+            DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+            List<GeoPoint> geoPoints = new ArrayList<>();
+            List<MyGeoPoint> points = lastHoles.get(i).getHoleLocations();
+            for(int j=0;j<points.size();j++){
+                GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
+               geoPoints.add(geoPoint);
+            }
+            droneHole.setHoleLocations(geoPoints);
+            droneLastHoles.add(droneHole);
+        }
+
+        List<DroneHoleInSearchedArea> droneHoles = new ArrayList<>();
+        for(int i=0; i<holes.size();i++){
+            DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+            List<GeoPoint> geoPoints = new ArrayList<>();
+            List<MyGeoPoint> points = holes.get(i).getHoleLocations();
+            for(int j=0;j<points.size();j++){
+                GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
+                geoPoints.add(geoPoint);
+            }
+            droneHole.setHoleLocations(geoPoints);
+            droneHoles.add(droneHole);
+        }
         Drone drone = new Drone();
         drone.setDroneId(geoMessage.getDeviceId());
         drone.setDroneName(geoMessage.getDeviceName());
         drone.setCurrentPosition(currentDronePosition);
         drone.setSearchedArea(searchedArea);
         drone.setLastSearchedArea(lastSearchedArea);
-        drone.setHoles(holes);
-        drone.setLastHoles(lastHoles);
+        drone.setHoles(droneHoles);
+        drone.setLastHoles(droneLastHoles);
 
 
         activity.updateDronesOnMap(drone);
