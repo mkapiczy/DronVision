@@ -1,5 +1,6 @@
 package pl.mkapiczynski.dron.business;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.websocket.Session;
 
+import org.jboss.logging.Logger;
+
 import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.database.SimulationSession;
@@ -18,6 +21,7 @@ import pl.mkapiczynski.dron.database.SimulationSession;
 @Local
 @Stateless(name = "SimulationSessionService")
 public class SimulationSessionServiceBean implements SimulationSessionService {
+	private static final Logger log = Logger.getLogger(SimulationSessionServiceBean.class);
 
 	@PersistenceContext(name = "dron")
 	private EntityManager entityManager;
@@ -76,6 +80,7 @@ public class SimulationSessionServiceBean implements SimulationSessionService {
 
 	@Override
 	public void updateSimulationData(Drone drone, Set<Session> clientSessions) {
+		log.info("Method updateSimulationData started: " + new Date());
 		if (drone.getDroneId().compareTo(4l) == 0) {
 			Iterator<Session> iterator = clientSessions.iterator();
 			while (iterator.hasNext()) {
@@ -97,6 +102,7 @@ public class SimulationSessionServiceBean implements SimulationSessionService {
 				}
 			}
 		}
+		log.info("Method updateSimulationData ended: " + new Date());
 	}
 
 }

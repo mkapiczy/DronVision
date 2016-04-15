@@ -30,6 +30,7 @@ import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBDroneSession;
+import pl.mkapiczynski.dron.domain.NDBSearchedArea;
 import pl.mkapiczynski.dron.helpers.HttpHelper;
 import pl.mkapiczynski.dron.helpers.JsonDateDeserializer;
 import pl.mkapiczynski.dron.helpers.ServerResponse;
@@ -63,7 +64,7 @@ public class GetSearchedAreaServlet extends HttpServlet {
 		if (sessionId != null) {
 			log.info("Request for login " + sessionId);
 			Long sessionIdLong = Long.parseLong(sessionId);
-			List<GeoPoint> responseSearchedArea =  droneService.getSearchedAreaForSession(sessionIdLong);
+			NDBSearchedArea responseSearchedArea =  droneService.getSearchedAreaForSession(sessionIdLong);
 			GetSearchedAreaResponse getSearchedAreaResponse = new GetSearchedAreaResponse();
 			getSearchedAreaResponse.setSearchedArea(responseSearchedArea);
 			GsonBuilder gsonBuilder = new GsonBuilder();

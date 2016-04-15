@@ -1,19 +1,24 @@
 package pl.mkapiczynski.dron.helpers;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jboss.logging.Logger;
+import org.opensphere.geometry.algorithm.ConcaveHull;
 import org.openstreetmap.josm.data.coor.LatLon;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
-import pl.mkapiczynski.dron.domain.GeoPoint;
 
 public class SearchedAreaHelper {
 
@@ -76,109 +81,65 @@ public class SearchedAreaHelper {
 		return result;
 	}
 
-	public static double calculateDistanceBetweenTwooLocations(Location prevLocation, Location currLocation) {
-		int EarthRadius = 6371; // km
-		double dLat = Math.abs((currLocation.getLatitude() - prevLocation.getLatitude()) * Math.PI / 180);
-		double dLong = Math.abs((currLocation.getLongitude() - prevLocation.getLongitude()) * Math.PI / 180);
-		double prevLatitudeInRadians = prevLocation.getLatitude() * Math.PI / 180;
-		double currLongitudeInRadians = currLocation.getLongitude() * Math.PI / 180;
-
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLong / 2) * Math.sin(dLong / 2)
-				* Math.cos(prevLatitudeInRadians) * Math.cos(currLongitudeInRadians);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double distance = EarthRadius * c;
-		return distance;
-	}
-
 	public static List<HoleInSearchedArea> findHoles(List<DegreeLocation> previousCircle,
 			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
 		HgtReader reader = new HgtReader();
 		List<HoleInSearchedArea> holesInSearchedAre = new ArrayList<>();
-		try {
-			for (int i = 0; i < currentCircle.size(); i++) {
-				for (int j = 0; j < previousCircle.size(); j++) {
-					if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
-						int degree = currentCircle.get(i).getDegree();
-						Location currentCircleLocation = currentCircle.get(i).getLocation();
-						Location previousCircleLocation = previousCircle.get(j).getLocation();
-						if (currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(
-								currentCircleLocation, previousCircleLocation)) {
-							List<DegreeLocation> locationsOnCircle = new ArrayList<>();
-							List<Integer> degrees = new ArrayList<>();
-							degrees.add(degree);
-							dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
-							List<Location> singleHoleLocations = new ArrayList<>();
-							do {
-								dh += 1;
+		for (int i = 0; i < currentCircle.size(); i += 1) {
+			for (int j = 0; j < previousCircle.size(); j += 1) {
+				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
+					int degree = currentCircle.get(i).getDegree();
+					Location currentCircleLocation = currentCircle.get(i).getLocation();
+					Location previousCircleLocation = previousCircle.get(j).getLocation();
+					if (currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(currentCircleLocation,
+							previousCircleLocation)) {
+						List<DegreeLocation> locationsOnCircle = new ArrayList<>();
+						List<Integer> degrees = new ArrayList<>();
+						degrees.add(degree);
+						dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
+						List<Location> singleHoleLocations = new ArrayList<>();
+						do {
+							dh += 1;
 
-								double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
+							double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
 
-								locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh,
-										degrees);
-								Location loc = new Location();
-								if (locationsOnCircle != null && !locationsOnCircle.isEmpty()) {
-									loc = locationsOnCircle.get(0).getLocation();
-								}
-
-								double modelAltitude = reader
-										.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
-								if (loc.getAltitude() > modelAltitude) {
-									singleHoleLocations.add(loc);
-								}
-
-							} while (new Double(Double.sum(droneLocation.getAltitude(), -dh))
-									.compareTo(previousCircleLocation.getAltitude()) > 0);
-							if (!singleHoleLocations.isEmpty() && singleHoleLocations.size()>=2) {
-								List<Location> filteredSingleHoleLocations = new ArrayList<>();
-									filteredSingleHoleLocations.add(singleHoleLocations.get(0));
-									filteredSingleHoleLocations.add(singleHoleLocations.get(singleHoleLocations.size()-1));
-									HoleInSearchedArea hole = new HoleInSearchedArea();
-									hole.setHoleLocations(filteredSingleHoleLocations);
-									holesInSearchedAre.add(hole);
+							locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
+							Location loc = new Location();
+							if (locationsOnCircle != null && !locationsOnCircle.isEmpty()) {
+								loc = locationsOnCircle.get(0).getLocation();
 							}
+
+							double modelAltitude = reader
+									.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
+							if (loc.getAltitude() > modelAltitude) {
+								singleHoleLocations.add(loc);
+							}
+
+						} while (new Double(Double.sum(droneLocation.getAltitude(), -dh))
+								.compareTo(previousCircleLocation.getAltitude()) > 0);
+						if (!singleHoleLocations.isEmpty() && singleHoleLocations.size() >= 2) {
+							List<Location> filteredSingleHoleLocations = new ArrayList<>();
+							filteredSingleHoleLocations.add(singleHoleLocations.get(0));
+							filteredSingleHoleLocations.add(singleHoleLocations.get(singleHoleLocations.size() - 1));
+							HoleInSearchedArea hole = new HoleInSearchedArea();
+							hole.setHoleLocations(filteredSingleHoleLocations);
+							holesInSearchedAre.add(hole);
 						}
 					}
 				}
 			}
-		} catch (OutOfMemoryError e) {
-			log.error("OUT OF MEMOTY " + e.getMessage());
 		}
 		return holesInSearchedAre;
 	}
-	
+
 	private static boolean currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(
 			Location currentCircleLocation, Location previousCircleLocation) {
-		if (Double.sum(currentCircleLocation.getAltitude(), -previousCircleLocation.getAltitude()) > 2) {
+		if (Double.sum(currentCircleLocation.getAltitude(), -previousCircleLocation.getAltitude()) > 20) {
 			return true;
-
 		} else {
 			return false;
 		}
 	}
-
-	public static List<Location> convertDegreeLocationListToLocationList(List<DegreeLocation> degreeLocationList) {
-		List<Location> locationList = new ArrayList<>();
-		for (int i = 0; i < degreeLocationList.size(); i++) {
-			locationList.add(degreeLocationList.get(i).getLocation());
-		}
-		return locationList;
-	}
-
-	/*private static Location findMidpoint(Location loc1, Location loc2) {
-		double lat1 = Math.toRadians(loc1.getLatitude());
-		double lon1 = Math.toRadians(loc1.getLongitude());
-		double lat2 = Math.toRadians(loc2.getLatitude());
-		double lon2 = Math.toRadians(loc2.getLongitude());
-
-		double bx = Math.cos(lat2) * Math.cos(lon2 - lon1);
-		double by = Math.cos(lat2) * Math.sin(lon2 - lon1);
-
-		double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2),
-				Math.sqrt((Math.cos(lat1) + bx) * (Math.cos(lat1) + bx) + by * by));
-		double lon3 = lon1 + Math.atan2(by, Math.cos(lat1) * bx);
-
-		return new Location(lat3, lon3);
-	}*/
 
 	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
 		if (!degrees.isEmpty()) {
@@ -187,21 +148,17 @@ public class SearchedAreaHelper {
 				degrees.add(locationsOnCircle.get(i).getDegree());
 			}
 		} else {
-			for (int i = 0; i < 360; i += 1) {
+			for (int i = 0; i < 360; i += 2) {
 				degrees.add(i);
 			}
 		}
 	}
 
 	public static double calculateRadius(int dh, int cameraAngle) {
-		double cameraAngleInRadians = (((cameraAngle/2) * 3.14)/180);
+		double cameraAngleInRadians = (((cameraAngle / 2) * 3.14) / 180);
 		return dh * Math.abs(Math.tan(cameraAngleInRadians));
 	}
 
-	/**
-	 * Do poprawy
-	 * 
-	 */
 	public static List<DegreeLocation> findLocationsCrossingWithTheGround(List<DegreeLocation> realData,
 			List<Location> modelData, boolean remove) {
 		List<DegreeLocation> result = new ArrayList<>();
@@ -231,242 +188,88 @@ public class SearchedAreaHelper {
 
 	public static List<Location> addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(
 			List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
+		log.info("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea started: " + new Date());
 		List<Location> newSearchedArea = new ArrayList<>();
-
-		/*List<Location> currentSearchedAreaOuterPoints = getOuterPoints(currentSearchedArea, lastSearchedArea);
-		List<Location> lastSearchedAreaOuterPoints = getOuterPoints(lastSearchedArea, currentSearchedArea);
-		BigDecimal smallestDistanceForCurrentSearchedArea = null;
-		int closestCurrentSeachedAreaIndex=0;
-		int closestLastSearchedAreaIndex=0;
-		for (int i = 0; i < currentSearchedAreaOuterPoints.size(); i++) {
-			Location currentSearchedAreaLocation = currentSearchedAreaOuterPoints.get(i);
-			BigDecimal smallestDistance = null;
-			int tempClosesstLastSearcheadAreaIndex = 0;
-			for (int j = 0; j < lastSearchedAreaOuterPoints.size(); j++) {
-				Location lastSearchedAreaLocation = lastSearchedAreaOuterPoints.get(j);
-				BigDecimal dist = distFrom(currentSearchedAreaLocation.getLatitude(),
-						currentSearchedAreaLocation.getLongitude(), lastSearchedAreaLocation.getLatitude(),
-						lastSearchedAreaLocation.getLongitude());
-				if (smallestDistance == null) {
-					smallestDistance = dist;
-					tempClosesstLastSearcheadAreaIndex = j;
-				} else if (dist.compareTo(smallestDistance) < 0) {
-						smallestDistance = dist;
-						tempClosesstLastSearcheadAreaIndex = j;
-					}
-			}
-			if (smallestDistanceForCurrentSearchedArea == null) {
-				smallestDistanceForCurrentSearchedArea = smallestDistance;
-				closestCurrentSeachedAreaIndex = i;
-				closestLastSearchedAreaIndex = tempClosesstLastSearcheadAreaIndex;
-			} else if (smallestDistance.compareTo(smallestDistanceForCurrentSearchedArea) < 0) {
-					smallestDistanceForCurrentSearchedArea = smallestDistance;
-					closestCurrentSeachedAreaIndex = i;
-					closestLastSearchedAreaIndex = tempClosesstLastSearcheadAreaIndex;
-				}
-			
-		}
-		List<Location> leftCurrent = new ArrayList<>();
-		List<Location> rightCurrent = new ArrayList<>();
-		for(int k=0; k<currentSearchedAreaOuterPoints.size();k++){
-			if(k<=closestCurrentSeachedAreaIndex){
-				leftCurrent.add(currentSearchedAreaOuterPoints.get(k));
-			} else{
-				rightCurrent.add(currentSearchedAreaOuterPoints.get(k));
-			}
-		}
-		
-		List<Location> leftLast = new ArrayList<>();
-		List<Location> rightLast = new ArrayList<>();
-		for(int k=0; k<lastSearchedAreaOuterPoints.size();k++){
-			if(k<=closestLastSearchedAreaIndex){
-				leftLast.add(lastSearchedAreaOuterPoints.get(k));
-			} else{
-				rightLast.add(lastSearchedAreaOuterPoints.get(k));
-			}
-		}
-		
-		newSearchedArea.addAll(leftCurrent);
-		newSearchedArea.addAll(rightLast);
-		newSearchedArea.addAll(leftLast);
-		newSearchedArea.addAll(rightCurrent);*/
-		
-		/**
-		 * TODO Do sprawdzenia, czy sortowanie tutaj jest potrzebne i czy
-		 * poprawia, czy pogarsza wydajność
-		 */
-		/*List<Location> sortedCurrentSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(currentSearchedArea);
-		List<Location> sortedLastSearchedArea = sortGeoPointsListByDistanceAndRemoveRepetitions(lastSearchedArea);
-
-		List<Location> mutualPoints = getMutualPoints(sortedCurrentSearchedArea, sortedLastSearchedArea);
-
-		newSearchedArea = addOuterPoints(sortedCurrentSearchedArea, sortedLastSearchedArea);
-
-		newSearchedArea.addAll(mutualPoints);*/
-		List<Location> currentSearchedAreaOuterPoints = getOuterPoints(currentSearchedArea, lastSearchedArea);
-		List<Location> lastSearchedAreaOuterPoints = getOuterPoints(lastSearchedArea, currentSearchedArea);
-		List<Location> mutualPoints = getMutualPoints(currentSearchedArea, lastSearchedArea);
-		
-		ArrayList<Location> points = new ArrayList<>();
-		points.addAll(currentSearchedAreaOuterPoints);
-		points.addAll(lastSearchedAreaOuterPoints);
-		points.addAll(mutualPoints);
-		
-		QuickHull hull = new QuickHull();
-		ArrayList<Location> hullLocations = hull.quickHull(points);
-		newSearchedArea.addAll(hullLocations);
+		newSearchedArea = concaveHull(currentSearchedArea, lastSearchedArea);
+		log.info("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea ended: " + new Date());
 		return newSearchedArea;
 	}
 
-	public static List<Location> sortGeoPointsListByDistanceAndRemoveRepetitions(List<Location> searchedArea) {
-		List<Location> orderedSearchedArea = new ArrayList<>();
-		if (searchedArea != null && !searchedArea.isEmpty()) {
-			Location firstPoint = searchedArea.get(0);
-			orderedSearchedArea.add(searchedArea.remove(0));
-			Location lastAddedPoint = firstPoint;
-			while (searchedArea.size() > 0) {
-				int nearestPointIndex = findNearestPointIndex(lastAddedPoint, searchedArea);
-				Location nearestPoint = searchedArea.get(nearestPointIndex);
-				orderedSearchedArea.add(nearestPoint);
-				lastAddedPoint = searchedArea.remove(nearestPointIndex);
+	private static List<Location> concaveHull(List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
+		log.info("Method concaveHull started: " + new Date());
+		GeometryFactory gf = new GeometryFactory();
 
-			}
+		densifyPoints(currentSearchedArea, 0.0001);
+		densifyPoints(currentSearchedArea, 0.0001);
 
+		List<Geometry> list = new ArrayList<>();
+
+		for (int i = 0; i < currentSearchedArea.size(); i++) {
+			list.add(gf.createPoint(new Coordinate(currentSearchedArea.get(i).getLatitude(),
+					currentSearchedArea.get(i).getLongitude())));
 		}
-		return orderedSearchedArea;
+		for (int i = 0; i < lastSearchedArea.size(); i++) {
+			list.add(gf.createPoint(
+					new Coordinate(lastSearchedArea.get(i).getLatitude(), lastSearchedArea.get(i).getLongitude())));
+		}
+
+		Geometry[] points = list.toArray(new Geometry[list.size()]);
+		GeometryCollection geometries = new GeometryCollection(points, gf);
+
+		ConcaveHull ch = new ConcaveHull(geometries, 0.0005);
+		Geometry concave = ch.getConcaveHull();
+		Coordinate[] concaveCoordinates = concave.getCoordinates();
+
+		List<Coordinate> coords = Arrays.asList(concaveCoordinates);
+
+		List<Location> result = new ArrayList<>();
+		for (int i = 0; i < coords.size(); i++) {
+			result.add(new Location(coords.get(i).x, coords.get(i).y));
+		}
+		log.info("Method concaveHull ended: " + new Date());
+		return result;
 	}
-	
-	public static Location findNearesPointToRemovedHolePoint(Location location1, Location location2, List<Location> lastSearchedAreaLocations){
-		double y1 = location1.getLatitude();
-		double x1 = location1.getLongitude();
-		double y2 = location2.getLatitude();
-		double x2 = location2.getLongitude();
-		/**
-		 * Współczynniki prostej przechodzącej przez dwa punkty
-		 */
-		double a =0;
-		if(x1!=x2){
-			 a = (y1-y2) / (x1-x2);
-		}
-		double b=y1-a*x1;
-		
-		int k = findNearestPointIndex(location2, lastSearchedAreaLocations);
-		Location nearestLocation = lastSearchedAreaLocations.get(k);
-		if(!laysOnLine(a,b, nearestLocation)){
-			lastSearchedAreaLocations.remove(nearestLocation);
-			while(!laysOnLine(a,b, nearestLocation) && !lastSearchedAreaLocations.isEmpty()){
-				k = findNearestPointIndex(location2, lastSearchedAreaLocations);
-				if(!lastSearchedAreaLocations.isEmpty()){
-					nearestLocation = lastSearchedAreaLocations.get(k);
-				}
-				lastSearchedAreaLocations.remove(nearestLocation);
-			}
-		}
-		return nearestLocation;
-	}
-	
-	public static List<Location> getOnlyVerticesPoints(List<Location> locations) {
-		List<Location> verticesLocations = new ArrayList<>();
+
+	private static void densifyPoints(List<Location> list, double threshold) {
 		CopyOnWriteArrayList<Location> threadSafeLocations = new CopyOnWriteArrayList<>();
-		threadSafeLocations.addAll(locations);
-		Iterator<Location> locationsIterator = threadSafeLocations.listIterator();
-		Location point1 = null;
-		Location point2 = null;
-		Location point3 = null;
-		int i = 1;
-		while (locationsIterator.hasNext()) {
-			if (i == 1) {
-				point1 = locationsIterator.next();
-				i++;
-			} else if (i == 2) {
-				point2 = locationsIterator.next();
-				i++;
-			} else if (i == 3) {
-				point3 = locationsIterator.next();
-				if (threePointsLayOnTheLine(point1, point2, point3)) {
-					threadSafeLocations.remove(point2);
-					point1=point3;
-					i=2;
-				}
-				point1=point2;
-				point2=point3;
-				i = 3;
-			}
-		}
-		verticesLocations.addAll(threadSafeLocations);
-		return verticesLocations;
-	}
-	
-	private static boolean threePointsLayOnTheLine(Location point1, Location point2, Location point3){
-		Double x1 = point1.getLatitude();
-		Double y1 = point1.getLongitude();
-		Double x2 = point2.getLatitude();
-		Double y2 = point2.getLongitude();
-		Double x3 = point3.getLatitude();
-		Double y3 = point3.getLongitude();
-		
-		Double determinate = (x1*(y2-y3)) + (x2*(y3-y1)) + (x3*(y1-y2));
-		log.info(determinate);
-		if(Double.sum(determinate, 4.00E-12)>=0.5E-12 || Double.sum(determinate, 4.00E-12)<=0.5E-12 ){
-			return true;
-		} else{
-			return false;
-		}
-	}
-	
-	private static void removeRepetitions(List<Location> locations) {
-		CopyOnWriteArrayList<Location> threadSafeLocations = new CopyOnWriteArrayList<>();
-		CopyOnWriteArrayList<Location> secondThreadSafeLocations = new CopyOnWriteArrayList<>();
-		threadSafeLocations.addAll(locations);
-		secondThreadSafeLocations.addAll(locations);
-		Iterator<Location> iterator = threadSafeLocations.listIterator();
-		while (iterator.hasNext()) {
-			Location location1 = iterator.next();
-			Iterator<Location> secondIterator = secondThreadSafeLocations.listIterator();
-			while (secondIterator.hasNext()) {
-				Location location2 = secondIterator.next();
-				try {
-					if (location1.getLatitude().compareTo(location2.getLatitude()) == 0
-							&& location1.getLongitude().compareTo(location2.getLongitude()) == 0 && !location1.equals(location2)) {
-						threadSafeLocations.remove(location1);
-					}
-				} catch (NullPointerException e) {
-					log.error(e);
+		threadSafeLocations.addAll(list);
+		Location previous = null;
+		for (int i = 0; i < threadSafeLocations.size(); i++) {
+			Location current = threadSafeLocations.get(i);
+			if (previous != null) {
+				if (length(previous, current) > threshold) {
+					Location midPoint = getMidpoint(previous, current);
+					threadSafeLocations.add(i, midPoint);
+					densifyPoints(threadSafeLocations, threshold);
 				}
 			}
+			previous = current;
 		}
-		locations.clear();
-		locations.addAll(threadSafeLocations);
+
+		list.clear();
+		list.addAll(threadSafeLocations);
 	}
-	
-	private static double[] getLineCoeficcients(Location location1, Location location2){
-		double[] coefficients = new double[2];
-		double y1 = location1.getLatitude();
-		double x1 = location1.getLongitude();
-		double y2 = location2.getLatitude();
-		double x2 = location2.getLongitude();
-		/**
-		 * Współczynniki prostej przechodzącej przez dwa punkty
-		 */
-		double a =0;
-		if(x1!=x2){
-			 a = (y1-y2) / (x1-x2);
-		}
-		double b=y1-a*x1;
-		coefficients[0] = a;
-		coefficients[1] = b;
-		return coefficients;
+
+	private static Location getMidpoint(Location loc1, Location loc2) {
+		Double latitude = (loc1.getLatitude() + loc2.getLatitude()) / 2;
+		Double longitude = (loc1.getLongitude() + loc2.getLongitude()) / 2;
+		return new Location(latitude, longitude);
 	}
-	
-	private static boolean laysOnLine(double a, double b, Location point){
-		Double x = point.getLatitude();
-		Double y = point.getLongitude();
-		Double calculatedY = (a*x)+b;
-		if((Double.sum(y, -calculatedY)>-0.5) && (Double.sum(y, -calculatedY)<+0.5)){
-			return true;
-		} else{
-			return false;
-		}
+
+	private static double length(Location p1, Location p2) {
+		double length = 0;
+		double x1 = p1.getLatitude();
+		double y1 = p2.getLongitude();
+
+		double x2 = p2.getLatitude();
+		double y2 = p2.getLongitude();
+
+		double dx = x2 - x1;
+		double dy = y2 - y1;
+
+		length += Math.sqrt(dx * dx + dy * dy);
+
+		return length;
 	}
 
 	private static Location destinationPoint(Location center, final double aDistanceInMeters,
@@ -501,76 +304,6 @@ public class SearchedAreaHelper {
 			}
 		}
 	}
-
-	private static List<Location> getOuterPoints(List<Location> points, List<Location> outerFrom){
-		List<Location> outerPoints = new ArrayList<>();
-		for (int i = 0; i < points.size(); i++) {
-			if (!pointInPolygon(points.get(i), outerFrom)) {
-				outerPoints.add(points.get(i));
-			}
-		}
-		return outerPoints;
-	}
-	private static List<Location> addOuterPoints(List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
-		List<Location> newSearchedArea = new ArrayList<>();
-		for (int i = 0; i < currentSearchedArea.size(); i++) {
-			if (!pointInPolygon(currentSearchedArea.get(i), lastSearchedArea)) {
-				newSearchedArea.add(currentSearchedArea.get(i));
-			}
-		}
-		for (int i = 0; i < lastSearchedArea.size(); i++) {
-			if (!pointInPolygon(lastSearchedArea.get(i), currentSearchedArea)) {
-				newSearchedArea.add(lastSearchedArea.get(i));
-			}
-		}
-		return newSearchedArea;
-	}
-
-	private static List<Location> getMutualPoints(List<Location> searchedArea, List<Location> areaToAdd) {
-		List<Location> mutualPoints = new ArrayList<>();
-		for (int i = 0; i < areaToAdd.size(); i++) {
-			Location pointFromAreaToAdd = areaToAdd.get(i);
-			for (int j = 0; j < searchedArea.size(); j++) {
-				Location pointFromSearchedArea = searchedArea.get(j);
-				if ((pointFromAreaToAdd.getLatitude().compareTo(pointFromSearchedArea.getLatitude()) == 0)
-						&& (pointFromAreaToAdd.getLongitude().compareTo(pointFromSearchedArea.getLongitude()) == 0)) {
-					mutualPoints.add(pointFromSearchedArea);
-				}
-			}
-		}
-		return mutualPoints;
-	}
-
-	private static int findNearestPointIndex(Location point, List<Location> listToSearch) {
-		int index = 0;
-		BigDecimal dist =  new BigDecimal(0);
-		for (int i = 0; i < listToSearch.size(); i++) {
-			Location currentPoint = listToSearch.get(i);
-			BigDecimal currentPointDist = distFrom(point.getLatitude(), point.getLongitude(), currentPoint.getLatitude(),
-					currentPoint.getLongitude());
-			if (i == 0) {
-				index = i;
-				dist = currentPointDist;
-			} else if (currentPointDist.compareTo(dist)<0) {
-				index = i;
-				dist = currentPointDist;
-			}
-		}
-		return index;
-	}
-	
-
-	private static BigDecimal distFrom(Double lat1, Double lng1, Double lat2, Double lng2) {
-		BigDecimal earthRadius = new BigDecimal(6371000); // meters
-		BigDecimal dLat = new BigDecimal(Math.toRadians(lat2 - lat1));
-		BigDecimal dLng = new BigDecimal(Math.toRadians(lng2 - lng1));
-		BigDecimal a = new BigDecimal ((Math.sin(dLat.doubleValue() / 2) * Math.sin(dLat.doubleValue() / 2) + Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng.doubleValue() / 2) * Math.sin(dLng.doubleValue() / 2)));
-		BigDecimal c = new BigDecimal(2 * Math.atan2(Math.sqrt(a.doubleValue()), Math.sqrt(1 - a.doubleValue())));
-		BigDecimal dist = (earthRadius.multiply(c));
-		return dist;
-	}
-	
 
 	private static boolean pointIsTheSamePoint(Location point, Location nearestPoint) {
 		if ((point.getLatitude().compareTo(nearestPoint.getLatitude()) == 0)
@@ -649,29 +382,4 @@ public class SearchedAreaHelper {
 		}
 
 	}
-
-	/**
-	 * TODO Najprawdopodobniej do wywalenia. Do sprawdzenia, czy nei jest lepsze
-	 * od pointInPolygon
-	 */
-	private boolean coordinateInRegion(List<GeoPoint> region, GeoPoint coord) {
-		int i, j;
-		boolean isInside = false;
-		// create an array of coordinates from the region boundary list
-		GeoPoint[] verts = region.toArray(new GeoPoint[region.size()]);
-		int sides = verts.length;
-		for (i = 0, j = sides - 1; i < sides; j = i++) {
-			// verifying if your coordinate is inside your region
-			if ((((verts[i].getLongitude() <= coord.getLongitude()) && (coord.getLongitude() < verts[j].getLongitude()))
-					|| ((verts[j].getLongitude() <= coord.getLongitude())
-							&& (coord.getLongitude() < verts[i].getLongitude())))
-					&& (coord.getLatitude() < (verts[j].getLatitude() - verts[i].getLatitude())
-							* (coord.getLongitude() - verts[i].getLongitude())
-							/ (verts[j].getLongitude() - verts[i].getLongitude()) + verts[i].getLatitude())) {
-				isInside = !isInside;
-			}
-		}
-		return isInside;
-	}
-
 }

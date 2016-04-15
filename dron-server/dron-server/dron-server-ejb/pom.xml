@@ -33,6 +33,13 @@
 		</license>
 	</licenses>
 
+	<repositories>
+		<repository>
+			<id>javaopencvbook</id>
+			<url>https://raw.github.com/JavaOpenCVBook/code/maven2/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<!-- Declare the APIs we depend on and need for compilation. All of them 
 			are provided by JBoss WildFly -->
@@ -116,6 +123,33 @@
 			<artifactId>josm2</artifactId>
 			<version>1.0</version>
 		</dependency>
+	
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.javaopencvbook</groupId> -->
+<!-- 			<artifactId>opencvjar</artifactId> -->
+<!-- 			<version>3.0.0</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.javaopencvbook</groupId> -->
+<!-- 			<artifactId>opencvjar-runtime</artifactId> -->
+<!-- 			<version>3.0.0</version> -->
+<!-- 			<classifier>natives-windows-x86_64</classifier> -->
+<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.bytedeco</groupId> -->
+		<!-- <artifactId>javacv</artifactId> -->
+		<!-- <version>1.1</version> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>com.vividsolutions</groupId>
+			<artifactId>jts</artifactId>
+			<version>1.13</version>
+		</dependency>
+		<dependency>
+			<groupId>concave-hull</groupId>
+			<artifactId>concave-hull</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 
 	</dependencies>
 
@@ -152,6 +186,40 @@
 							<skip>true</skip>
 						</configuration>
 					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.1</version>
+						<executions>
+							<execution>
+								<id>copy-dependencies</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>false</overWriteSnapshots>
+									<overWriteIfNewer>true</overWriteIfNewer>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+<!-- 					<plugin> -->
+<!-- 						<groupId>com.googlecode.mavennatives</groupId> -->
+<!-- 						<artifactId>maven-nativedependencies-plugin</artifactId> -->
+<!-- 						<version>0.0.7</version> -->
+<!-- 						<executions> -->
+<!-- 							<execution> -->
+<!-- 								<id>unpacknatives</id> -->
+<!-- 								<phase>generate-resources</phase> -->
+<!-- 								<goals> -->
+<!-- 									<goal>copy</goal> -->
+<!-- 								</goals> -->
+<!-- 							</execution> -->
+<!-- 						</executions> -->
+<!-- 					</plugin> -->
 				</plugins>
 			</build>
 		</profile>

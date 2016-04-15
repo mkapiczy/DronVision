@@ -53,6 +53,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 
 	@Override
 	public void sendGeoDataToAllSessionRegisteredClients(Drone drone, Set<Session> clientSessions) {
+		log.info("Method sendGeoDataToAllSessionRegisteredClients started: " + new Date());
 		ClientGeoDataMessage geoMessage = generateClientGeoDataMessage(drone);
 		Iterator<Session> iterator = clientSessions.iterator();
 		while (iterator.hasNext()) {
@@ -68,9 +69,11 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 				}
 			}
 		}
+		log.info("Method sendGeoDataToAllSessionRegisteredClients ended: " + new Date());
 	}
 
 	private ClientGeoDataMessage generateClientGeoDataMessage(Drone drone) {
+		log.info("Method generateClientGeoDataMessage started: " + new Date());
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();
 		clientGeoDataMessage.setDeviceId(drone.getDroneId());
 		clientGeoDataMessage.setDeviceType(Constants.GPS_TRACKED_DEVICE_TYPE);
@@ -116,6 +119,7 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 				clientGeoDataMessage.setSearchedAreaHoles(holes);
 			}
 		}
+		log.info("Method generateClientGeoDataMessage ended: " + new Date());
 		return clientGeoDataMessage;
 	}
 

@@ -21,6 +21,8 @@ import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.domain.GeoPoint;
+import pl.mkapiczynski.dron.domain.NDBHoleInSearchedArea;
+import pl.mkapiczynski.dron.domain.NDBSearchedArea;
 
 @Local
 @Stateless(name = "DroneService")
@@ -76,6 +78,7 @@ public class DroneServiceBean implements DroneService {
 
 	@Override
 	public void updateDroneSearchedArea(Drone drone) {
+		log.info("Method updateDroneSearchedArea started: " + new Date());
 		DroneSession activeSession = getActiveDroneSession(drone);
 		if (activeSession != null) {
 			SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(drone.getLastLocation(), drone.getCameraAngle());
@@ -96,6 +99,7 @@ public class DroneServiceBean implements DroneService {
 		} else {
 			log.info("No active session for drone with id: " + drone.getDroneId());
 		}
+		log.info("Method updateDroneSearchedArea ended: " + new Date());
 	}
 
 	@Override
@@ -157,8 +161,8 @@ public class DroneServiceBean implements DroneService {
 	}
 
 	@Override
-	public List<GeoPoint> getSearchedAreaForSession(Long sessionId) {
-		List<GeoPoint> responseSearchedArea = new ArrayList<>();
+	public NDBSearchedArea getSearchedAreaForSession(Long sessionId) {
+		NDBSearchedArea ndbSearchedArea = new NDBSearchedArea();
 		String queryStr = "SELECT s FROM DroneSession s WHERE s.sessionId = :sessionId";
 		TypedQuery<DroneSession> query = entityManager.createQuery(queryStr, DroneSession.class);
 		query.setParameter("sessionId", sessionId);
@@ -168,13 +172,25 @@ public class DroneServiceBean implements DroneService {
 			resultSession = droneSessions.get(0);
 		}
 		SearchedArea searchedArea = resultSession.getSearchedArea();
+		List<GeoPoint> responseSearchedArea = new ArrayList<>();
 		if(searchedArea!=null && searchedArea.getSearchedLocations()!=null && !searchedArea.getSearchedLocations().isEmpty()){
 			responseSearchedArea = convertLocationSearchedAreaToGeoPointSearchedArea(searchedArea.getSearchedLocations());
 		}
-
+		List<NDBHoleInSearchedArea> responseSearchedAreaHoles = new ArrayList<>();
+		if(searchedArea!=null && searchedArea.getHolesInSearchedArea()!=null && !searchedArea.getHolesInSearchedArea().isEmpty()){
+			for(int i=0; i<searchedArea.getHolesInSearchedArea().size();i++){
+				HoleInSearchedArea hole = searchedArea.getHolesInSearchedArea().get(i);
+				NDBHoleInSearchedArea ndbHole = new NDBHoleInSearchedArea();
+				List<GeoPoint> holesLocations = convertLocationSearchedAreaToGeoPointSearchedArea(hole.getHoleLocations());
+				ndbHole.setHoleLocations(holesLocations);
+				responseSearchedAreaHoles.add(ndbHole);
+			}
+		}
+		ndbSearchedArea.setSearchedAreaLocations(responseSearchedArea);
+		ndbSearchedArea.setHolesInSearchedArea(responseSearchedAreaHoles);
 		
 
-		return responseSearchedArea;
+		return ndbSearchedArea;
 	}
 	
 	private static List<GeoPoint> convertLocationSearchedAreaToGeoPointSearchedArea(

@@ -1,5 +1,6 @@
 package pl.mkapiczynski.dron.business;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -80,6 +81,7 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 
 	private void calculateSearchedAreaAndSendMessageToClients(Long droneId, GeoPoint lastPosition,
 			Set<Session> clientSessions) {
+		log.info("Method calculateSearchedAreaAndSendMessageToClients started: " + new Date());
 		if (droneId != null && lastPosition != null) {
 			Drone drone = droneService.getDroneById(droneId);
 			if (drone != null) {
@@ -93,9 +95,8 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		} else {
 			log.error("Last position and droneId can not be NULL!");
 		}
+		log.info("Method calculateSearchedAreaAndSendMessageToClients ended: " + new Date());
 	}
-
-
 
 	private boolean gpsTrackerDeviceHasRegisteredSession(Session session, Set<Session> gpsTrackerDeviceSessions) {
 		if (gpsTrackerDeviceSessions.contains(session)) {
@@ -103,5 +104,4 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		}
 		return false;
 	}
-
 }
