@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean isVisionModeOn(){
-        if(isSimulationModeTurned() || visionFragment.isHistoryMode()){
+        if(visionFragment.isHistoryMode()){
             return false;
         } else{
             return true;
