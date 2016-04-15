@@ -29,7 +29,9 @@ import java.util.List;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
+import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.DroneSession;
+import dron.mkapiczynski.pl.dronvision.domain.HoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomHistoryDroneSessionsListViewAdapter;
@@ -247,7 +249,8 @@ public class HistoryFragment extends Fragment {
 
         private final Long sessionId;
         private HistoryFragment historyFragment;
-        private List<MyGeoPoint> receivedSearchedArea;
+        private List<MyGeoPoint> receivedSearchedAreaLocations;
+        private List<HoleInSearchedArea> receivedHoles;
 
 
         GetSearchedAreaTask(Long sessionId, HistoryFragment historyFragment) {
@@ -270,8 +273,8 @@ public class HistoryFragment extends Fragment {
                 conn.setInstanceFollowRedirects(false);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("charset", "UTF-8");
-                conn.setConnectTimeout(2500);
-                conn.setReadTimeout(2500);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setUseCaches(false);
 
 
@@ -287,7 +290,8 @@ public class HistoryFragment extends Fragment {
                     br.close();
                     GetSearchedAreaMessage getSearchedAreaMessage = MessageDecoder.decodeGetSearchedAreaMessage(sb.toString());
                     if (getSearchedAreaMessage != null) {
-                        receivedSearchedArea = getSearchedAreaMessage.getSearchedArea();
+                        receivedSearchedAreaLocations = getSearchedAreaMessage.getSearchedArea().getSearchedAreaLocations();
+                        receivedHoles = getSearchedAreaMessage.getSearchedArea().getHolesInSearchedArea();
                     }
                     return true;
                 }
@@ -325,12 +329,23 @@ public class HistoryFragment extends Fragment {
         }
 
         private void updateListViewsWithReceivedData() {
-            if (receivedSearchedArea != null) {
+            if (receivedSearchedAreaLocations != null) {
                 List<GeoPoint> searchedArea = new ArrayList<>();
-                for (int i = 0; i < receivedSearchedArea.size(); i++) {
-                    searchedArea.add(new GeoPoint(receivedSearchedArea.get(i).getLatitude(), receivedSearchedArea.get(i).getLongitude()));
+                for (int i = 0; i < receivedSearchedAreaLocations.size(); i++) {
+                    searchedArea.add(new GeoPoint(receivedSearchedAreaLocations.get(i).getLatitude(), receivedSearchedAreaLocations.get(i).getLongitude()));
                 }
-                ((MainActivity) historyFragment.getActivity()).turnOnHistoryMode(searchedArea);
+                List<DroneHoleInSearchedArea> holes = new ArrayList<>();
+                for(int i=0; i<receivedHoles.size();i++){
+                    List<MyGeoPoint> hole = receivedHoles.get(i).getHoleLocations();
+                    DroneHoleInSearchedArea holeInSearchedArea = new DroneHoleInSearchedArea();
+                    List<GeoPoint> holesLocation = new ArrayList<>();
+                    for(int j=0; j<hole.size();j++){
+                        holesLocation.add(new GeoPoint(hole.get(j).getLatitude(), hole.get(j).getLongitude()));
+                    }
+                    holeInSearchedArea.setHoleLocations(holesLocation);
+                    holes.add(holeInSearchedArea);
+                }
+                ((MainActivity) historyFragment.getActivity()).turnOnHistoryMode(searchedArea, holes);
             } else {
                 Toast.makeText(getContext(), "NULL", Toast.LENGTH_SHORT).show();
             }

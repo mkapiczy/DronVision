@@ -4,6 +4,7 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.List;
 
+import dron.mkapiczynski.pl.dronvision.domain.DroneSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.DroneSession;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 
@@ -11,13 +12,13 @@ import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
  * Created by Miix on 2016-02-12.
  */
 public class GetSearchedAreaMessage {
-    private List<MyGeoPoint> searchedArea;
+    private DroneSearchedArea searchedArea;
 
-    public List<MyGeoPoint> getSearchedArea() {
+    public DroneSearchedArea getSearchedArea() {
         return searchedArea;
     }
 
-    public void setSearchedArea(List<MyGeoPoint> searchedArea) {
+    public void setSearchedArea(DroneSearchedArea searchedArea) {
         this.searchedArea = searchedArea;
     }
 }

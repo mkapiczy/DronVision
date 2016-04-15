@@ -93,9 +93,9 @@ public class MapUtils {
     }
 
     private static void updateDroneVisualizedOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
-        updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
-        updateDroneLastSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
         updateDroneSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
+        updateDroneLastSearchedAreaOnMap(droneToUpdate, mapOverlays, activity);
+        updateDroneLastPositionMarkerOnMap(droneToUpdate, mapOverlays, mapView, activity);
     }
 
     private static void updateDroneShownOverlays(Drone droneToUpdate, List<Overlay> mapOverlays, MapView mapView, Activity activity) {
@@ -153,17 +153,13 @@ public class MapUtils {
         }
     }
 
-    private static void addHolesToMapOverlays(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
+    public static void addHolesToMapOverlays(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
         for(int i=0; i<holesPoints.size();i++){
             if(i%2!=0) {
                 org.osmdroid.bonuspack.overlays.Polyline line = new Polyline(activity);
                 line.setPoints(holesPoints.get(i).getHoleLocations());
-                if(last) {
-                    line.setColor(Color.DKGRAY);
-                } else{
-                    line.setColor(Color.BLACK);
-                }
-                line.setWidth(12);
+                line.setColor(Color.DKGRAY);
+                line.setWidth(10);
                 mapOverlays.add(line);
             }
         }

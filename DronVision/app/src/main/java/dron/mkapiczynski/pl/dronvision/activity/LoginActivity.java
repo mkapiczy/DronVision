@@ -58,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordTextView;
     private View mProgressView;
     private View mLoginFormView;
+    private Button registerButton;
 
     private SessionManager sessionManager;
 
@@ -94,6 +95,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        registerButton = (Button) findViewById(R.id.registerButton);
+        registerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
