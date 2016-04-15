@@ -149,61 +149,63 @@ public class MyWebSocketConnection extends WebSocketConnection {
 
 
     private void handleGeoMessage(GeoDataMessage geoMessage){
-        MyGeoPoint point = geoMessage.getLastPosition();
-        GeoPoint currentDronePosition = new GeoPoint(point.getLatitude(), point.getLongitude(), point.getAltitude());
-        List<GeoPoint> searchedArea = new ArrayList<>();
-        for (int i = 0; i < geoMessage.getSearchedArea().size(); i++) {
-            searchedArea.add(new GeoPoint(geoMessage.getSearchedArea().get(i).getLatitude(), geoMessage.getSearchedArea().get(i).getLongitude()));
-        }
-        List<GeoPoint> lastSearchedArea = new ArrayList<>();
-        for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
-            lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
-        }
-        List<HoleInSearchedArea> lastHoles = new ArrayList<>();
-        for (int i = 0; i < geoMessage.getLastSearchedAreaHoles().size(); i++) {
-            lastHoles.add(geoMessage.getLastSearchedAreaHoles().get(i));
-        }
-        List<HoleInSearchedArea> holes = new ArrayList<>();
-        for (int i = 0; i < geoMessage.getSearchedAreaHoles().size(); i++) {
-           holes.add(geoMessage.getSearchedAreaHoles().get(i));
-        }
-
-        List<DroneHoleInSearchedArea> droneLastHoles = new ArrayList<>();
-        for(int i=0; i<lastHoles.size();i++){
-            DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
-            List<GeoPoint> geoPoints = new ArrayList<>();
-            List<MyGeoPoint> points = lastHoles.get(i).getHoleLocations();
-            for(int j=0;j<points.size();j++){
-                GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
-               geoPoints.add(geoPoint);
+        if(activity.isVisionModeOn()) {
+            MyGeoPoint point = geoMessage.getLastPosition();
+            GeoPoint currentDronePosition = new GeoPoint(point.getLatitude(), point.getLongitude(), point.getAltitude());
+            List<GeoPoint> searchedArea = new ArrayList<>();
+            for (int i = 0; i < geoMessage.getSearchedArea().size(); i++) {
+                searchedArea.add(new GeoPoint(geoMessage.getSearchedArea().get(i).getLatitude(), geoMessage.getSearchedArea().get(i).getLongitude()));
             }
-            droneHole.setHoleLocations(geoPoints);
-            droneLastHoles.add(droneHole);
-        }
-
-        List<DroneHoleInSearchedArea> droneHoles = new ArrayList<>();
-        for(int i=0; i<holes.size();i++){
-            DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
-            List<GeoPoint> geoPoints = new ArrayList<>();
-            List<MyGeoPoint> points = holes.get(i).getHoleLocations();
-            for(int j=0;j<points.size();j++){
-                GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
-                geoPoints.add(geoPoint);
+            List<GeoPoint> lastSearchedArea = new ArrayList<>();
+            for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
+                lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
             }
-            droneHole.setHoleLocations(geoPoints);
-            droneHoles.add(droneHole);
+            List<HoleInSearchedArea> lastHoles = new ArrayList<>();
+            for (int i = 0; i < geoMessage.getLastSearchedAreaHoles().size(); i++) {
+                lastHoles.add(geoMessage.getLastSearchedAreaHoles().get(i));
+            }
+            List<HoleInSearchedArea> holes = new ArrayList<>();
+            for (int i = 0; i < geoMessage.getSearchedAreaHoles().size(); i++) {
+                holes.add(geoMessage.getSearchedAreaHoles().get(i));
+            }
+
+            List<DroneHoleInSearchedArea> droneLastHoles = new ArrayList<>();
+            for (int i = 0; i < lastHoles.size(); i++) {
+                DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+                List<GeoPoint> geoPoints = new ArrayList<>();
+                List<MyGeoPoint> points = lastHoles.get(i).getHoleLocations();
+                for (int j = 0; j < points.size(); j++) {
+                    GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
+                    geoPoints.add(geoPoint);
+                }
+                droneHole.setHoleLocations(geoPoints);
+                droneLastHoles.add(droneHole);
+            }
+
+            List<DroneHoleInSearchedArea> droneHoles = new ArrayList<>();
+            for (int i = 0; i < holes.size(); i++) {
+                DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+                List<GeoPoint> geoPoints = new ArrayList<>();
+                List<MyGeoPoint> points = holes.get(i).getHoleLocations();
+                for (int j = 0; j < points.size(); j++) {
+                    GeoPoint geoPoint = new GeoPoint(points.get(j).getLatitude(), points.get(j).getLongitude());
+                    geoPoints.add(geoPoint);
+                }
+                droneHole.setHoleLocations(geoPoints);
+                droneHoles.add(droneHole);
+            }
+            Drone drone = new Drone();
+            drone.setDroneId(geoMessage.getDeviceId());
+            drone.setDroneName(geoMessage.getDeviceName());
+            drone.setCurrentPosition(currentDronePosition);
+            drone.setSearchedArea(searchedArea);
+            drone.setLastSearchedArea(lastSearchedArea);
+            drone.setHoles(droneHoles);
+            drone.setLastHoles(droneLastHoles);
+
+
+            activity.updateDronesOnMap(drone);
         }
-        Drone drone = new Drone();
-        drone.setDroneId(geoMessage.getDeviceId());
-        drone.setDroneName(geoMessage.getDeviceName());
-        drone.setCurrentPosition(currentDronePosition);
-        drone.setSearchedArea(searchedArea);
-        drone.setLastSearchedArea(lastSearchedArea);
-        drone.setHoles(droneHoles);
-        drone.setLastHoles(droneLastHoles);
-
-
-        activity.updateDronesOnMap(drone);
     }
 
     private void handleSimulationEndedMessage(){

@@ -305,6 +305,14 @@ public class MainActivity extends AppCompatActivity
         return visionFragment.isSimulationMode();
     }
 
+    public boolean isVisionModeOn(){
+        if(isSimulationModeTurned() || visionFragment.isHistoryMode()){
+            return false;
+        } else{
+            return true;
+        }
+    }
+
 
     private AlertDialog createLogoutDialog(Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);

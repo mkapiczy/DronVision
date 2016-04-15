@@ -168,8 +168,8 @@ public class HistoryFragment extends Fragment {
                 conn.setInstanceFollowRedirects(false);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("charset", "UTF-8");
-                conn.setConnectTimeout(2500);
-                conn.setReadTimeout(2500);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setUseCaches(false);
 
 
