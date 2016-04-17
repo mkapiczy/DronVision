@@ -67,7 +67,7 @@ public class GPSActivity extends Activity implements LocationListener {
 
         String ngrokPortFromFile = InitializationUtils.getInitializationNgrokPort();
         String serverAddress = "ws://0.tcp.ngrok.io:" + ngrokPortFromFile + "/dron-server-web/server";
-
+        Toast.makeText(getApplicationContext(), ngrokPortFromFile, Toast.LENGTH_LONG).show();
         togglePeriodicLocationUpdates();
         client = new MyWebSocketConnection(this, serverAddress);
         client.connectToWebSocketServer();
@@ -77,23 +77,25 @@ public class GPSActivity extends Activity implements LocationListener {
 
             @Override
             public void onClick(View v) {
-                mLastLocation = getLastLocation();
-                mLastLocation.setAltitude(0);
-                displayLocationOnUI();
-
-                if (!client.isConnected() || client == null) {
+                if (client!=null && !client.isConnected()) {
                     client.connectToWebSocketServer();
                 }
-
+                mLastLocation = getLastLocation();
                 if (mLastLocation != null) {
-                    if(editTextLatitude.getText()!=null && editTextLongitude.getText()!=null && editTextAltitude.getText()!=null) {
-                        if (!editTextLatitude.getText().toString().isEmpty() && !editTextLongitude.getText().toString().isEmpty()) {
-                            mLastLocation.setLatitude(Double.parseDouble(editTextLatitude.getText().toString()));
-                            mLastLocation.setLongitude(Double.parseDouble(editTextLongitude.getText().toString()));
-                            mLastLocation.setAltitude(Double.parseDouble(editTextAltitude.getText().toString()));
+                    mLastLocation.setAltitude(0);
+                    displayLocationOnUI();
+
+
+                    if (mLastLocation != null) {
+                        if (editTextLatitude.getText() != null && editTextLongitude.getText() != null && editTextAltitude.getText() != null) {
+                            if (!editTextLatitude.getText().toString().isEmpty() && !editTextLongitude.getText().toString().isEmpty()) {
+                                mLastLocation.setLatitude(Double.parseDouble(editTextLatitude.getText().toString()));
+                                mLastLocation.setLongitude(Double.parseDouble(editTextLongitude.getText().toString()));
+                                mLastLocation.setAltitude(Double.parseDouble(editTextAltitude.getText().toString()));
+                            }
                         }
+                        client.sendGeoDataMessageToServer(mLastLocation);
                     }
-                    client.sendGeoDataMessageToServer(mLastLocation);
                 }
             }
         });
