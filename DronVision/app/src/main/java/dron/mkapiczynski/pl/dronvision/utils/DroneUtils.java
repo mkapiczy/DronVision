@@ -31,8 +31,18 @@ public class DroneUtils {
     }
 
     public static Drawable getDroneMarkerIcon(Drone dronToUpdate, Activity activity) {
-        Drawable droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
-        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 1);
+        Long droneId = dronToUpdate.getDroneId();
+        Drawable droneIcon = null;
+        if(droneId.compareTo(1l)==0){
+           droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker);
+        } else if(droneId.compareTo(2l)==0){
+            droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker2);
+        }else if(droneId.compareTo(3l)==0){
+            droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker3);
+        }else if(droneId.compareTo(4l)==0){
+            droneIcon = activity.getResources().getDrawable(R.drawable.drone_marker4);
+        }
+        ColorFilter filter = new LightingColorFilter(dronToUpdate.getColor(), 0);
         droneIcon.setColorFilter(filter);
         return droneIcon;
     }
@@ -63,7 +73,7 @@ public class DroneUtils {
     }
 
     private static void addDroneToSet(Set<Drone> dronesSet, Drone droneToAdd) {
-        droneToAdd.setColor(getRandomColor());
+        droneToAdd.setColor(getDroneColor(droneToAdd));
         if(droneToAdd.getSearchedArea()==null) {
             droneToAdd.setSearchedArea(new ArrayList<GeoPoint>());
         }
@@ -77,9 +87,19 @@ public class DroneUtils {
     }
 
 
-    private static int getRandomColor() {
-        Random rnd = new Random();
-        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    private static int getDroneColor(Drone drone) {
+        Long droneId = drone.getDroneId();
+        if(droneId.compareTo(1l)==0){
+            return Color.BLUE;
+        } else if(droneId.compareTo(2l)==0){
+            return Color.RED;
+        } else if(droneId.compareTo(3l)==0){
+            return Color.GREEN;
+        } else if(droneId.compareTo(4l)==0){
+            return Color.YELLOW;
+        } else{
+            return Color.BLACK;
+        }
     }
 
 
