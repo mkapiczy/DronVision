@@ -78,17 +78,18 @@ public class DroneServiceBean implements DroneService {
 
 	@Override
 	public void updateDroneSearchedArea(Drone drone) {
-		log.info("Method updateDroneSearchedArea started: " + new Date());
+		log.debug("Method updateDroneSearchedArea started: " + new Date());
 		DroneSession activeSession = getActiveDroneSession(drone);
 		if (activeSession != null) {
 			SearchedArea recentSearchedArea = searchedAreaService.calculateSearchedArea(drone.getLastLocation(), drone.getCameraAngle());
 			SearchedArea lastSearchedArea = activeSession.getLastSearchedArea();
 			SearchedArea currentSearchedArea = activeSession.getSearchedArea();
 			
-
 			if (lastSearchedArea != null) {
-				searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
-				searchedAreaService.updateSearchedAreaHoles(currentSearchedArea, lastSearchedArea, recentSearchedArea);
+				if(lastSearchedArea.getSearchedLocations()!=null && !lastSearchedArea.getSearchedLocations().isEmpty()){
+					searchedAreaService.updateSearchedArea(currentSearchedArea, lastSearchedArea);
+					searchedAreaService.updateSearchedAreaHoles(currentSearchedArea, lastSearchedArea, recentSearchedArea);
+				}
 				lastSearchedArea.setSearchedLocations(recentSearchedArea.getSearchedLocations());
 				lastSearchedArea.setHolesInSearchedArea(recentSearchedArea.getHolesInSearchedArea());
 			} else if (lastSearchedArea == null && recentSearchedArea != null) {
@@ -99,7 +100,7 @@ public class DroneServiceBean implements DroneService {
 		} else {
 			log.info("No active session for drone with id: " + drone.getDroneId());
 		}
-		log.info("Method updateDroneSearchedArea ended: " + new Date());
+		log.debug("Method updateDroneSearchedArea ended: " + new Date());
 	}
 
 	@Override
@@ -133,18 +134,6 @@ public class DroneServiceBean implements DroneService {
 		}
 	}
 
-	/*private List<Location> convertGeoPointSearchedAreaToLocationSearchedArea(List<GeoPoint> geoPointSearchedArea) {
-		List<Location> locationSearchedArea = new ArrayList();
-		for (int i = 0; i < geoPointSearchedArea.size(); i++) {
-			GeoPoint tempPoint = geoPointSearchedArea.get(i);
-			Location loc = new Location();
-			loc.setLatitude(tempPoint.getLatitude());
-			loc.setLongitude(tempPoint.getLongitude());
-			loc.setAltitude(tempPoint.getAltitude());
-			locationSearchedArea.add(loc);
-		}
-		return locationSearchedArea;
-	}*/
 
 	@Override
 	public List<DroneSession> getDroneSessions(Long droneId) {

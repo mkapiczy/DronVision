@@ -12,6 +12,16 @@ import org.jboss.logging.Logger;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
 
+/**
+ * 
+ * Klasa przechowująca metody napisane w trakcie tworzenia algorytmów, ale takie, które potem
+ * z różnych powodów przestały być używane. Może się jeszcze przydadzą kiedyś.
+ * 
+ * W RAZIE CHĘCI WYKORZYSTANIA KTÓREJŚ SPRAWDŹ POPRAWNOŚĆ DZIAŁANIA!!!
+ * 
+ * @author Miix
+ *
+ */
 public class UnusedMethods {
 	private static final Logger log = Logger.getLogger(UnusedMethods.class);
 	
@@ -141,6 +151,28 @@ public class UnusedMethods {
 		}
 		return index;
 	}
+	
+	public static int getMinimumAltitudeDifference(List<DegreeLocation> realData, List<Location> modelData) {
+		double minimumAltitudeDifference = 2000;
+		for (int i = 0; i < realData.size(); i++) {
+			Location realPoint = realData.get(i).getLocation();
+			for (int j = 0; j < modelData.size(); j++) {
+				Location modelPoint = modelData.get(j);
+				if (Double.compare(realPoint.getLatitude(), modelPoint.getLatitude()) == 0
+						&& Double.compare(realPoint.getLongitude(), modelPoint.getLongitude()) == 0) {
+					if (realPoint.getAltitude() != null && modelPoint.getAltitude() != null) {
+						double difference = realPoint.getAltitude() - modelPoint.getAltitude();
+						if (difference < minimumAltitudeDifference) {
+							minimumAltitudeDifference = difference;
+						}
+					}
+				}
+			}
+
+		}
+		return (int) minimumAltitudeDifference;
+	}
+	
 	private static BigDecimal distFrom(Double lat1, Double lng1, Double lat2, Double lng2) {
 		BigDecimal earthRadius = new BigDecimal(6371000); // meters
 		BigDecimal dLat = new BigDecimal(Math.toRadians(lat2 - lat1));
@@ -258,9 +290,24 @@ public class UnusedMethods {
 		}
 	}
 
-	
-
-
+	/*private static Location findNearestPoint(Location point, List<Location> listToSearch, double allowedPointsDistance) {
+		Location location = null;
+		double minDist = -1;
+		for (int i = 0; i < listToSearch.size(); i++) {
+			Location currentPoint = listToSearch.get(i);
+			//double currentPointDist = distanceBetweenTwoPoints(point,  currentPoint);
+		
+			if ((minDist==-1 && currentPointDist<allowedPointsDistance) 
+					|| (currentPointDist < minDist && currentPointDist<allowedPointsDistance)) {
+				location = listToSearch.get(i);
+				minDist = currentPointDist;
+			}
+		}
+		if(location!=null){
+			listToSearch.remove(location);
+		}
+		return location;
+	}*/
 
 	private static boolean laysOnLine(double a, double b, Location point) {
 		Double x = point.getLatitude();

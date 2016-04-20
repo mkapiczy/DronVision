@@ -2,6 +2,7 @@ package pl.mkapiczynski.dron.business;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,7 +28,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 
 	@Override
 	public SearchedArea calculateSearchedArea(Location droneLocation, Integer maxCameraAngle) {
-		log.info("Method calculateSearchedArea started: " + new Date());
+		log.debug("Method calculateSearchedArea started: " + new Date());
 		SearchedArea newSearchedArea = new SearchedArea();
 		List<Location> newSearchedAreaLocations = new ArrayList<>();
 		List<HoleInSearchedArea> holes = new ArrayList<>();
@@ -46,7 +47,6 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				.getElevationFromHgt(new LatLon(droneLocation.getLatitude(), droneLocation.getLongitude()));
 
 		
-
 		/*
 		 * try (PrintWriter out = new PrintWriter(new BufferedWriter(new
 		 * FileWriter("altitudes.txt", true)))) { out.println("GPS altitude: " +
@@ -99,7 +99,7 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 				if (previousCircle.isEmpty()) {
 					previousCircle.addAll(currentCircle);
 				} else {
-					List<HoleInSearchedArea> holesFromIteration = SearchedAreaHelper.findHoles(previousCircle,
+					List<HoleInSearchedArea> holesFromIteration = SearchedAreaHelper.getHoles(previousCircle,
 							currentCircle, dh, currentCameraAngle, droneLocation);
 					holes.addAll(holesFromIteration);
 					previousCircle.clear();
@@ -113,27 +113,21 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 							}
 						}
 					}
-					/*
-					 * List<Location> sorted = SearchedAreaHelper
-					 * .sortGeoPointsListByDistanceAndRemoveRepetitions(
-					 * newSearchedAreaLocations);
-					 */
-					// List<Location> onlyVerticesLocations =
-					// SearchedAreaHelper.getOnlyVerticesPoints(newSearchedAreaLocations);
+					
 					newSearchedArea.setSearchedLocations(newSearchedAreaLocations);
 				}
 
 			}
 		}
-
-		newSearchedArea.setHolesInSearchedArea(holes);
-		log.info("Method calculateSearchedArea ended: " + new Date());
+		List<HoleInSearchedArea> concaveHulls = SearchedAreaHelper.getConcaveHullsHoles(holes);
+		newSearchedArea.setHolesInSearchedArea(concaveHulls);
+		log.debug("Method calculateSearchedArea ended: " + new Date());
 		return newSearchedArea;
 	}
 
 	@Override
 	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea) {
-		log.info("Method updateSearchedArea started: " + new Date());
+		log.debug("Method updateSearchedArea started: " + new Date());
 		if (currentSearchedArea != null && lastSearchedArea != null) {
 			List<Location> currentSearchedAreaLocations = currentSearchedArea.getSearchedLocations();
 			List<Location> lastSearchedAreaLocations = lastSearchedArea.getSearchedLocations();
@@ -141,12 +135,12 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 					currentSearchedAreaLocations, lastSearchedAreaLocations);
 			currentSearchedArea.setSearchedLocations(updatedSearchedAreaLocations);
 		}
-		log.info("Method updateSearchedArea ended: " + new Date());
+		log.debug("Method updateSearchedArea ended: " + new Date());
 	}
 
 	private List<Location> updateSearchedAreaLocationWithLastSearchedAreaLocation(
 			List<Location> currentSearchedAreaLocations, List<Location> lastSearchedAreaLocations) {
-		log.info("Method updateSearchedAreaLocationWithLastSearchedAreaLocation started: " + new Date());
+		log.debug("Method updateSearchedAreaLocationWithLastSearchedAreaLocation started: " + new Date());
 		if (currentSearchedAreaLocations != null && !currentSearchedAreaLocations.isEmpty()
 				&& lastSearchedAreaLocations != null && !lastSearchedAreaLocations.isEmpty()) {
 			List<Location> updatedCurrentSearchedAreaLocations = SearchedAreaHelper
@@ -161,34 +155,53 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 			}
 			currentSearchedAreaLocations.addAll(lastSearchedAreaLocations);
 		}
-		log.info("Method updateSearchedAreaLocationWithLastSearchedAreaLocation ended: " + new Date());
+		log.debug("Method updateSearchedAreaLocationWithLastSearchedAreaLocation ended: " + new Date());
 		return currentSearchedAreaLocations;
 	}
 
 	@Override
 	public void updateSearchedAreaHoles(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea,
 			SearchedArea recentSearchedArea) {
-		log.info("Method updateSearchedAreaHoles started: " + new Date());
+		log.debug("Method updateSearchedAreaHoles started: " + new Date());
 
 		List<Location> recentSearchedAreaLocations = recentSearchedArea.getSearchedLocations();
 		List<HoleInSearchedArea> currentSearchedAreaHoles = currentSearchedArea.getHolesInSearchedArea();
 		currentSearchedAreaHoles.addAll(lastSearchedArea.getHolesInSearchedArea());
-		
+
 		CopyOnWriteArrayList<HoleInSearchedArea> threadSafeCurrentSearchedAreaHoles = new CopyOnWriteArrayList<>();
 		threadSafeCurrentSearchedAreaHoles.addAll(currentSearchedAreaHoles);
 
-		for (HoleInSearchedArea currentIteratedHole : threadSafeCurrentSearchedAreaHoles) {
-			for (Location holeLocation : currentIteratedHole.getHoleLocations()) {
-				if (SearchedAreaHelper.pointInPolygon(holeLocation, recentSearchedAreaLocations) || 
-						!SearchedAreaHelper.pointInPolygon(holeLocation, currentSearchedArea.getSearchedLocations())) {
-					threadSafeCurrentSearchedAreaHoles.remove(currentIteratedHole);
-					break;
+		Iterator<HoleInSearchedArea> holeIterator = threadSafeCurrentSearchedAreaHoles.iterator();
+		List<HoleInSearchedArea> holesToRemove = new ArrayList<>();
+		while (holeIterator.hasNext()) {
+			HoleInSearchedArea currentIteratedHole = holeIterator.next();
+			if (currentIteratedHole.getHoleLocations() != null) {
+				Iterator<Location> locationsIterator = currentIteratedHole.getHoleLocations().iterator();
+				List<Location> locationsToRemove = new ArrayList();
+				while (locationsIterator.hasNext()) {
+					Location currentIteratedHoleLocation = locationsIterator.next();
+					if (SearchedAreaHelper.pointInPolygon(currentIteratedHoleLocation, recentSearchedAreaLocations)
+							|| !SearchedAreaHelper.pointInPolygon(currentIteratedHoleLocation,
+									currentSearchedArea.getSearchedLocations())) {
+						locationsToRemove.add(currentIteratedHoleLocation);
+					}
+				}
+				if(!locationsToRemove.isEmpty()){
+					currentIteratedHole.getHoleLocations().removeAll(locationsToRemove);
+				}
+				if (currentIteratedHole.getHoleLocations().isEmpty()) {
+					holesToRemove.add(currentIteratedHole);
 				}
 			}
 		}
+		threadSafeCurrentSearchedAreaHoles.removeAll(holesToRemove);
 		currentSearchedAreaHoles.clear();
 		currentSearchedAreaHoles.addAll(threadSafeCurrentSearchedAreaHoles);
-		log.info("Method updateSearchedAreaHoles ended: " + new Date());
+		if(recentSearchedArea.getHolesInSearchedArea()!=null && !currentSearchedArea.getSearchedLocations().isEmpty()){
+			currentSearchedAreaHoles.addAll(recentSearchedArea.getHolesInSearchedArea());
+			recentSearchedArea.getHolesInSearchedArea().clear();
+		}
+		
+		log.debug("Method updateSearchedAreaHoles ended: " + new Date());
 	}
-
 }

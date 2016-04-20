@@ -1,163 +1,23 @@
 package pl.mkapiczynski.dron.helpers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jboss.logging.Logger;
-import org.opensphere.geometry.algorithm.ConcaveHull;
 import org.openstreetmap.josm.data.coor.LatLon;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 import pl.mkapiczynski.dron.database.HoleInSearchedArea;
 import pl.mkapiczynski.dron.database.Location;
 import pl.mkapiczynski.dron.domain.Constants;
+import pl.mkapiczynski.dron.domain.DegreeHole;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
 
 public class SearchedAreaHelper {
 
 	private static final Logger log = Logger.getLogger(SearchedAreaHelper.class);
 
-	public static List<DegreeLocation> pointsAsCircle(Location center, double radiusInMeters, int dh,
-			List<Integer> degrees) {
-		List<DegreeLocation> circlePoints = new ArrayList<>();
-		for (int i = 0; i < degrees.size(); i++) {
-			int f = degrees.get(i);
-			Location onCircle = destinationPoint(center, radiusInMeters, (float) f);
-			onCircle.setAltitude(center.getAltitude() - dh);
-			DegreeLocation newLocation = new DegreeLocation();
-			newLocation.setLocation(onCircle);
-			newLocation.setDegree(f);
-			circlePoints.add(newLocation);
-		}
-		return circlePoints;
-	}
-
-	public static int getMinimumAltitudeDifference(List<DegreeLocation> realData, List<Location> modelData) {
-		double minimumAltitudeDifference = 2000;
-		for (int i = 0; i < realData.size(); i++) {
-			Location realPoint = realData.get(i).getLocation();
-			for (int j = 0; j < modelData.size(); j++) {
-				Location modelPoint = modelData.get(j);
-				if (Double.compare(realPoint.getLatitude(), modelPoint.getLatitude()) == 0
-						&& Double.compare(realPoint.getLongitude(), modelPoint.getLongitude()) == 0) {
-					if (realPoint.getAltitude() != null && modelPoint.getAltitude() != null) {
-						double difference = realPoint.getAltitude() - modelPoint.getAltitude();
-						if (difference < minimumAltitudeDifference) {
-							minimumAltitudeDifference = difference;
-						}
-					}
-				}
-			}
-
-		}
-		return (int) minimumAltitudeDifference;
-	}
-
-	public static List<Location> getModelData(List<DegreeLocation> realData) {
-		HgtReader reader = new HgtReader();
-		List<Location> result = new ArrayList<>();
-		for (int i = 0; i < realData.size(); i++) {
-			Location modelLocation = new Location();
-			Location realLocation = realData.get(i).getLocation();
-			modelLocation.setLatitude(realLocation.getLatitude());
-			modelLocation.setLongitude(realLocation.getLongitude());
-			double modelLocationAltitude = reader
-					.getElevationFromHgt(new LatLon(realLocation.getLatitude(), realLocation.getLongitude()));
-			if (modelLocationAltitude != 0) {
-				modelLocation.setAltitude(modelLocationAltitude);
-			}
-			if (i > (realData.size() / 2)) {
-				modelLocation.setAltitude(modelLocationAltitude);
-			}
-			result.add(modelLocation);
-		}
-		return result;
-	}
-
-	public static List<HoleInSearchedArea> findHoles(List<DegreeLocation> previousCircle,
-			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
-		HgtReader reader = new HgtReader();
-		List<HoleInSearchedArea> holesInSearchedAre = new ArrayList<>();
-		for (int i = 0; i < currentCircle.size(); i += 1) {
-			for (int j = 0; j < previousCircle.size(); j += 1) {
-				if (currentCircle.get(i).getDegree() == previousCircle.get(j).getDegree()) {
-					int degree = currentCircle.get(i).getDegree();
-					Location currentCircleLocation = currentCircle.get(i).getLocation();
-					Location previousCircleLocation = previousCircle.get(j).getLocation();
-					if (currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(currentCircleLocation,
-							previousCircleLocation)) {
-						List<DegreeLocation> locationsOnCircle = new ArrayList<>();
-						List<Integer> degrees = new ArrayList<>();
-						degrees.add(degree);
-						dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
-						List<Location> singleHoleLocations = new ArrayList<>();
-						do {
-							dh += 1;
-
-							double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
-
-							locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
-							Location loc = new Location();
-							if (locationsOnCircle != null && !locationsOnCircle.isEmpty()) {
-								loc = locationsOnCircle.get(0).getLocation();
-							}
-
-							double modelAltitude = reader
-									.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
-							if (loc.getAltitude() > modelAltitude) {
-								singleHoleLocations.add(loc);
-							}
-
-						} while (new Double(Double.sum(droneLocation.getAltitude(), -dh))
-								.compareTo(previousCircleLocation.getAltitude()) > 0);
-						if (!singleHoleLocations.isEmpty() && singleHoleLocations.size() >= 2) {
-							List<Location> filteredSingleHoleLocations = new ArrayList<>();
-							filteredSingleHoleLocations.add(singleHoleLocations.get(0));
-							filteredSingleHoleLocations.add(singleHoleLocations.get(singleHoleLocations.size() - 1));
-							HoleInSearchedArea hole = new HoleInSearchedArea();
-							hole.setHoleLocations(filteredSingleHoleLocations);
-							holesInSearchedAre.add(hole);
-						}
-					}
-				}
-			}
-		}
-		return holesInSearchedAre;
-	}
-
-	private static boolean currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(
-			Location currentCircleLocation, Location previousCircleLocation) {
-		if (Double.sum(currentCircleLocation.getAltitude(), -previousCircleLocation.getAltitude()) > 20) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
-		if (!degrees.isEmpty()) {
-			degrees.clear();
-			for (int i = 0; i < locationsOnCircle.size(); i++) {
-				degrees.add(locationsOnCircle.get(i).getDegree());
-			}
-		} else {
-			for (int i = 0; i < 360; i += 2) {
-				degrees.add(i);
-			}
-		}
-	}
-
-	public static double calculateRadius(int dh, int cameraAngle) {
-		double cameraAngleInRadians = (((cameraAngle / 2) * 3.14) / 180);
-		return dh * Math.abs(Math.tan(cameraAngleInRadians));
-	}
+	private static int degreeDifference = 1;
 
 	public static List<DegreeLocation> findLocationsCrossingWithTheGround(List<DegreeLocation> realData,
 			List<Location> modelData, boolean remove) {
@@ -186,90 +46,216 @@ public class SearchedAreaHelper {
 		return result;
 	}
 
-	public static List<Location> addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(
-			List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
-		log.info("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea started: " + new Date());
-		List<Location> newSearchedArea = new ArrayList<>();
-		newSearchedArea = concaveHull(currentSearchedArea, lastSearchedArea);
-		log.info("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea ended: " + new Date());
-		return newSearchedArea;
-	}
-
-	private static List<Location> concaveHull(List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
-		log.info("Method concaveHull started: " + new Date());
-		GeometryFactory gf = new GeometryFactory();
-
-		densifyPoints(currentSearchedArea, 0.0001);
-		densifyPoints(currentSearchedArea, 0.0001);
-
-		List<Geometry> list = new ArrayList<>();
-
-		for (int i = 0; i < currentSearchedArea.size(); i++) {
-			list.add(gf.createPoint(new Coordinate(currentSearchedArea.get(i).getLatitude(),
-					currentSearchedArea.get(i).getLongitude())));
-		}
-		for (int i = 0; i < lastSearchedArea.size(); i++) {
-			list.add(gf.createPoint(
-					new Coordinate(lastSearchedArea.get(i).getLatitude(), lastSearchedArea.get(i).getLongitude())));
-		}
-
-		Geometry[] points = list.toArray(new Geometry[list.size()]);
-		GeometryCollection geometries = new GeometryCollection(points, gf);
-
-		ConcaveHull ch = new ConcaveHull(geometries, 0.0005);
-		Geometry concave = ch.getConcaveHull();
-		Coordinate[] concaveCoordinates = concave.getCoordinates();
-
-		List<Coordinate> coords = Arrays.asList(concaveCoordinates);
-
+	public static List<Location> getModelData(List<DegreeLocation> realData) {
+		HgtReader reader = new HgtReader();
 		List<Location> result = new ArrayList<>();
-		for (int i = 0; i < coords.size(); i++) {
-			result.add(new Location(coords.get(i).x, coords.get(i).y));
+		for (int i = 0; i < realData.size(); i++) {
+			Location modelLocation = new Location();
+			Location realLocation = realData.get(i).getLocation();
+			modelLocation.setLatitude(realLocation.getLatitude());
+			modelLocation.setLongitude(realLocation.getLongitude());
+			double modelLocationAltitude = reader
+					.getElevationFromHgt(new LatLon(realLocation.getLatitude(), realLocation.getLongitude()));
+			if (modelLocationAltitude != 0) {
+				modelLocation.setAltitude(modelLocationAltitude);
+			}
+			if (i > (realData.size() / 2)) {
+				modelLocation.setAltitude(modelLocationAltitude);
+			}
+			result.add(modelLocation);
 		}
-		log.info("Method concaveHull ended: " + new Date());
 		return result;
 	}
 
-	private static void densifyPoints(List<Location> list, double threshold) {
-		CopyOnWriteArrayList<Location> threadSafeLocations = new CopyOnWriteArrayList<>();
-		threadSafeLocations.addAll(list);
-		Location previous = null;
-		for (int i = 0; i < threadSafeLocations.size(); i++) {
-			Location current = threadSafeLocations.get(i);
-			if (previous != null) {
-				if (length(previous, current) > threshold) {
-					Location midPoint = getMidpoint(previous, current);
-					threadSafeLocations.add(i, midPoint);
-					densifyPoints(threadSafeLocations, threshold);
+	public static List<Location> addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea(
+			List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
+		log.debug("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea started: " + new Date());
+		List<Location> newSearchedArea = new ArrayList<>();
+		List<Location> mergedLocations = mergeToLocationsLists(currentSearchedArea, lastSearchedArea);
+		newSearchedArea = ConcaveHullHelper.getConcaveHull(mergedLocations);
+		log.debug("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea ended: " + new Date());
+		return newSearchedArea;
+	}
+
+	public static List<HoleInSearchedArea> getHoles(List<DegreeLocation> previousCircle,
+			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
+		List<DegreeHole> degreeHoles = getHolesSegregatedByDegrees(previousCircle, currentCircle, dh,
+				currentCameraAngle, droneLocation);
+		List<HoleInSearchedArea> holes = getMergedHolesFromHolesSegregatedByDegree(degreeHoles);
+		return holes;
+	}
+
+	private static List<DegreeHole> getHolesSegregatedByDegrees(List<DegreeLocation> previousCircle,
+			List<DegreeLocation> currentCircle, int dh, int currentCameraAngle, Location droneLocation) {
+		List<DegreeHole> degreeHoleList = new ArrayList<>();
+		HgtReader reader = new HgtReader();
+		for (int degree = 0; degree < 360; degree += degreeDifference) {
+			Location previousCircleLocation = getLocationForDegree(previousCircle, degree);
+			Location currentCircleLocation = getLocationForDegree(currentCircle, degree);
+			if (previousCircleLocation != null && currentCircleLocation != null) {
+				if (currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(currentCircleLocation,
+						previousCircleLocation)) {
+					List<DegreeLocation> locationsOnCircle = new ArrayList<>();
+					List<Integer> degrees = new ArrayList<>();
+					degrees.add(degree);
+					dh = (int) (droneLocation.getAltitude() - currentCircleLocation.getAltitude());
+					List<Location> singleHoleLocations = new ArrayList<>();
+					do {
+						dh += 1;
+
+						double radius = SearchedAreaHelper.calculateRadius(dh, currentCameraAngle);
+
+						locationsOnCircle = SearchedAreaHelper.pointsAsCircle(droneLocation, radius, dh, degrees);
+						Location loc = new Location();
+						if (locationsOnCircle != null && !locationsOnCircle.isEmpty()) {
+							loc = locationsOnCircle.get(0).getLocation();
+						}
+
+						double modelAltitude = reader
+								.getElevationFromHgt(new LatLon(loc.getLatitude(), loc.getLongitude()));
+						if (loc.getAltitude() > modelAltitude) {
+							singleHoleLocations.add(loc);
+						}
+
+					} while (new Double(Double.sum(droneLocation.getAltitude(), -dh))
+							.compareTo(previousCircleLocation.getAltitude()) > 0);
+					if (singleHoleLocations != null && !singleHoleLocations.isEmpty()) {
+						List<Location> filteredSingleHoleLocations = new ArrayList<>();
+						filteredSingleHoleLocations.add(singleHoleLocations.get(0));
+						filteredSingleHoleLocations.add(singleHoleLocations.get(singleHoleLocations.size() - 1));
+						DegreeHole degreeHole = new DegreeHole();
+						degreeHole.setDegree(degree);
+						degreeHole.setLocaions(filteredSingleHoleLocations);
+						degreeHoleList.add(degreeHole);
+					}
 				}
 			}
-			previous = current;
 		}
-
-		list.clear();
-		list.addAll(threadSafeLocations);
+		return degreeHoleList;
 	}
 
-	private static Location getMidpoint(Location loc1, Location loc2) {
-		Double latitude = (loc1.getLatitude() + loc2.getLatitude()) / 2;
-		Double longitude = (loc1.getLongitude() + loc2.getLongitude()) / 2;
-		return new Location(latitude, longitude);
+	private static List<HoleInSearchedArea> getMergedHolesFromHolesSegregatedByDegree(List<DegreeHole> degreeHoles) {
+		List<HoleInSearchedArea> holes = new ArrayList<>();
+
+		for (int degree = 0; degree < 360; degree += degreeDifference) {
+			DegreeHole holeForCurrentDegree = getDegreeHoleInSearchedAreaFoDegree(degreeHoles, degree);
+			if (holeForCurrentDegree != null) {
+				List<Location> holeLocations = new ArrayList<>();
+				holeLocations.addAll(holeForCurrentDegree.getLocaions());
+				degreeHoles.remove(holeForCurrentDegree);
+
+				for (int nextDegree = degree + degreeDifference; nextDegree < 360; nextDegree += degreeDifference) {
+					DegreeHole holeForNextDegree = getDegreeHoleInSearchedAreaFoDegree(degreeHoles, nextDegree);
+					if (holeForNextDegree != null) {
+						holeLocations.addAll(holeForNextDegree.getLocaions());
+						degreeHoles.remove(holeForNextDegree);
+					} else {
+						break;
+					}
+				}
+
+				for (int nextDegree = degree - degreeDifference; nextDegree > (-358
+						+ degree); degree -= degreeDifference) {
+					int tempNextDegree = nextDegree;
+					if (nextDegree < 0) {
+						tempNextDegree = 360 + nextDegree;
+					}
+					DegreeHole holeForNextDegree = getDegreeHoleInSearchedAreaFoDegree(degreeHoles, tempNextDegree);
+					if (holeForNextDegree != null) {
+						holeLocations.addAll(holeForNextDegree.getLocaions());
+						degreeHoles.remove(holeForNextDegree);
+					} else {
+						break;
+					}
+				}
+
+				HoleInSearchedArea newHole = new HoleInSearchedArea();
+				newHole.setHoleLocations(holeLocations);
+				holes.add(newHole);
+			}
+
+		}
+		return holes;
 	}
 
-	private static double length(Location p1, Location p2) {
-		double length = 0;
-		double x1 = p1.getLatitude();
-		double y1 = p2.getLongitude();
+	private static DegreeHole getDegreeHoleInSearchedAreaFoDegree(List<DegreeHole> degreeHoles, int degree) {
+		for (int i = 0; i < degreeHoles.size(); i++) {
+			if (degreeHoles.get(i).getDegree() == degree) {
+				return degreeHoles.get(i);
+			}
+		}
+		return null;
+	}
 
-		double x2 = p2.getLatitude();
-		double y2 = p2.getLongitude();
+	private static Location getLocationForDegree(List<DegreeLocation> locations, int degree) {
+		for (int i = 0; i < locations.size(); i++) {
+			if (locations.get(i).getDegree() == degree) {
+				return locations.get(i).getLocation();
+			}
+		}
+		return null;
+	}
 
-		double dx = x2 - x1;
-		double dy = y2 - y1;
+	public static List<HoleInSearchedArea> getConcaveHullsHoles(List<HoleInSearchedArea> holes) {
+		List<HoleInSearchedArea> concaveHoles = new ArrayList<>();
 
-		length += Math.sqrt(dx * dx + dy * dy);
+		for (int i = 0; i < holes.size(); i++) {
+			List<Location> singleDividedHoleLocations = holes.get(i).getHoleLocations();
+			List<Location> concaveLocations = ConcaveHullHelper.getConcaveHull(singleDividedHoleLocations);
+			HoleInSearchedArea newHole = new HoleInSearchedArea();
+			newHole.setHoleLocations(concaveLocations);
+			concaveHoles.add(newHole);
+		}
+		return concaveHoles;
+	}
 
-		return length;
+	private static boolean currentCircleLocationAltitudeIsBiggerThanPreviousCircleLocationAltitude(
+			Location currentCircleLocation, Location previousCircleLocation) {
+		if (Double.sum(currentCircleLocation.getAltitude(), -previousCircleLocation.getAltitude()) > 20) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static List<DegreeLocation> pointsAsCircle(Location center, double radiusInMeters, int dh,
+			List<Integer> degrees) {
+		List<DegreeLocation> circlePoints = new ArrayList<>();
+		for (int i = 0; i < degrees.size(); i++) {
+			int f = degrees.get(i);
+			Location onCircle = destinationPoint(center, radiusInMeters, (float) f);
+			onCircle.setAltitude(center.getAltitude() - dh);
+			DegreeLocation newLocation = new DegreeLocation();
+			newLocation.setLocation(onCircle);
+			newLocation.setDegree(f);
+			circlePoints.add(newLocation);
+		}
+		return circlePoints;
+	}
+
+	public static void processDegrees(List<Integer> degrees, List<DegreeLocation> locationsOnCircle) {
+		if (!degrees.isEmpty()) {
+			degrees.clear();
+			for (int i = 0; i < locationsOnCircle.size(); i++) {
+				degrees.add(locationsOnCircle.get(i).getDegree());
+			}
+		} else {
+			for (int i = 0; i < 360; i += degreeDifference) {
+				degrees.add(i);
+			}
+		}
+	}
+
+	public static double calculateRadius(int dh, int cameraAngle) {
+		double cameraAngleInRadians = (((cameraAngle / 2) * 3.14) / 180);
+		return dh * Math.abs(Math.tan(cameraAngleInRadians));
+	}
+
+	private static List<Location> mergeToLocationsLists(List<Location> list1, List<Location> list2) {
+		List<Location> result = new ArrayList<>();
+		result.addAll(list1);
+		result.addAll(list2);
+		return result;
 	}
 
 	private static Location destinationPoint(Location center, final double aDistanceInMeters,
