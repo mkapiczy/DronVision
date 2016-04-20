@@ -2,7 +2,6 @@ package dron.mkapiczynski.pl.dronvision.fragment;
 
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,10 +11,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.osmdroid.bonuspack.overlays.Polygon;
-import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -139,23 +138,16 @@ public class VisionFragment extends Fragment {
     public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints, List<DroneHoleInSearchedArea> holeInSearchedArea) {
         historyMode = true;
         if (searcheadAreaPoints.size() > 1) {
+            List<Overlay> mapOverlays = mapView.getOverlays();
             Polygon searchedArea = new Polygon(getContext());
             searchedArea.setPoints(searcheadAreaPoints);
             searchedArea.setFillColor(0x32121212);
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(3);
-            mapView.getOverlays().clear();
-            mapView.getOverlays().add(searchedArea);
-            for(int i=0; i<holeInSearchedArea.size();i++){
-                if(i%2!=0) {
-                    org.osmdroid.bonuspack.overlays.Polyline line = new Polyline(getActivity());
-                    line.setPoints(holeInSearchedArea.get(i).getHoleLocations());
-                    line.setColor(Color.DKGRAY);
-                    line.setWidth(10);
-                    mapView.getOverlays().add(line);
-                }
-            }
-            MapUtils.addScaleBarOverlayToMapView(mapView.getOverlays(), getActivity());
+            mapOverlays.clear();
+            mapOverlays.add(searchedArea);
+            MapUtils.addHolesToMapOverlaysAsPolygons(holeInSearchedArea, mapOverlays, getActivity(), false);
+            MapUtils.addScaleBarOverlayToMapView(mapOverlays, getActivity());
             MapController mapController = (MapController) mapView.getController();
             mapController.animateTo(searcheadAreaPoints.get(0));
             mapView.invalidate();

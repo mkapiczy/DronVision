@@ -15,7 +15,6 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +119,7 @@ public class MapUtils {
         lastSearchedArea.setStrokeColor(0X3C5EAAF6);
         lastSearchedArea.setStrokeWidth(3);
         List<DroneHoleInSearchedArea> lastholesPoints = droneToUpdate.getLastHoles();
-        addHolesToMapOverlays(lastholesPoints, mapOverlays, activity, true);
+        addHolesToMapOverlaysAsPolygons(lastholesPoints, mapOverlays, activity, true);
         mapOverlays.add(lastSearchedArea);
     }
 
@@ -131,37 +130,20 @@ public class MapUtils {
             searchedArea.setFillColor(0x32121212);
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(3);
-            /*List<List<GeoPoint>> holes = new ArrayList<>();
-            for(int i=0; i<droneToUpdate.getLastSearchedAreaHoles().size();i++){
-                if(i%2!=0) {
-                   List<GeoPoint> hole = new ArrayList<>();
-                    hole.add(droneToUpdate.getLastSearchedAreaHoles().get(i));
-                    hole.add(droneToUpdate.getLastSearchedAreaHoles().get(i-1));
-                    holes.add(hole);
-                }
-            }
-            searchedArea.setLastSearchedAreaHoles(holes);*/
-            //Toast.makeText(activity.getApplicationContext(), holes.size(), Toast.LENGTH_SHORT).show();
-            /*List<List<GeoPoint>> holes = new ArrayList<>();
-            List<GeoPoint> singleHole = new ArrayList<>();
-            singleHole.addAll(droneToUpdate.getLastSearchedArea());
-            holes.add(singleHole);
-            searchedArea.setLastSearchedAreaHoles(holes);*/
             List<DroneHoleInSearchedArea> holesPoints = droneToUpdate.getHoles();
-            addHolesToMapOverlays(holesPoints, mapOverlays, activity, false);
+            addHolesToMapOverlaysAsPolygons(holesPoints, mapOverlays, activity, false);
             mapOverlays.add(searchedArea);
         }
     }
 
-    public static void addHolesToMapOverlays(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
+    public static void addHolesToMapOverlaysAsPolygons(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
         for(int i=0; i<holesPoints.size();i++){
-            if(i%2!=0) {
-                org.osmdroid.bonuspack.overlays.Polyline line = new Polyline(activity);
-                line.setPoints(holesPoints.get(i).getHoleLocations());
-                line.setColor(Color.DKGRAY);
-                line.setWidth(10);
-                mapOverlays.add(line);
-            }
+            Polygon polygon = new Polygon(activity.getApplicationContext());
+            polygon.setPoints(holesPoints.get(i).getHoleLocations());
+            polygon.setFillColor(Color.BLACK);
+            polygon.setStrokeWidth(3);
+            mapOverlays.add(polygon);
         }
     }
+
 }
