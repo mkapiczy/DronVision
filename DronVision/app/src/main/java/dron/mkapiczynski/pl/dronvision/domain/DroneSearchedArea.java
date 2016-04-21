@@ -1,7 +1,5 @@
 package dron.mkapiczynski.pl.dronvision.domain;
 
-import org.osmdroid.util.GeoPoint;
-
 import java.util.List;
 
 /**
@@ -9,7 +7,7 @@ import java.util.List;
  */
 public class DroneSearchedArea {
     List<MyGeoPoint> searchedAreaLocations;
-    List<HoleInSearchedArea> holesInSearchedArea;
+    List<DroneHoleInSearchedArea> holesInSearchedArea;
 
     public List<MyGeoPoint> getSearchedAreaLocations() {
         return searchedAreaLocations;
@@ -19,11 +17,11 @@ public class DroneSearchedArea {
         this.searchedAreaLocations = searchedAreaLocations;
     }
 
-    public List<HoleInSearchedArea> getHolesInSearchedArea() {
+    public List<DroneHoleInSearchedArea> getHolesInSearchedArea() {
         return holesInSearchedArea;
     }
 
-    public void setHolesInSearchedArea(List<HoleInSearchedArea> holesInSearchedArea) {
+    public void setHolesInSearchedArea(List<DroneHoleInSearchedArea> holesInSearchedArea) {
         this.holesInSearchedArea = holesInSearchedArea;
     }
 }

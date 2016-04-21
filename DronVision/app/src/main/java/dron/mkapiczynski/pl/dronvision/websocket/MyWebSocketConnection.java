@@ -23,8 +23,8 @@ import de.tavendo.autobahn.WebSocketOptions;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
-import dron.mkapiczynski.pl.dronvision.domain.HoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.message.ClientLoginMessage;
@@ -162,18 +162,18 @@ public class MyWebSocketConnection extends WebSocketConnection {
                 for (int i = 0; i < geoMessage.getLastSearchedArea().size(); i++) {
                     lastSearchedArea.add(new GeoPoint(geoMessage.getLastSearchedArea().get(i).getLatitude(), geoMessage.getLastSearchedArea().get(i).getLongitude()));
                 }
-                List<HoleInSearchedArea> lastHoles = new ArrayList<>();
+                List<DroneHoleInSearchedArea> lastHoles = new ArrayList<>();
                 for (int i = 0; i < geoMessage.getLastSearchedAreaHoles().size(); i++) {
                     lastHoles.add(geoMessage.getLastSearchedAreaHoles().get(i));
                 }
-                List<HoleInSearchedArea> holes = new ArrayList<>();
+                List<DroneHoleInSearchedArea> holes = new ArrayList<>();
                 for (int i = 0; i < geoMessage.getSearchedAreaHoles().size(); i++) {
                     holes.add(geoMessage.getSearchedAreaHoles().get(i));
                 }
 
-                List<DroneHoleInSearchedArea> droneLastHoles = new ArrayList<>();
+                List<MapHoleInSearchedArea> droneLastHoles = new ArrayList<>();
                 for (int i = 0; i < lastHoles.size(); i++) {
-                    DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+                    MapHoleInSearchedArea droneHole = new MapHoleInSearchedArea();
                     List<GeoPoint> geoPoints = new ArrayList<>();
                     List<MyGeoPoint> points = lastHoles.get(i).getHoleLocations();
                     for (int j = 0; j < points.size(); j++) {
@@ -184,9 +184,9 @@ public class MyWebSocketConnection extends WebSocketConnection {
                     droneLastHoles.add(droneHole);
                 }
 
-                List<DroneHoleInSearchedArea> droneHoles = new ArrayList<>();
+                List<MapHoleInSearchedArea> droneHoles = new ArrayList<>();
                 for (int i = 0; i < holes.size(); i++) {
-                    DroneHoleInSearchedArea droneHole = new DroneHoleInSearchedArea();
+                    MapHoleInSearchedArea droneHole = new MapHoleInSearchedArea();
                     List<GeoPoint> geoPoints = new ArrayList<>();
                     List<MyGeoPoint> points = holes.get(i).getHoleLocations();
                     for (int j = 0; j < points.size(); j++) {

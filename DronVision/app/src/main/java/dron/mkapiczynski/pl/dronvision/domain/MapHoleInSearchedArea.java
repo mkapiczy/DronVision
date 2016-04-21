@@ -7,14 +7,14 @@ import java.util.List;
 /**
  * Created by Miix on 2016-04-07.
  */
-public class HoleInSearchedArea {
-    List<MyGeoPoint> holeLocations;
+public class MapHoleInSearchedArea {
+    List<GeoPoint> holeLocations;
 
-    public List<MyGeoPoint> getHoleLocations() {
+    public List<GeoPoint> getHoleLocations() {
         return holeLocations;
     }
 
-    public void setHoleLocations(List<MyGeoPoint> holeLocations) {
+    public void setHoleLocations(List<GeoPoint> holeLocations) {
         this.holeLocations = holeLocations;
     }
 }

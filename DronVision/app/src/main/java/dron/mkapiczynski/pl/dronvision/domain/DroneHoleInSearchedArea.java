@@ -8,13 +8,13 @@ import java.util.List;
  * Created by Miix on 2016-04-07.
  */
 public class DroneHoleInSearchedArea {
-    List<GeoPoint> holeLocations;
+    List<MyGeoPoint> holeLocations;
 
-    public List<GeoPoint> getHoleLocations() {
+    public List<MyGeoPoint> getHoleLocations() {
         return holeLocations;
     }
 
-    public void setHoleLocations(List<GeoPoint> holeLocations) {
+    public void setHoleLocations(List<MyGeoPoint> holeLocations) {
         this.holeLocations = holeLocations;
     }
 }

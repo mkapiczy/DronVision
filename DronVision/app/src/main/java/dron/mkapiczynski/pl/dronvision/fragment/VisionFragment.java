@@ -23,7 +23,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
@@ -135,7 +135,7 @@ public class VisionFragment extends Fragment {
         return historyMode;
     }
 
-    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints, List<DroneHoleInSearchedArea> holeInSearchedArea) {
+    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints, List<MapHoleInSearchedArea> holeInSearchedArea) {
         historyMode = true;
         if (searcheadAreaPoints.size() > 1) {
             List<Overlay> mapOverlays = mapView.getOverlays();

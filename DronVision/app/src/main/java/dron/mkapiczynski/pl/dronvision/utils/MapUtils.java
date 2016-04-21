@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
-import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
@@ -21,7 +20,7 @@ import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -118,7 +117,7 @@ public class MapUtils {
         lastSearchedArea.setFillColor(0X3C5EAAF6);
         lastSearchedArea.setStrokeColor(0X3C5EAAF6);
         lastSearchedArea.setStrokeWidth(3);
-        List<DroneHoleInSearchedArea> lastholesPoints = droneToUpdate.getLastHoles();
+        List<MapHoleInSearchedArea> lastholesPoints = droneToUpdate.getLastHoles();
         addHolesToMapOverlaysAsPolygons(lastholesPoints, mapOverlays, activity, true);
         mapOverlays.add(lastSearchedArea);
     }
@@ -130,13 +129,13 @@ public class MapUtils {
             searchedArea.setFillColor(0x32121212);
             searchedArea.setStrokeColor(0x12121212);
             searchedArea.setStrokeWidth(3);
-            List<DroneHoleInSearchedArea> holesPoints = droneToUpdate.getHoles();
+            List<MapHoleInSearchedArea> holesPoints = droneToUpdate.getHoles();
             addHolesToMapOverlaysAsPolygons(holesPoints, mapOverlays, activity, false);
             mapOverlays.add(searchedArea);
         }
     }
 
-    public static void addHolesToMapOverlaysAsPolygons(List<DroneHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
+    public static void addHolesToMapOverlaysAsPolygons(List<MapHoleInSearchedArea> holesPoints, List<Overlay> mapOverlays, Activity activity, boolean last){
         for(int i=0; i<holesPoints.size();i++){
             Polygon polygon = new Polygon(activity.getApplicationContext());
             polygon.setPoints(holesPoints.get(i).getHoleLocations());

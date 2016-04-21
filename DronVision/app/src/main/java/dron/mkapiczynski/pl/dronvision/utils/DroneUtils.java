@@ -10,12 +10,11 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Set;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 
 /**
  * Created by Miix on 2016-01-14.
@@ -81,7 +80,7 @@ public class DroneUtils {
             droneToAdd.setLastSearchedArea(new ArrayList<GeoPoint>());
         }
         if(droneToAdd.getLastHoles()==null){
-            droneToAdd.setLastHoles(new ArrayList<DroneHoleInSearchedArea>());
+            droneToAdd.setLastHoles(new ArrayList<MapHoleInSearchedArea>());
         }
         dronesSet.add(droneToAdd);
     }

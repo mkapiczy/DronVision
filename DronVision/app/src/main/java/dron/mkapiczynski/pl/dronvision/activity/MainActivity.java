@@ -22,7 +22,7 @@ import java.util.List;
 
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.domain.Drone;
-import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.fragment.AboutAppFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.AboutAuthorFragment;
@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints, List<DroneHoleInSearchedArea> holes) {
+    public void turnOnHistoryMode(List<GeoPoint> searcheadAreaPoints, List<MapHoleInSearchedArea> holes) {
         if (!visionFragment.isSimulationMode()) {
             visionFragment.turnOnHistoryMode(searcheadAreaPoints,holes);
             simulationFragment.disableSimulationTurnOnButtonDueToHistoryMode();

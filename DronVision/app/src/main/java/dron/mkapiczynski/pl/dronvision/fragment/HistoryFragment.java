@@ -29,9 +29,9 @@ import java.util.List;
 import dron.mkapiczynski.pl.dronvision.R;
 import dron.mkapiczynski.pl.dronvision.activity.MainActivity;
 import dron.mkapiczynski.pl.dronvision.domain.DBDrone;
-import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.MapHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.DroneSession;
-import dron.mkapiczynski.pl.dronvision.domain.HoleInSearchedArea;
+import dron.mkapiczynski.pl.dronvision.domain.DroneHoleInSearchedArea;
 import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 import dron.mkapiczynski.pl.dronvision.domain.Parameters;
 import dron.mkapiczynski.pl.dronvision.helper.CustomHistoryDroneSessionsListViewAdapter;
@@ -250,7 +250,7 @@ public class HistoryFragment extends Fragment {
         private final Long sessionId;
         private HistoryFragment historyFragment;
         private List<MyGeoPoint> receivedSearchedAreaLocations;
-        private List<HoleInSearchedArea> receivedHoles;
+        private List<DroneHoleInSearchedArea> receivedHoles;
 
 
         GetSearchedAreaTask(Long sessionId, HistoryFragment historyFragment) {
@@ -334,10 +334,10 @@ public class HistoryFragment extends Fragment {
                 for (int i = 0; i < receivedSearchedAreaLocations.size(); i++) {
                     searchedArea.add(new GeoPoint(receivedSearchedAreaLocations.get(i).getLatitude(), receivedSearchedAreaLocations.get(i).getLongitude()));
                 }
-                List<DroneHoleInSearchedArea> holes = new ArrayList<>();
+                List<MapHoleInSearchedArea> holes = new ArrayList<>();
                 for(int i=0; i<receivedHoles.size();i++){
                     List<MyGeoPoint> hole = receivedHoles.get(i).getHoleLocations();
-                    DroneHoleInSearchedArea holeInSearchedArea = new DroneHoleInSearchedArea();
+                    MapHoleInSearchedArea holeInSearchedArea = new MapHoleInSearchedArea();
                     List<GeoPoint> holesLocation = new ArrayList<>();
                     for(int j=0; j<hole.size();j++){
                         holesLocation.add(new GeoPoint(hole.get(j).getLatitude(), hole.get(j).getLongitude()));
