@@ -15,6 +15,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import dron.mkapiczynski.pl.gpstracker.R;
 import dron.mkapiczynski.pl.gpstracker.utils.InitializationUtils;
 import dron.mkapiczynski.pl.gpstracker.websocket.MyWebSocketConnection;
@@ -47,6 +50,8 @@ public class GPSActivity extends Activity implements LocationListener {
 
     // Websocket
     private  MyWebSocketConnection client;
+
+    private static Set<Location> storedLocations = new HashSet<>();
 
 
     @Override
@@ -145,13 +150,22 @@ public class GPSActivity extends Activity implements LocationListener {
             if(client.connectToWebSocketServer()){
                 client.sendGeoDataMessageToServer(mLastLocation);
             } else{
-                // store data to send later
+                storeDataToSendWhenConnectionReestablished(mLastLocation);
+                if(!client.connectionIsBeeingReestablished()) {
+                    client.startReestablishingConnection();
+                }
             }
         } else{
             client.sendGeoDataMessageToServer(mLastLocation);
         }
 
 
+    }
+
+
+
+    private void storeDataToSendWhenConnectionReestablished(Location locationToStore){
+        storedLocations.add(locationToStore);
     }
 
     private Location getLastLocation() {

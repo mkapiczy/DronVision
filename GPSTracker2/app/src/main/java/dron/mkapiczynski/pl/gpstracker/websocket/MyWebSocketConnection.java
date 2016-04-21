@@ -29,6 +29,7 @@ public class MyWebSocketConnection extends WebSocketConnection {
     private Activity activity;
     private boolean deviceIsLoggedIn = false;
     private String serverAddress;
+    private boolean isConnectionBeeingReestablished=false;
 
     public MyWebSocketConnection(Activity activity, String serverAddress){
         super();
@@ -71,6 +72,18 @@ public class MyWebSocketConnection extends WebSocketConnection {
         } else{
             return false;
         }
+    }
+
+    public void startReestablishingConnection(){
+        isConnectionBeeingReestablished=true;
+        /**
+         * TODO
+         * Timer do nawiązywania połączenia jak nawiąrze wysyła zaległe dane.
+         */
+    }
+
+    public boolean connectionIsBeeingReestablished(){
+        return isConnectionBeeingReestablished;
     }
 
     public void sendGeoDataMessageToServer(Location mLastLocation){
