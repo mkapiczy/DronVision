@@ -6,6 +6,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Table;
 
+/**
+ * Symulacja
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table
 public class Simulation {

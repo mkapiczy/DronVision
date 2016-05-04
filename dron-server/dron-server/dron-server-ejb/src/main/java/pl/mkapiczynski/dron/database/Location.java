@@ -7,6 +7,12 @@ import javax.persistence.Table;
 
 import pl.mkapiczynski.dron.domain.GeoPoint;
 
+/**
+ * Lokalizacja
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table(name = "Location")
 public class Location {

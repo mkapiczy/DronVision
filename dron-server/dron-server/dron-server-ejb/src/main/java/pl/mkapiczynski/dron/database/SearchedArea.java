@@ -11,6 +11,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
+/**
+ * Obszar przeszukany
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 public class SearchedArea {
 	@Id

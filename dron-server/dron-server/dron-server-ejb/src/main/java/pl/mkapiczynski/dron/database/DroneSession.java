@@ -14,6 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * Sesja drona
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table(name = "DroneSession")
 public class DroneSession {

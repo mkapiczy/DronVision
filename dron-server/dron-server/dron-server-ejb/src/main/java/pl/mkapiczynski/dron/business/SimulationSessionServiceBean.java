@@ -18,6 +18,11 @@ import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.database.SimulationSession;
 
+/**
+ * Klasa biznesowa odpowiedzialna za obsługę sesji symulacyjnych
+ * @author Michal Kapiczynski
+ *
+ */
 @Local
 @Stateless(name = "SimulationSessionService")
 public class SimulationSessionServiceBean implements SimulationSessionService {

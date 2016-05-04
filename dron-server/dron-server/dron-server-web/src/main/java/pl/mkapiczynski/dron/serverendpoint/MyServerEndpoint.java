@@ -27,6 +27,12 @@ import pl.mkapiczynski.dron.message.SimulationMessage;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
 
+/**
+ * Klasa odpowiedzialna za obsługę komunikacji poprzez protokół Websocket
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @javax.websocket.server.ServerEndpoint(value = "/server", encoders = { MessageEncoder.class }, decoders = {
 		MessageDecoder.class, })
 public class MyServerEndpoint {

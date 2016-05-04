@@ -9,6 +9,12 @@ import pl.mkapiczynski.dron.database.Drone;
 import pl.mkapiczynski.dron.database.SearchedArea;
 import pl.mkapiczynski.dron.database.SimulationSession;
 
+/**
+ * Interfejs do obsługii sesji symulacyjnych
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public interface SimulationSessionService {
 	public void setLastSimulationId(Long lastSimulationId, Long clientId);
 	public SimulationSession createNewSimulationSession(Long clientId);

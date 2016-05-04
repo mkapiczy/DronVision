@@ -2,6 +2,12 @@ package pl.mkapiczynski.dron.domain;
 
 import pl.mkapiczynski.dron.database.DroneStatusEnum;
 
+/**
+ * Niebazodanowa reprezentacja drona do komunikacji z aplikacją DronVision (aby ułatwić parse'owanie po tamtej stronie)
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class NDBDrone {
 	private Long droneId;
 	private String droneName;

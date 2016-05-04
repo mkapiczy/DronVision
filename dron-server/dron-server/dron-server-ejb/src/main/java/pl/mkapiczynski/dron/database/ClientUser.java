@@ -14,6 +14,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * Użytkownik aplikacji DronVision
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table(name = "ClientUser")
 public class ClientUser {

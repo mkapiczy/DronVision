@@ -2,6 +2,13 @@ package pl.mkapiczynski.dron.domain;
 
 import pl.mkapiczynski.dron.database.Location;
 
+/**
+ * Klasa do obliczeń związanych z obszarem przeszukanym.
+ * Lokalizacja wraz z przypisaną współrzędną biegunową.
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class DegreeLocation {
 	private Location location;
 	private int degree;

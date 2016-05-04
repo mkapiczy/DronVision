@@ -9,6 +9,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * Sesja symulacyjna
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table(name = "SimulationSession")
 public class SimulationSession {

@@ -16,6 +16,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * Bezzałogowy statek latający - dron - w rzeczywistości instancja aplikacji DronTracker
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 @Table
 public class Drone {

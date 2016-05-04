@@ -1,7 +1,12 @@
 package pl.mkapiczynski.dron.domain;
 
 import java.util.List;
-
+/**
+  * Niebazodanowa reprezentacja użytkownika aplikacji DronVision do komunikacji z aplikacją DronVision 
+  * (aby ułatwić parse'owanie po tamtej stronie)
+ * @author Michal Kapiczynski
+ *
+ */
 public class NDBUser {
 	private String login;
 	private List<NDBDrone> assignedDrones;

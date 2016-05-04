@@ -13,6 +13,12 @@ import pl.mkapiczynski.dron.domain.Constants;
 import pl.mkapiczynski.dron.domain.DegreeHole;
 import pl.mkapiczynski.dron.domain.DegreeLocation;
 
+/**
+ * Helper wspomagający operacje wyznaczania obszaru przeszukanego
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class SearchedAreaHelper {
 
 	private static final Logger log = Logger.getLogger(SearchedAreaHelper.class);

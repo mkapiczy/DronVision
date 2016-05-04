@@ -1,6 +1,7 @@
 package pl.mkapiczynski.dron.business;
 
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,14 @@ import pl.mkapiczynski.dron.domain.NDBUser;
 import pl.mkapiczynski.dron.helpers.NDBHelper;
 import pl.mkapiczynski.dron.message.SetPreferencesMessage;
 
+/**
+ * 
+ * @author Michal Kapiczynski
+ * 
+ * Klasa biznesowa do pobierania z bazy danych wartości administracyjnych, związanych z użytkownikiem
+ * takich jak login, preferencje, czy ustawienia konta
+ *
+ */
 @Local
 @Stateless(name = "AdministrationService")
 public class AdministrationServiceBean implements AdministrationService {
@@ -63,7 +72,9 @@ public class AdministrationServiceBean implements AdministrationService {
 	}
 
 
-
+	/**
+	 * Metoda do wyciągania użytkownika poprzez login wraz z jego preferencjami wizualizacji
+	 */
 	@Override
 	public NDBUser getNDBUserForLogin(String login) {
 		String queryStr = "SELECT u FROM ClientUser u WHERE u.userAccount.login = :login";
@@ -85,6 +96,9 @@ public class AdministrationServiceBean implements AdministrationService {
 		return null;
 	}
 	
+	/**
+	 * Metoda do pobierania 10 najbardziej katualnych sesji dla drona po id
+	 */
 	@Override
 	public List<NDBDroneSession> getNDBDroneSessionsForDroneId(Long droneId){
 		List<DroneSession> droneSessions = new ArrayList<>();
@@ -96,7 +110,10 @@ public class AdministrationServiceBean implements AdministrationService {
 		List<NDBDroneSession> ndbDroneSessions = NDBHelper.convertDroneSessionsToNDBDroneSessions(droneSessions);	
 		return ndbDroneSessions;
 	}
-
+	
+	/**
+	 * Metoda do uaktualniania preferencji wizualizacji użytkownika
+	 */
 	@Override
 	public boolean updateUserDronesPreferences(SetPreferencesMessage setPreferencesMessage) {
 		String login = setPreferencesMessage.getLogin();
@@ -142,9 +159,6 @@ public class AdministrationServiceBean implements AdministrationService {
 		}
 		return false;
 	}
-
-	
-
 
 	private ClientUser getUserForLogin(String login) {
 		ClientUser foundUser = null;

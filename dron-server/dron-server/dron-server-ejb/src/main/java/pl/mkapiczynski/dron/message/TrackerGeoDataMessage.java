@@ -4,6 +4,12 @@ import java.util.Date;
 
 import pl.mkapiczynski.dron.domain.GeoPoint;
 
+/**
+ * Wiadomośc geolokalizacyjna (odbierana od aplikacji DronTracker)
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class TrackerGeoDataMessage implements Message {
 	private String messageType;
 	private Long deviceId;

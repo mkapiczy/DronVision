@@ -7,6 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+/**
+ * Konto użytkownika aplikacji DronVision
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 public class UserAccount {
 	@Id

@@ -25,6 +25,13 @@ import pl.mkapiczynski.dron.message.ClientGeoDataMessage;
 import pl.mkapiczynski.dron.message.ClientLoginMessage;
 import pl.mkapiczynski.dron.message.Message;
 
+/**
+ * 
+ * @author Michal Kapiczynski
+ * 
+ * Klasa biznesowa do obsługi urządzeń klienckich - instancji aplikacji DronVision
+ *
+ */
 @Local
 @Stateless(name = "ClientDeviceService")
 public class ClientDeviceServiceBean implements ClientDeviceService {
@@ -40,6 +47,9 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 	@Inject
 	private SimulationSessionService simulationSessionService;
 
+	/**
+	 * Metoda odpowiedzialna za logowanie urządzenia klienckiego w systemi
+	 */
 	@Override
 	public void handleClientLoginMessage(Message incomingMessage, Session newsSession, Set<Session> clientSessions) {
 		ClientLoginMessage clientLoginMessage = (ClientLoginMessage) incomingMessage;
@@ -50,7 +60,11 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 		registerNewClientSession(clientId, newsSession, clientSessions);
 	}
-
+	
+	/**
+	 * Metoda wysyłająca wiadomość z nowym obszarem przeszukanym drona do wszystkich użytkowników zalogowanych 
+	 * i przypisanych do tego drona
+	 */
 	@Override
 	public void sendGeoDataToAllSessionRegisteredClients(Drone drone, Set<Session> clientSessions) {
 		log.debug("Method sendGeoDataToAllSessionRegisteredClients started: " + new Date());
@@ -71,7 +85,12 @@ public class ClientDeviceServiceBean implements ClientDeviceService {
 		}
 		log.debug("Method sendGeoDataToAllSessionRegisteredClients ended: " + new Date());
 	}
-
+	
+	/**
+	 * Metoda generująca wiadomość do wysłania do urządzenia klienckiego DronVision
+	 * @param drone
+	 * @return
+	 */
 	private ClientGeoDataMessage generateClientGeoDataMessage(Drone drone) {
 		log.debug("Method generateClientGeoDataMessage started: " + new Date());
 		ClientGeoDataMessage clientGeoDataMessage = new ClientGeoDataMessage();

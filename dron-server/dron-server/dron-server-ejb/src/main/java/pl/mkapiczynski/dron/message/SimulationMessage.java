@@ -1,5 +1,11 @@
 package pl.mkapiczynski.dron.message;
 
+/**
+ * Wiadomośc zmieniająca stan symulacji (odbierana od aplikacji DronVision)
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class SimulationMessage implements Message {
 	private String messageType;
 	private Long deviceId;

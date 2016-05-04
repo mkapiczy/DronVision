@@ -1,7 +1,11 @@
 package pl.mkapiczynski.dron.domain;
 
 import java.util.Date;
-
+/**
+  * Niebazodanowa reprezentacja sesji drona do komunikacji z aplikacją DronVision (aby ułatwić parse'owanie po tamtej stronie)
+ * @author Michal Kapiczynski
+ *
+ */
 public class NDBDroneSession {
 	private Long sessionId;
 	private Long droneId;

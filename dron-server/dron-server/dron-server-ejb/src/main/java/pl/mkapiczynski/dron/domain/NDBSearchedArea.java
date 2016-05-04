@@ -1,7 +1,11 @@
 package pl.mkapiczynski.dron.domain;
 
 import java.util.List;
-
+/**
+ * Niebazodanowa reprezentacja obszaru przeszukanego do komunikacji z aplikacją DronVision (aby ułatwić parse'owanie po tamtej stronie)
+ * @author Michal Kapiczynski
+ *
+ */
 public class NDBSearchedArea {
 	List<GeoPoint> searchedAreaLocations;
 	List<NDBHoleInSearchedArea> holesInSearchedArea;

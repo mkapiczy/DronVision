@@ -1,5 +1,8 @@
 package pl.mkapiczynski.dron.domain;
 
+/**
+ * Klasa reprezentująca pojedyńczą zmienną geolokalizacyjną do wysłania do aplikacji DronVision
+ */
 import java.util.ArrayList;
 
 import pl.mkapiczynski.dron.database.Location;

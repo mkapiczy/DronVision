@@ -24,6 +24,12 @@ import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBHoleInSearchedArea;
 import pl.mkapiczynski.dron.domain.NDBSearchedArea;
 
+/**
+ * Klasa biznesowa do obsługi operacji bazodanowych związanych z dronami
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Local
 @Stateless(name = "DroneService")
 public class DroneServiceBean implements DroneService {

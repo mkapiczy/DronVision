@@ -19,6 +19,12 @@ import pl.mkapiczynski.dron.domain.DegreeLocation;
 import pl.mkapiczynski.dron.helpers.HgtReader;
 import pl.mkapiczynski.dron.helpers.SearchedAreaHelper;
 
+/**
+ * Klasa biznesowa odpowiedzialna za operacje związane z obliczaniem i uaktualnianiem obszaru przeszukanego
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Local
 @Stateless(name = "SearchedAreaService")
 public class SearchedAreaServiceBean implements SearchedAreaService {
@@ -26,6 +32,9 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 	private static final Logger log = Logger.getLogger(SearchedAreaServiceBean.class);
 	private static HgtReader reader = new HgtReader();
 
+	/**
+	 * Główna metoda wyliczająca nowy obszar przeszukany
+	 */
 	@Override
 	public SearchedArea calculateSearchedArea(Location droneLocation, Integer maxCameraAngle) {
 		log.debug("Method calculateSearchedArea started: " + new Date());
@@ -124,7 +133,10 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		log.debug("Method calculateSearchedArea ended: " + new Date());
 		return newSearchedArea;
 	}
-
+	
+	/**
+	 * Główna metoda aktualizująca obszary przeszukany
+	 */
 	@Override
 	public void updateSearchedArea(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea) {
 		log.debug("Method updateSearchedArea started: " + new Date());
@@ -137,7 +149,14 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		}
 		log.debug("Method updateSearchedArea ended: " + new Date());
 	}
-
+	
+	/**
+	 * Metoda uaktualniająca obszar dotychczas przeszukany o obszar ostatnio przeszukany
+	 * 
+	 * @param currentSearchedAreaLocations
+	 * @param lastSearchedAreaLocations
+	 * @return
+	 */
 	private List<Location> updateSearchedAreaLocationWithLastSearchedAreaLocation(
 			List<Location> currentSearchedAreaLocations, List<Location> lastSearchedAreaLocations) {
 		log.debug("Method updateSearchedAreaLocationWithLastSearchedAreaLocation started: " + new Date());
@@ -158,7 +177,11 @@ public class SearchedAreaServiceBean implements SearchedAreaService {
 		log.debug("Method updateSearchedAreaLocationWithLastSearchedAreaLocation ended: " + new Date());
 		return currentSearchedAreaLocations;
 	}
-
+	
+	/**
+	 * Metoda uaktualniająca dziury w obszarze przeszukanym
+	 * Obszary wewnątrz otoczki obszaru niezarejestrowane przez kamerę
+	 */
 	@Override
 	public void updateSearchedAreaHoles(SearchedArea currentSearchedArea, SearchedArea lastSearchedArea,
 			SearchedArea recentSearchedArea) {

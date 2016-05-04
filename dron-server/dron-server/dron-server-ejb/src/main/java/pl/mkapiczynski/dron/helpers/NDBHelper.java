@@ -10,6 +10,12 @@ import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBDrone;
 import pl.mkapiczynski.dron.domain.NDBDroneSession;
 
+/**
+ * Helper do operacji wspomagających komuikację z aplikacjami klienckimi np. do konwersji obiektów
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class NDBHelper {
 	
 	public static List<NDBDrone> convertDronesToNDBDrones(List<Drone> drones) {

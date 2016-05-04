@@ -24,6 +24,11 @@ import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.TrackerGeoDataMessage;
 import pl.mkapiczynski.dron.message.TrackerLoginMessage;
 
+/**
+ * Klasa biznesowa do obsługi kontaktu z instancjami aplikacji DronTracker
+ * @author Michal Kapiczynski
+ *
+ */
 @Local
 @Stateless(name = "GPSTrackerDeviceService")
 public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
@@ -41,6 +46,9 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 	@Inject
 	private SimulationSessionService simulationSessionService;
 
+	/**
+	 * Metoda do obsługi wiadomości logującej od DronTrackera
+	 */
 	@Override
 	public void handleTrackerLoginMessage(Message incomingMessage, Session session,
 			Set<Session> gpsTrackerDeviceSessions) {
@@ -57,7 +65,9 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		}
 
 	}
-
+	/**
+	 * Metoda do obsługi wiadomości o zmianie położenia od aplikacji DronTracker
+	 */
 	@Override
 	public void handleTrackerGeoDataMessage(Message incomingMessage, Session session,
 			Set<Session> gpsTrackerDeviceSessions, Set<Session> clientSessions) {
@@ -70,7 +80,9 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 			log.info("Message from unregistered session tracker device");
 		}
 	}
-
+	/**
+	 * Metoda pomocnicza dla symulacji
+	 */
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void simulate(GeoPoint locationToSimulate, final Set<Session> clientSessions) {
@@ -78,7 +90,7 @@ public class GPSTrackerDeviceServiceBean implements GPSTrackerDeviceService {
 		calculateSearchedAreaAndSendMessageToClients(droneId, locationToSimulate, clientSessions);
 
 	}
-
+	
 	private void calculateSearchedAreaAndSendMessageToClients(Long droneId, GeoPoint lastPosition,
 			Set<Session> clientSessions) {
 		log.info("Method calculateSearchedAreaAndSendMessageToClients started: " + new Date());

@@ -16,6 +16,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 import pl.mkapiczynski.dron.database.Location;
 
+/**
+ * Helper do wyznaczania otoczki wklęsłej
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class ConcaveHullHelper {
 	
 	private static final Logger log = Logger.getLogger(ConcaveHullHelper.class);

@@ -7,6 +7,11 @@ import pl.mkapiczynski.dron.database.DroneSession;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBSearchedArea;
 
+/**
+ * Interfejs do obsługi operacji bazodanowych związanych z dronami
+ * @author Michal Kapiczynski
+ *
+ */
 public interface DroneService {
 	public Drone getDroneById(Long droneId);
 	public boolean droneHasActiveSession(Long droneId);

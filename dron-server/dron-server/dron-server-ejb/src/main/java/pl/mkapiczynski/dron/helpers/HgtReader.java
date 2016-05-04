@@ -14,10 +14,10 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.tools.CheckParameterUtil;
 
 /**
- *  Class HgtReader reads data from SRTM HGT files. Currently this class is restricted to a resolution of 3 arc seconds.
+ * Klasa do czytania danych SRTM
+ * 
+ * @author Michal Kapiczynski
  *
- *  SRTM data files are available at the <a href="http://dds.cr.usgs.gov/srtm/version2_1/SRTM3">NASA SRTM site</a>
- *  @author Oliver Wieland <oliver.wieland@online.de>
  */
 public class HgtReader {
 	private static final int SECONDS_PER_MINUTE = 60;

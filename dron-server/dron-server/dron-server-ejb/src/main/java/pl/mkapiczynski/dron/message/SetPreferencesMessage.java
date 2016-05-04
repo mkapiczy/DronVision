@@ -4,6 +4,11 @@ import java.util.List;
 
 import pl.mkapiczynski.dron.domain.NDBDrone;
 
+/**
+ * Wiadomośc do zmiany prefernecji wizualizacji (odbierana od apliakcjio DronVision)
+ * @author Michal Kapiczynski
+ *
+ */
 public class SetPreferencesMessage {
 	private String login;
 	private List<NDBDrone> assignedDrones;

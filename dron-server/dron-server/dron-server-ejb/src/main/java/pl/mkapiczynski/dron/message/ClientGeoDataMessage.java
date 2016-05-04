@@ -6,6 +6,11 @@ import java.util.List;
 import pl.mkapiczynski.dron.domain.GeoPoint;
 import pl.mkapiczynski.dron.domain.NDBHoleInSearchedArea;
 
+/**
+ * Wiadomość wysyłana do aplikacji DronVision informująca o zmianie położenia i nowym obszarze przeszukanym
+ * @author Michal Kapiczynski
+ *
+ */
 public class ClientGeoDataMessage implements Message {
 	private final String messageType = "ClientGeoDataMessage";
 	private Long deviceId;

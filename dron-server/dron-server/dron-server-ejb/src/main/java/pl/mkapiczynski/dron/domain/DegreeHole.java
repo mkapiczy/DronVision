@@ -4,6 +4,14 @@ import java.util.List;
 
 import pl.mkapiczynski.dron.database.Location;
 
+/**
+ * Klasa do obliczeń związanych z wyznaczaniem obszaru przeszukanego
+ * 
+ * Pojedyńcza linia rfeprezentująca dziurę w obszarze przeszukanym wraz z przypisaną wspólrzędną biegunową
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 public class DegreeHole {
 	private int degree;
 	private List<Location> locaions;

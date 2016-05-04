@@ -28,6 +28,12 @@ import pl.mkapiczynski.dron.message.Message;
 import pl.mkapiczynski.dron.message.SimulationEndedMessage;
 import pl.mkapiczynski.dron.message.SimulationMessage;
 
+/**
+ * Klasa biznesowa do obsługi symulacji
+ * 
+ * @author Michal Kapiczynski
+ *
+ */
 @Local
 @Stateless(name = "SimulationService")
 public class SimulationServiceBean implements SimulationService {
@@ -52,7 +58,10 @@ public class SimulationServiceBean implements SimulationService {
 	private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
 	private static Set<Long> clientsToSimulate = new HashSet<>();
-
+	
+	/**
+	 * Metoda obsługująca wiadomości symulacyjne od instancji aplikacji DronVision
+	 */
 	@Override
 	public void handleSimulationMessage(Message incomingMessage, Session session, Set<Session> clientSessions) {
 		SimulationMessage simulationMessage = (SimulationMessage) incomingMessage;
@@ -84,6 +93,13 @@ public class SimulationServiceBean implements SimulationService {
 
 	}
 
+	/**
+	 * Metoda obsługująca wiadomośc startową od aplikacji DronVision
+	 * 
+	 * @param startSimulationMessage
+	 * @param session
+	 * @param clientSessions
+	 */
 	private void handleStartSimulationMessage(SimulationMessage startSimulationMessage, final Session session,
 			final Set<Session> clientSessions) {
 		log.info("Start Simulation message came");
@@ -97,7 +113,14 @@ public class SimulationServiceBean implements SimulationService {
 			runSimulation(clientId, lastSimulationId, session);
 		}
 	}
-
+	
+	/**
+	 * Metoda uruchamiająca symulację
+	 * 
+	 * @param clientId
+	 * @param lastSimulationId
+	 * @param session
+	 */
 	private void runSimulation(final Long clientId, final Long lastSimulationId, final Session session) {
 		final List<GeoPoint> locationsToSimulate = getLocationsToSimulate(lastSimulationId);
 		final int numberOfLocationsToSimulate = locationsToSimulate.size();
@@ -143,7 +166,11 @@ public class SimulationServiceBean implements SimulationService {
 		}
 	}
 	
-
+	/**
+	 * Metoda obsługująca wiadomośc kończącą symulację od aplikacji DronVision
+	 * @param endSimulationMessage
+	 * @param session
+	 */
 	private void handleEndSimulationMessage(SimulationMessage endSimulationMessage, Session session) {
 		Long clientId = endSimulationMessage.getDeviceId();
 		clientsToSimulate.remove(clientId);
@@ -152,11 +179,22 @@ public class SimulationServiceBean implements SimulationService {
 		sendSimulationEndedMessage(session);
 	}
 
+	/**
+	 * Metoda obsługująca wiadomośc zatrzymującą symulację od aplikacji DronVision
+	 * 
+	 * @param stopSimulationMessage
+	 * @param session
+	 */
 	private void handleStopSimulationMessage(SimulationMessage stopSimulationMessage, Session session) {
 		Long clientId = stopSimulationMessage.getDeviceId();
 		clientsToSimulate.remove(clientId);
 	}
-
+	
+	/**
+	 * Metoda obsługująca wiadomośc wznawiającą symulację od aplikacji DronVison
+	 * @param rerunSimulationMessage
+	 * @param session
+	 */
 	private void handleRerunSimulationMessage(SimulationMessage rerunSimulationMessage, Session session) {
 		Long clientId = rerunSimulationMessage.getDeviceId();
 		SimulationSession simulationSession = simulationSessionService.getSimulationSessionForClient(clientId);
@@ -167,7 +205,7 @@ public class SimulationServiceBean implements SimulationService {
 			}
 		}
 	}
-
+	
 	private Boolean clientIsToBeSimulated(Set<Long> clientsToSimulate, Long client) {
 		Iterator<Long> iterator = clientsToSimulate.iterator();
 		while (iterator.hasNext()) {
@@ -178,7 +216,6 @@ public class SimulationServiceBean implements SimulationService {
 		return false;
 
 	}
-	
 
 	private List<GeoPoint> getLocationsToSimulate(Long lastSimulatedLocation) {
 		List<GeoPoint> list = new ArrayList<>();

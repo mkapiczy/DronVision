@@ -9,6 +9,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+/**
+ * Dziura w obszarze przeszukanym - obszar wewnątrz otoczki niezarejestowany przez kamerę
+ * @author Michal Kapiczynski
+ *
+ */
 @Entity
 public class HoleInSearchedArea {
 	@Id
