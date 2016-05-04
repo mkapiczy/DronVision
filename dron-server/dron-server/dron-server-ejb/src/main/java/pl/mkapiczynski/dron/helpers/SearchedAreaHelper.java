@@ -52,6 +52,21 @@ public class SearchedAreaHelper {
 		return result;
 	}
 
+	private static List<Location> addOuterPoints(List<Location> currentSearchedArea, List<Location> lastSearchedArea) {
+		List<Location> newSearchedArea = new ArrayList<>();
+		for (int i = 0; i < currentSearchedArea.size(); i++) {
+			if (!pointInPolygon(currentSearchedArea.get(i), lastSearchedArea)) {
+				newSearchedArea.add(currentSearchedArea.get(i));
+			}
+		}
+		for (int i = 0; i < lastSearchedArea.size(); i++) {
+			if (!pointInPolygon(lastSearchedArea.get(i), currentSearchedArea)) {
+				newSearchedArea.add(lastSearchedArea.get(i));
+			}
+		}
+		return newSearchedArea;
+	}
+	
 	public static List<Location> getModelData(List<DegreeLocation> realData) {
 		HgtReader reader = new HgtReader();
 		List<Location> result = new ArrayList<>();
@@ -78,6 +93,7 @@ public class SearchedAreaHelper {
 		log.debug("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea started: " + new Date());
 		List<Location> newSearchedArea = new ArrayList<>();
 		List<Location> mergedLocations = mergeToLocationsLists(currentSearchedArea, lastSearchedArea);
+		//List<Location> mergedLocations = addOuterPoints(currentSearchedArea, lastSearchedArea);
 		newSearchedArea = ConcaveHullHelper.getConcaveHull(mergedLocations);
 		log.debug("Method addLastSearchedAreaPointsWhichAreOutOfCurrentSearchedArea ended: " + new Date());
 		return newSearchedArea;

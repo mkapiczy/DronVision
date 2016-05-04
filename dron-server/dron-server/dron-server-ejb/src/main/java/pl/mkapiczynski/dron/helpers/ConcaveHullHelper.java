@@ -32,7 +32,7 @@ public class ConcaveHullHelper {
 			GeometryFactory gf = new GeometryFactory();
 
 			densifyPoints(locations, 0.0001);
-			densifyPoints(locations, 0.0001);
+			//densifyPoints(locations, 0.0001);
 
 			List<Geometry> list = new ArrayList<>();
 
@@ -61,6 +61,8 @@ public class ConcaveHullHelper {
 		}
 
 	}
+	
+	
 
 	/**
 	 * Metoda iteruje po liście punktów, i jeśli jakieś dwa punkty są od siebie oddalone o wiekszą odległośc niż
@@ -88,6 +90,8 @@ public class ConcaveHullHelper {
 		list.clear();
 		list.addAll(threadSafeLocations);
 	}
+	
+	
 
 	private static Location getMidpoint(Location loc1, Location loc2) {
 		Double latitude = (loc1.getLatitude() + loc2.getLatitude()) / 2;
