@@ -10,6 +10,11 @@ import java.io.IOException;
 /**
  * Created by Miix on 2016-03-25.
  */
+
+/**
+ * Klasa pomocnicza do wczytywania portu ngrok przy starcie aplikacji
+ * ngrok tuneluje port 8080 przez co nie trzeba się bawić z firewallem
+ */
 public class InitializationUtils {
     public static String getInitializationNgrokPort(){
         //File sdcard = Environment.getDataDirectory();

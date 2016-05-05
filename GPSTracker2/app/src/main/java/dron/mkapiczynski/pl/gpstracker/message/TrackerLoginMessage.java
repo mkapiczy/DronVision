@@ -3,6 +3,10 @@ package dron.mkapiczynski.pl.gpstracker.message;
 /**
  * Created by Miix on 2016-01-08.
  */
+
+/**
+ * Wiadomość logująca urządzenie DronTracker wysyłana do serwera
+ */
 public class TrackerLoginMessage {
     private static final String MESSAGE_TYPE = "TrackerLoginMessage";
 

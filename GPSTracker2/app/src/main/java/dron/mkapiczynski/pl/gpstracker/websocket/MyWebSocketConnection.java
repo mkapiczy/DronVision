@@ -23,6 +23,10 @@ import dron.mkapiczynski.pl.gpstracker.message.TrackerSimulationMessage;
 /**
  * Created by Miix on 2016-01-08.
  */
+
+/**
+ * Moja implementacja klasy odpowiedzialnej za łącznośc z serwerem poprzez protokół Websocket
+ */
 public class MyWebSocketConnection extends WebSocketConnection {
     private static final String TAG = MyWebSocketConnection.class.getSimpleName();
     private final Long DRONE_ID = 2l;

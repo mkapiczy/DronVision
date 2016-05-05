@@ -33,7 +33,6 @@ public class GPSActivity extends Activity implements LocationListener {
     private Location mLastLocation;
 
     // Flags
-
     private boolean requestLocationUpdatesFlag = false;
 
     // Gps parameters
@@ -158,11 +157,7 @@ public class GPSActivity extends Activity implements LocationListener {
         } else{
             client.sendGeoDataMessageToServer(mLastLocation);
         }
-
-
     }
-
-
 
     private void storeDataToSendWhenConnectionReestablished(Location locationToStore){
         storedLocations.add(locationToStore);

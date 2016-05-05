@@ -8,6 +8,10 @@ import dron.mkapiczynski.pl.gpstracker.domain.GeoPoint;
 /**
  * Created by Miix on 2015-12-14.
  */
+
+/**
+ * Wiadomość geolokalizacyjna wysyłana do serwera
+ */
 public class GeoDataMessage {
     private static final String MESSAGE_TYPE = "GeoDataMessage";
     private static final String DEVICE_TYPE = "GPSTracker";

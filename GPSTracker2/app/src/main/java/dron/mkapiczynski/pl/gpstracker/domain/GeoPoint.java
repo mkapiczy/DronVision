@@ -3,6 +3,10 @@ package dron.mkapiczynski.pl.gpstracker.domain;
 /**
  * Created by Miix on 2016-01-08.
  */
+
+/**
+ * Klasa reprezentująca pojedyńczą geolokalizację wykorzystywana do komunikacji z serwerem
+ */
 public class GeoPoint {
     private double latitude;
     private double longitude;
