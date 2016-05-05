@@ -6,6 +6,9 @@ import dron.mkapiczynski.pl.dronvision.domain.MyGeoPoint;
 /**
  * Created by Miix on 2016-01-13.
  */
+/**
+ * Klasa reprezentująca drona wykorzystywana do komunikacji z serwerem
+ */
 public class DBDrone {
     private Long droneId;
     private String droneName;

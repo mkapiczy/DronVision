@@ -7,6 +7,10 @@ import java.util.List;
 /**
  * Created by Miix on 2016-04-07.
  */
+
+/**
+ * Klasa reprezentująca dziury w obszarze przeszukanym wykorzystywana przy wizualizacji
+ */
 public class MapHoleInSearchedArea {
     List<GeoPoint> holeLocations;
 

@@ -43,17 +43,19 @@ import dron.mkapiczynski.pl.dronvision.utils.MessageDecoder;
 import dron.mkapiczynski.pl.dronvision.utils.InitializationUtils;
 
 /**
- * A login screen that offers login via login/password.
+ * Widok logowania
  */
 public class LoginActivity extends AppCompatActivity {
 
 
     /**
-     * Keep track of the login task to ensure we can cancel it if requested.
+     * Asynchroniczne zadanie wysyłające request logowania do serwera
      */
     private UserLoginTask mAuthTask = null;
 
-    // UI references.
+    /**
+     * Elementy UI
+     */
     private AutoCompleteTextView mloginTextView;
     private EditText mPasswordTextView;
     private View mProgressView;
@@ -109,8 +111,9 @@ public class LoginActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        String ngrokPort = InitializationUtils.getInitializationNgrokPort();
-        sessionManager.setServerHost(ngrokPort);
+        //String ngrokPort = InitializationUtils.getInitializationNgrokPort();
+       // sessionManager.setServerHost(ngrokPort);
+        sessionManager.setServerHost("11728");
     }
 
     private void attemptLogin() {
@@ -162,7 +165,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Pokazuje widok progressu i ukrywa widok logowania
+     * @param show
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -194,6 +198,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sprawdza, czy aplikacja ma połączenie z internetem
+     * @return
+     */
     private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -202,8 +210,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Asynchroniczny task do logowania użytkownika
      */
     private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 

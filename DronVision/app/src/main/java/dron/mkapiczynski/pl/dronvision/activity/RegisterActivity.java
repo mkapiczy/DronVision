@@ -12,6 +12,9 @@ import org.w3c.dom.Text;
 
 import dron.mkapiczynski.pl.dronvision.R;
 
+/**
+ * Widok rejestracji
+ */
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText emailText, nameText, surnameText, loginText, passwordText;

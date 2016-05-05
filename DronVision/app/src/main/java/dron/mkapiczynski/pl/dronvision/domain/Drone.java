@@ -8,6 +8,9 @@ import java.util.List;
 /**
  * Created by Miix on 2016-01-05.
  */
+/**
+ * Klasa reprezentująca drona wykorzystywana do wizualizacji
+ */
 public class Drone {
     private Long droneId;
     private String droneName;

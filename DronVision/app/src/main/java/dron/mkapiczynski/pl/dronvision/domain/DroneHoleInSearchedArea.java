@@ -7,6 +7,10 @@ import java.util.List;
 /**
  * Created by Miix on 2016-04-07.
  */
+
+/**
+ * Klasa reprezentująca dziury w obszarze przeszukanym wykorzystywana przy komunikacji z serwerem
+ */
 public class DroneHoleInSearchedArea {
     List<MyGeoPoint> holeLocations;
 

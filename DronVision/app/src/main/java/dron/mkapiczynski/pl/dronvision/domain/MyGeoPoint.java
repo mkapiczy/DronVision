@@ -5,6 +5,10 @@ import java.util.Comparator;
 /**
  * Created by Miix on 2016-01-08.
  */
+
+/**
+ * Klasa reprezentująca położenie geograficzne drona wykorzystywana do komunikacji z serwerem
+ */
 public class MyGeoPoint {
     private double latitude;
     private double longitude;

@@ -33,6 +33,9 @@ import dron.mkapiczynski.pl.dronvision.fragment.SimulationFragment;
 import dron.mkapiczynski.pl.dronvision.fragment.VisionFragment;
 import dron.mkapiczynski.pl.dronvision.websocket.MyWebSocketConnection;
 
+/**
+ * Główna aktywność zarządzająca fragmentami wszystkich widoków dostępnych dla użytkownika po zalogowaniu
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener, SimulationFragment.SimulationFragmentActivityListener {
 
@@ -153,6 +156,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Funkcja zmienia stan checkboxów w navigationDrawerze
+     * @param item
+     */
     private void handleAditionalMenuItemsChecks(MenuItem item) {
         if (currentMenuItem.getItemId() == R.id.nav_about_author || currentMenuItem.getItemId() == R.id.nav_about_app || item.getItemId() == R.id.nav_about_app || item.getItemId() == R.id.nav_about_author) {
             visionMenuItem.setChecked(false);
@@ -200,11 +207,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Przy naciśnięciu przycisku wstecz
+     */
     private void uncheckCurrentMenuItemAndCheckVisionMenuItem() {
         currentMenuItem.setChecked(false);
         visionMenuItem.setChecked(true);
     }
 
+    /**
+     * Wywoływane z MyWebSocketConnection przy nowej wiadomości wizualizującej ze strony serwera
+     * @param drone
+     */
     public void updateDronesOnMap(Drone drone) {
         if (!visionFragment.isHistoryMode()) {
             visionFragment.updateMapView(drone);

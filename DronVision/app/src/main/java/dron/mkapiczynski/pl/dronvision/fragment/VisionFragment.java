@@ -29,7 +29,7 @@ import dron.mkapiczynski.pl.dronvision.map.MapAsyncTask;
 import dron.mkapiczynski.pl.dronvision.utils.MapUtils;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment dla widoku wizualizacji
  */
 public class VisionFragment extends Fragment {
     private static final String TAG = VisionFragment.class.getSimpleName();

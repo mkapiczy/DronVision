@@ -7,6 +7,10 @@ import dron.mkapiczynski.pl.dronvision.utils.SessionManager;
 /**
  * Created by Miix on 2016-02-14.
  */
+
+/**
+ * Klasa przechowująca stałe i parametry
+ */
 public class Parameters {
 
     public static final String CLIENT_LOGIN_MESSAGE_TYPE = "ClientLoginMessage";
