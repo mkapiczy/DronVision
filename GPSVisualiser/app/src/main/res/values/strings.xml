@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">DronVision</string>
-    <string name="username_text">Nazwa użytkownika</string>
-    <string name="password_text">Hasło</string>
-    <string name="login_button_text">Zaloguj</string>
-    <string name="title_activity_visualize">VisualizeActivity</string>
-</resources>
