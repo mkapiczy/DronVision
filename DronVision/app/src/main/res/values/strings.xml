@@ -32,5 +32,17 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="about_app_text"> " "Aplikacja DronVision jest aplikacją służącą do wizualizacji obszaru przeszukanego przez drony."\n"
+        Poprzez obszar przeszukany rozumie się reprezentację terenu zarejestrowane poprzez kamerę zamontowaną na dronie."\n"
+        Algorytm jako dane modelujące powierzchnię ziemską wykorzystuje numeryczny model terenu (NMT) opracowany na podstawie danych zebranych w ramach misji SRTM (Shuttle Radar Topography Mission)."\n"
+        Aplikacja umożliwia wizualizację obszaru dla kilku dronów jednocześnie z jednoczesną możliwością dostosowania preferencji wizualizacji.
+        </string>
+
+    <string name="about_author_text"> " "Nazywam się Michał Kapiczyński. Mam 23 lata i jestem studentem Automatyki i Robotyki, na specjalności Informatyka Przemysłowa na wydziale Mechatroniki Politechniki Warszawsekiej."\n"
+        Programowaniem zajmuję się nie tylko edukacyjnie, ale również zawodowo. Pracuję na stanowisku młodszego programisty w firmie Atos Polska, gdzie biorę udział w implementacji rozwiązań informatycznych z wykorzystaniem języka Java, Javascript, HTML oraz Groovy."\n"
+        Z kwestii mniej formalnych jestem gitarzystą, motocyklistą, trochę żegluję, surfuję, śpiewam, tańczę, staram się prowadzić ciekawe i aktywne życie :).
+
+        </string>
+
 
 </resources>

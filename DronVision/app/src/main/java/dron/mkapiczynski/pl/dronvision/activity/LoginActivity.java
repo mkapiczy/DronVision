@@ -111,9 +111,9 @@ public class LoginActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        //String ngrokPort = InitializationUtils.getInitializationNgrokPort();
-       // sessionManager.setServerHost(ngrokPort);
-        sessionManager.setServerHost("11728");
+        String ngrokPort = InitializationUtils.getInitializationNgrokPort();
+        sessionManager.setServerHost(ngrokPort);
+        //sessionManager.setServerHost("11728");
     }
 
     private void attemptLogin() {

@@ -8,8 +8,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
         android:text="O aplikacji"
         android:id="@+id/textView"
+        android:layout_gravity="center_horizontal|top" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:padding="15dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/about_app_text"
+        android:id="@+id/aboutAppText"
         android:layout_gravity="center" />
 
 </FrameLayout>

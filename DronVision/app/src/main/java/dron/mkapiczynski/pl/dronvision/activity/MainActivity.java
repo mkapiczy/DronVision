@@ -37,7 +37,7 @@ import dron.mkapiczynski.pl.dronvision.websocket.MyWebSocketConnection;
  * Główna aktywność zarządzająca fragmentami wszystkich widoków dostępnych dla użytkownika po zalogowaniu
  */
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener, SimulationFragment.SimulationFragmentActivityListener {
+        implements NavigationView.OnNavigationItemSelectedListener, VisionFragment.VisionFragmentActivityListener, SimulationFragment.SimulationFragmentActivityListener, SettingsFragment.SettingsFragmentActivityListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     // UI
@@ -357,5 +357,9 @@ public class MainActivity extends AppCompatActivity
 
         return logoutDialog;
     }
-
+    @Override
+    public void onSaveSettingButtonClicked(){
+        showFragmentAndHideTheOthers(visionFragment);
+        Toast.makeText(getApplicationContext(), "Ustawienia zmienione", Toast.LENGTH_SHORT).show();
+    }
 }
