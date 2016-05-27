@@ -71,7 +71,6 @@ public class GPSActivity extends Activity implements LocationListener {
 
         String ngrokPortFromFile = InitializationUtils.getInitializationNgrokPort();
         String serverAddress = "ws://0.tcp.ngrok.io:" + ngrokPortFromFile + "/dron-server-web/server";
-        Toast.makeText(getApplicationContext(), ngrokPortFromFile, Toast.LENGTH_LONG).show();
         togglePeriodicLocationUpdates();
         client = new MyWebSocketConnection(this, serverAddress);
         client.connectToWebSocketServer();
@@ -139,8 +138,8 @@ public class GPSActivity extends Activity implements LocationListener {
         // Assign the new location
         mLastLocation = location;
 
-        Toast.makeText(getApplicationContext(), "Location changed!",
-                Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "Location changed!",
+              //  Toast.LENGTH_SHORT).show();
 
         // Displaying the new location on UI
         displayLocationOnUI();

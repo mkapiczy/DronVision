@@ -40,10 +40,10 @@ public class MyWebSocketConnection extends WebSocketConnection {
         this.activity = activity;
         this.serverAddress = serverAddress;
     }
-
+    //"ws://0.tcp.ngrok.io:12133/dron-server-web/server"
     public boolean connectToWebSocketServer(){
         try {
-            connect("ws://0.tcp.ngrok.io:11551/dron-server-web/server", new WebSocketHandler() {
+            connect("ws://0.tcp.ngrok.io:19690/dron-server-web/server", new WebSocketHandler() {
                 @Override
                 public void onOpen() {
                     Log.d("WEBSOCKETS", "Connected to server");
